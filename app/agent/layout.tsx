@@ -1,0 +1,40 @@
+import AgentMain from "@/components/AgentMain";
+import AgentSidebar from "@/components/AgentSidebar";
+import Error from "@/components/Error";
+import { createClient } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
+
+export default async function AgentLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      throw error;
+    }
+    const { data: agentData, error: agentError } = await supabase
+      .from("agents")
+      .select("*")
+      .eq("user_id", data.user.id);
+
+    if (agentError) {
+      throw agentError;
+    }
+
+    return (
+      <div className="h-screen w-screen flex items-center gap-0 overflow-x-hidden">
+        {/* sidebar */}
+        <div className={cn("hidden lg:block")}>
+          <AgentSidebar agents={agentData} />
+        </div>
+        {/* main layout */}
+        <div className="flex-1 h-full overflow-hidden">{children}</div>
+      </div>
+    );
+  } catch (error) {
+    return <Error />;
+  }
+}
