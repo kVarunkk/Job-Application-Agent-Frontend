@@ -13,14 +13,14 @@ import AgentInformation from "./AgentInformation";
 import { createClient } from "@/lib/supabase/client";
 
 interface AgentSidebarProps {
-  agents?: Agent[];
+  screen: "lg" | "sm";
 }
 
-export default function AgentSidebar({ agents }: AgentSidebarProps) {
+export default function AgentSidebar({ screen }: AgentSidebarProps) {
   const [open, setOpen] = useState(true);
-  const [sidebarAgents, setSidebarAgents] = useState<Agent[]>(agents ?? []);
+  const [sidebarAgents, setSidebarAgents] = useState<Agent[]>([]);
   const pathname = usePathname();
-  const [loading, setLoading] = useState(agents ? false : true);
+  const [loading, setLoading] = useState(true);
 
   const fetchAgents = useCallback(async () => {
     try {
@@ -74,11 +74,11 @@ export default function AgentSidebar({ agents }: AgentSidebarProps) {
     <div
       className={cn(
         "flex h-screen flex-col gap-5 transition-all",
-        agents ? " border-r p-4" : "",
+        screen === "lg" ? " border-r p-4" : "",
         {
           "w-20": !open,
-          "w-64": open && agents,
-          "w-full": open && !agents,
+          "w-64": open && screen === "lg",
+          "w-full": open && !(screen === "lg"),
         }
       )}
     >
@@ -89,7 +89,7 @@ export default function AgentSidebar({ agents }: AgentSidebarProps) {
         )}
       >
         {open && <h2 className="text-lg font-semibold">Agents</h2>}
-        {agents && (
+        {screen === "lg" && (
           <Button
             className="text-muted-foreground"
             variant={"ghost"}

@@ -46,7 +46,7 @@ export default function AgentNavbar({ agent, user }: AgentNavbarProps) {
             <SheetHeader className="hidden">
               <SheetTitle></SheetTitle>
             </SheetHeader>
-            <AgentSidebar />
+            <AgentSidebar screen="sm" />
           </SheetContent>
         </Sheet>
         <h1 className="text-2xl font-bold">
