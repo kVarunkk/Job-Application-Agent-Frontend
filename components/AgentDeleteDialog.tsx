@@ -70,38 +70,19 @@ export default function AgentDeleteDialog({
   };
 
   return (
-    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-      <DialogTrigger asChild>
-        <button
-          onClick={(e) => e.stopPropagation()}
-          className="hover:text-primary text-muted-foreground group-hover:block hidden"
-        >
-          <Trash className="h-4 w-4 " />
-        </button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete Agent</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete this agent? This action cannot be
-            undone.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button
-            disabled={deleteLoading}
-            variant="destructive"
-            onClick={() => {
-              deleteAgent();
-            }}
-          >
-            {deleteLoading ? "Deleting..." : "Delete Agent"}
-          </Button>
-          <Button disabled={deleteLoading} asChild variant="outline">
-            <DialogClose disabled={deleteLoading}>Cancel</DialogClose>
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DialogFooter>
+      <Button
+        disabled={deleteLoading}
+        variant="destructive"
+        onClick={() => {
+          deleteAgent();
+        }}
+      >
+        {deleteLoading ? "Deleting..." : "Delete Agent"}
+      </Button>
+      <Button disabled={deleteLoading} asChild variant="outline">
+        <DialogClose disabled={deleteLoading}>Cancel</DialogClose>
+      </Button>
+    </DialogFooter>
   );
 }

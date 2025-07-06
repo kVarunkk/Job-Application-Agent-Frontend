@@ -20,6 +20,7 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import AgentSidebar from "./AgentSidebar";
+import CreateWorkflowDialog from "./CreateWorkflowDialog";
 
 interface AgentNavbarProps {
   agent?: Agent;
@@ -54,29 +55,32 @@ export default function AgentNavbar({ agent, user }: AgentNavbarProps) {
         </h1>
       </div>
 
-      {user && (
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Avatar className="bg-muted">
-              <AvatarImage src="/" />
-              <AvatarFallback className="text-primary uppercase">
-                {user.email?.slice(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
-            <DropdownMenuItem disabled>
-              <Settings />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer" onClick={logout}>
-              <LogOut />
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      <div className="flex items-center gap-2">
+        {user && <CreateWorkflowDialog />}
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Avatar className="bg-muted">
+                <AvatarImage src="/" />
+                <AvatarFallback className="text-primary uppercase">
+                  {user.email?.slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+              <DropdownMenuItem disabled>
+                <Settings />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={logout}>
+                <LogOut />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
     </div>
   );
 }

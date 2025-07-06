@@ -1,11 +1,18 @@
 "use client";
 
-import { ArrowRight, LogOut, Send, Settings } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUp,
+  LogOut,
+  Send,
+  Settings,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import AgentNavbar from "./AgentNavbar";
 import { createClient } from "@/lib/supabase/client";
 import CreateAgentDialog from "./CreateAgentDialog";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 import AgentMessage from "./AgentMessage";
@@ -42,12 +49,34 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
   const supabase = createClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const messagesRef = useRef<Message[]>(messages);
+  const [isOutOfView, setIsOutOfView] = useState(false);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesRef.current = messages;
   }, [messages]);
 
-  const submitUserInput = async (input: string) => {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsOutOfView(!entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+      }
+    );
+
+    const element = scrollRef.current;
+    if (element) observer.observe(element);
+
+    return () => {
+      if (element) observer.unobserve(element);
+    };
+  }, []);
+
+  const submitUserInput = useCallback(async (input: string) => {
     if (!input.trim()) return;
 
     const newMessage: Message = {
@@ -57,8 +86,6 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
       created_at: new Date().toISOString(),
     };
 
-    setMessages((prev) => [...prev, newMessage]);
-
     const agentMessage: Message = {
       id: uuidv4(),
       content: "",
@@ -66,7 +93,7 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
       created_at: new Date().toISOString(),
     };
 
-    setMessages((prev) => [...prev, agentMessage]);
+    setMessages((prev) => [...prev, newMessage, agentMessage]);
     setAgentMsgLoading(true);
     try {
       const res = await fetch(
@@ -117,10 +144,7 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
       const { data, error } = await supabase
         .from("agents")
         .update({
-          messages: messages.concat(newMessage, {
-            ...agentMessage,
-            content: finalText,
-          }),
+          messages: messagesRef.current,
         })
         .eq("id", agent?.id);
 
@@ -139,7 +163,7 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
     } finally {
       setAgentMsgLoading(false);
     }
-  };
+  }, []);
 
   return (
     <div className=" h-full w-full overflow-y-hidden relative">
@@ -198,15 +222,32 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
                   </div>
                 ) : (
                   <div key={message.id}>
-                    <AgentMessage content={message.content} />
+                    <AgentMessage
+                      content={message.content}
+                      isLast={index === messages.length - 1}
+                      submitUserInput={submitUserInput}
+                    />
                     {agentMsgLoading && messages.length - 1 === index && (
-                      <span className="ml-2 animate-pulse text-lg">...</span>
+                      <span className="ml-2 animate-pulse w-5">...</span>
                     )}
                   </div>
                 )
               )}
               <div ref={scrollRef} />
             </div>
+            {isOutOfView && (
+              <div className="absolute bottom-28 flex w-full justify-center">
+                <Button
+                  onClick={() => {
+                    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  variant={"outline"}
+                  className="transition !p-3 !rounded-full"
+                >
+                  <ArrowDown />
+                </Button>
+              </div>
+            )}
             {/* input */}
             <form
               onSubmit={(e) => {

@@ -1,8 +1,32 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import { Button } from "./ui/button";
+import { ChevronRight } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 
-export default function AgentMessage({ content }: { content: string }) {
+export default function AgentMessage({
+  content,
+  isLast,
+  submitUserInput,
+}: {
+  content: string;
+  isLast: boolean;
+  submitUserInput: (input: string) => Promise<void>;
+}) {
+  const marker = "<-- SUGGESTIONS -->";
+  const [mainContent, suggestionBlock] = content.split(marker);
+  const suggestions = suggestionBlock
+    ? suggestionBlock
+        .trim()
+        .split("\n")
+        .filter((line) => line.trim() !== "" && line.trim() !== "-->")
+        .map((_) => ({
+          id: uuidv4(),
+          content: _,
+        }))
+    : [];
+
   return (
     <div className="mb-4 p-3 rounded-lg justify-start whitespace-pre-wrap">
       <ReactMarkdown
@@ -49,8 +73,22 @@ export default function AgentMessage({ content }: { content: string }) {
           ),
         }}
       >
-        {content}
+        {mainContent}
       </ReactMarkdown>
+
+      {suggestions.length > 0 && isLast && (
+        <div className="flex items-center flex-wrap gap-2 mt-4">
+          {suggestions.map((each) => (
+            <Button
+              onClick={() => submitUserInput(each.content)}
+              key={each.id}
+              variant={"outline"}
+            >
+              {each.content} <ChevronRight />
+            </Button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

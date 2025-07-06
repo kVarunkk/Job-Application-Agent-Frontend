@@ -1,7 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Plus, Trash } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  MoreVertical,
+  Pencil,
+  Plus,
+  Trash,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import Link from "next/link";
@@ -12,6 +19,8 @@ import AgentDeleteDialog from "./AgentDeleteDialog";
 import AgentInformation from "./AgentInformation";
 import { createClient } from "@/lib/supabase/client";
 
+import AgentSidebarBtn from "./AgentSidebarBtn";
+
 interface AgentSidebarProps {
   screen: "lg" | "sm";
 }
@@ -19,7 +28,6 @@ interface AgentSidebarProps {
 export default function AgentSidebar({ screen }: AgentSidebarProps) {
   const [open, setOpen] = useState(true);
   const [sidebarAgents, setSidebarAgents] = useState<Agent[]>([]);
-  const pathname = usePathname();
   const [loading, setLoading] = useState(true);
 
   const fetchAgents = useCallback(async () => {
@@ -50,13 +58,13 @@ export default function AgentSidebar({ screen }: AgentSidebarProps) {
     [setSidebarAgents]
   );
 
-  const updateSidebarAfterUpdation = async () => {
+  const updateSidebarAfterUpdation = useCallback(async () => {
     try {
       fetchAgents();
     } catch (error) {
       console.error("Could not update the agents.");
     }
-  };
+  }, [fetchAgents]);
 
   useEffect(() => {
     (async () => {
@@ -124,35 +132,14 @@ export default function AgentSidebar({ screen }: AgentSidebarProps) {
       {open && (
         <div className="overflow-y-auto flex flex-col gap-2 flex-1">
           {sidebarAgents.map((agent) => (
-            <div
+            <AgentSidebarBtn
               key={agent.id}
-              className={cn(
-                "flex items-center justify-between group p-2 rounded-md hover:bg-muted transition",
-                pathname === "/agent/" + agent.id
-                  ? "bg-muted font-semibold"
-                  : "text-muted-foreground"
-              )}
-            >
-              <Link
-                key={agent.id}
-                href={"/agent/" + agent.id}
-                className={cn("flex-1")}
-              >
-                {agent.name}
-              </Link>
-
-              <AgentInformation
-                agent={agent}
-                updateSidebarAfterUpdation={updateSidebarAfterUpdation}
-              />
-
-              <AgentDeleteDialog
-                agentId={agent.id}
-                updateSidebarAgentsAfterDeletion={
-                  updateSidebarAgentsAfterDeletion
-                }
-              />
-            </div>
+              agent={agent}
+              updateSidebarAfterUpdation={updateSidebarAfterUpdation}
+              updateSidebarAgentsAfterDeletion={
+                updateSidebarAgentsAfterDeletion
+              }
+            />
           ))}
         </div>
       )}
