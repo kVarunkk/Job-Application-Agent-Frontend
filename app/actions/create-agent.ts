@@ -62,6 +62,7 @@ export async function createAgent(prevState: any, formData: FormData) {
     }
 
     const user_id = authUser.user.id;
+    const user_email = authUser.user.email;
     const fileName = `resume-${crypto.randomUUID()}.pdf`;
     const filePath = `resumes/${user_id}/${fileName}`;
 
@@ -81,6 +82,7 @@ export async function createAgent(prevState: any, formData: FormData) {
       .insert({
         name: parsed.data.name,
         user_id,
+        user_email,
         resume_path: filePath,
         filter_url:
           parsed.data.agentType === "ycombinator"
