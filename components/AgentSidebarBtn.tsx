@@ -24,6 +24,7 @@ import { Button } from "./ui/button";
 import { MoreVertical, Pencil, Trash } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetTrigger } from "./ui/sheet";
+import { Agent } from "@/lib/types";
 
 interface AgentSidebarBtnProps {
   agent: Agent;

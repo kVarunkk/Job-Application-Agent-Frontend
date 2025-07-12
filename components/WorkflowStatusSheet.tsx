@@ -15,6 +15,7 @@ import { createClient } from "@/lib/supabase/client";
 import WorkflowSheetConfigForm from "./WorkflowSheetConfigForm";
 import WorkflowSheetStatusComponent from "./WorkflowSheetStatusComponent";
 import WorkflowControls from "./WorkflowControls";
+import { Agent, IWorkflow } from "@/lib/types";
 
 interface WorkflowStatusSheetProps {
   agent: Agent;

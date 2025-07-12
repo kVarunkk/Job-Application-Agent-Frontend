@@ -1,5 +1,6 @@
 "use client";
 
+import { IWorkflow, IWorkflowRun } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 

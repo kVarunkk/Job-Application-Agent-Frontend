@@ -17,6 +17,7 @@ import { User } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 import AgentMessage from "./AgentMessage";
 import { Textarea } from "./ui/textarea";
+import { Agent, Message, TAgentType } from "@/lib/types";
 
 interface AgentMainProps {
   agent?: Agent;
@@ -286,7 +287,7 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
   );
 }
 
-function Greeting({ agentType }: { agentType: EAgentType }) {
+function Greeting({ agentType }: { agentType: TAgentType }) {
   let greeting: React.ReactNode;
   switch (agentType) {
     case "ycombinator":

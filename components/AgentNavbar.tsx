@@ -24,6 +24,7 @@ import CreateWorkflowDialog from "./CreateWorkflowDialog";
 import { useCallback, useEffect, useState } from "react";
 import WorkflowStatusSheet from "./WorkflowStatusSheet";
 import { Badge } from "./ui/badge";
+import { Agent } from "@/lib/types";
 
 interface AgentNavbarProps {
   agent?: Agent;
@@ -33,23 +34,16 @@ interface AgentNavbarProps {
 export default function AgentNavbar({ agent, user }: AgentNavbarProps) {
   const [agentState, setAgentState] = useState<Agent>();
 
-  const router = useRouter();
-
-  const logout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/auth/login");
-  };
-
   const updateAgent = useCallback(async () => {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("agents")
       .select(
-        "id, created_at, filter_url, name, resume_path, updated_at, user_id, workflows(*)"
+        "id, created_at, filter_url, name, resume_path, updated_at, user_id, workflows(*), platforms(*)"
       )
       .eq("id", agent?.id)
       .single();
+    console.log(data);
     data && setAgentState(data as unknown as Agent);
   }, []);
 
@@ -74,7 +68,9 @@ export default function AgentNavbar({ agent, user }: AgentNavbarProps) {
         <h1 className="sm:text-2xl font-bold truncate whitespace-nowrap overflow-hidden max-w-[100px] sm:max-w-[300px]">
           {agentState ? `${agentState.name}` : "Agent"}
         </h1>
-        <Badge className="ml-2">{agent?.type}</Badge>
+        {agentState && agentState.platforms && (
+          <Badge className="ml-2">{agentState.platforms.name}</Badge>
+        )}
       </div>
 
       <div className="flex items-center gap-2">

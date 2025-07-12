@@ -22,6 +22,7 @@ import { Info } from "lucide-react";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { createClient } from "@/lib/supabase/client";
+import { Agent } from "@/lib/types";
 
 interface AgentInformationProps {
   agent: Agent;

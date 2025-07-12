@@ -1,4 +1,6 @@
-interface Agent {
+import { agentConfigs } from "./agentSchemas";
+
+export interface Agent {
   id: string;
   name: string;
   user_id: string;
@@ -8,17 +10,18 @@ interface Agent {
   created_at: string;
   updated_at: string;
   workflows: IWorkflow[];
-  type: EAgentType;
+  type: TAgentType;
+  platforms?: IPlatform;
 }
 
-interface Message {
+export interface Message {
   id: string;
   content: string;
   role: "user" | "agent";
   created_at: string;
 }
 
-interface IWorkflow {
+export interface IWorkflow {
   id: string;
   created_at: string;
   updated_at: string;
@@ -36,7 +39,7 @@ interface IWorkflow {
   running: boolean;
 }
 
-interface IWorkflowRun {
+export interface IWorkflowRun {
   id: string;
   created_at: string;
   updated_at: string;
@@ -50,7 +53,7 @@ interface IWorkflowRun {
   auto_apply: boolean;
 }
 
-interface IJobResult {
+export interface IJobResult {
   score?: number;
   suitable?: boolean;
   description?: string;
@@ -58,7 +61,28 @@ interface IJobResult {
   applied?: boolean;
 }
 
-enum EAgentType {
-  ycombinator = "ycombinator",
-  remoteok = "remoteok",
+export interface IPlatform {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  slug: string;
+  auto_apply_available: boolean;
+  fields: IPlatformField[];
 }
+
+export interface IPlatformField {
+  id: string;
+  name: string;
+  type: "text" | "textarea" | "password";
+  label: string;
+  required: boolean;
+  placeholder?: string;
+  tooltip?: {
+    text: string;
+    linkText?: string;
+    linkHref?: string;
+  };
+}
+
+export type TAgentType = keyof typeof agentConfigs;

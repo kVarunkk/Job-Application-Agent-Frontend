@@ -8,6 +8,7 @@ import { Button } from "./ui/button";
 import MultiKeywordInput from "./MultiKeywordInput";
 import { createClient } from "@/lib/supabase/client";
 import { FormField } from "./FormField";
+import { Agent } from "@/lib/types";
 
 export interface IFormValues {
   no_jobs: number;

@@ -1,51 +1,30 @@
 "use server";
 
-import { encryptAES, encryptWithKEK, generateAESKey } from "@/lib/encryption";
 import { createClient } from "@/lib/supabase/server";
+import { agentConfigs, baseSchema, ycSchema } from "@/lib/agentSchemas";
+import { TAgentType } from "@/lib/types";
 import { z } from "zod";
-
-const ycSchema = z.object({
-  name: z.string().min(2),
-  agentType: z.enum(["ycombinator", "remoteok"]),
-  filter_url: z.string().url(),
-  yc_username: z.string(),
-  yc_password: z.string().min(4),
-});
-
-const baseSchema = z.object({
-  name: z.string().min(2),
-  agentType: z.enum(["ycombinator", "remoteok"]),
-  filter_url: z.string().url(),
-});
 
 export async function createAgent(prevState: any, formData: FormData) {
   try {
-    const agentType = formData.get("agentType");
-    const name = formData.get("name");
+    const agentType = formData.get("agentType") as TAgentType;
+    const config = agentConfigs[agentType];
+    const platformId = formData.get("platformId") as string;
 
-    let parsed;
-
-    switch (agentType) {
-      case "ycombinator":
-        parsed = ycSchema.safeParse({
-          name,
-          agentType,
-          filter_url: formData.get("filter_url"),
-          yc_username: formData.get("yc_username"),
-          yc_password: formData.get("yc_password"),
-        });
-        break;
-      case "remoteok":
-        parsed = baseSchema.safeParse({
-          name,
-          agentType: formData.get("agentType"),
-          filter_url: formData.get("filter_url"),
-        });
-        break;
-      default:
-        return { success: false, error: "Unknown agent type" };
+    if (!config) {
+      return { success: false, error: "Unsupported agent type." };
     }
 
+    // Dynamically build values to validate
+    const values: Record<string, any> = {};
+    for (const [key] of Object.entries(config.schema.shape)) {
+      values[key] = formData.get(key);
+    }
+
+    const parsed:
+      | z.SafeParseSuccess<z.infer<typeof baseSchema | typeof ycSchema>>
+      | z.SafeParseError<z.infer<typeof baseSchema | typeof ycSchema>> =
+      config.schema.safeParse(values);
     if (!parsed.success) {
       return { success: false, error: parsed.error.message };
     }
@@ -73,7 +52,6 @@ export async function createAgent(prevState: any, formData: FormData) {
       });
 
     if (uploadError) {
-      console.log("Upload error:", uploadError);
       return { success: false, error: "Resume upload failed" };
     }
 
@@ -84,11 +62,8 @@ export async function createAgent(prevState: any, formData: FormData) {
         user_id,
         user_email,
         resume_path: filePath,
-        filter_url:
-          parsed.data.agentType === "ycombinator"
-            ? (parsed.data as z.infer<typeof ycSchema>).filter_url
-            : (parsed.data as z.infer<typeof baseSchema>).filter_url,
-        type: parsed.data.agentType,
+        filter_url: parsed.data.filter_url,
+        type: platformId,
       })
       .select()
       .single();
@@ -97,26 +72,13 @@ export async function createAgent(prevState: any, formData: FormData) {
       return { success: false, error: insertError?.message };
     }
 
-    if (parsed.data.agentType === "ycombinator") {
-      // Type guard to assert yc_password and yc_username exist
-      const ycData = parsed.data as z.infer<typeof ycSchema>;
-      const aesKey = generateAESKey();
-      const encryptedPassword = encryptAES(ycData.yc_password, aesKey);
-      const kek = process.env.KEK_SECRET!;
-      const encryptedAESKey = encryptWithKEK(aesKey, kek);
-
-      const { error: credError } = await supabase
-        .from("encrypted_credentials_yc")
-        .insert({
-          agent_id: agent.id,
-          username: ycData.yc_username,
-          password_enc: encryptedPassword,
-          aes_key_enc: encryptedAESKey,
-        });
-
-      if (credError) {
-        return { success: false, error: credError.message };
-      }
+    // If agent has post-insert handler (like for YC credentials)
+    if ("postInsert" in config && typeof config.postInsert === "function") {
+      await config.postInsert(
+        agent,
+        parsed.data as z.infer<typeof ycSchema>,
+        supabase
+      );
     }
 
     return { success: true, agentId: agent.id };

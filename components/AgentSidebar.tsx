@@ -32,6 +32,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import AgentSidebarBtn from "./AgentSidebarBtn";
 import { useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
+import { Agent } from "@/lib/types";
 
 interface AgentSidebarProps {
   screen: "lg" | "sm";
@@ -175,7 +176,7 @@ export default function AgentSidebar({ screen, user }: AgentSidebarProps) {
                   open ? "!justify-start" : "!justify-center"
                 }`}
               >
-                <Avatar className="bg-muted h-6 w-6">
+                <Avatar className={cn("bg-muted h-6 w-6 ", open && "-ml-1")}>
                   <AvatarImage src="/" />
                   <AvatarFallback className="text-xs uppercase">
                     {user.email?.slice(0, 2)}

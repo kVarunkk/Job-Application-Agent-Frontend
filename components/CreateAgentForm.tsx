@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { createAgent } from "@/app/actions/create-agent";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "./ui/textarea";
 import InfoTooltip from "./InfoTooltip";
+import { createClient } from "@/lib/supabase/client";
+import { IPlatform, TAgentType } from "@/lib/types";
 
 interface CreateAgentFormProps {
   closeDialog: () => void;
@@ -33,15 +35,29 @@ export default function CreateAgentForm({ closeDialog }: CreateAgentFormProps) {
     success: false,
     error: null,
   });
-  const [agentType, setAgentType] = useState<EAgentType>();
+  const [agentType, setAgentType] = useState<TAgentType>();
   const [errors, setErrors] = useState<IError>({
     name: "",
     filter_url: "",
     yc_username: "",
     yc_password: "",
   });
-
+  const [platforms, setPlatforms] = useState<IPlatform[]>();
+  const platformIdRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchPlatforms = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase.from("platforms").select("*");
+      if (error) {
+        console.error("Error fetching platforms:", error);
+        return;
+      }
+      setPlatforms(data);
+    };
+    fetchPlatforms();
+  }, []);
 
   useEffect(() => {
     if (formState.error) {
@@ -82,7 +98,11 @@ export default function CreateAgentForm({ closeDialog }: CreateAgentFormProps) {
         </Label>
         <Select
           value={agentType}
-          onValueChange={(value) => setAgentType(value as EAgentType)}
+          onValueChange={(value) => {
+            setAgentType(value as TAgentType);
+            platformIdRef.current!.value =
+              platforms?.find((platform) => platform.slug === value)?.id || "";
+          }}
           name="agentType"
           required
         >
@@ -90,49 +110,99 @@ export default function CreateAgentForm({ closeDialog }: CreateAgentFormProps) {
             <SelectValue placeholder="Y Combinator" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ycombinator">Y Combinator</SelectItem>
-            <SelectItem value="remoteok">Remote OK</SelectItem>
+            {platforms?.map((platform) => (
+              <SelectItem key={platform.id} value={platform.slug}>
+                {platform.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
-      {agentType && (
-        <div className="flex flex-col gap-2">
-          <FilterUrlField agentType={agentType} />
-          <p className="text-sm text-red-500">
-            {errors.filter_url && errors.filter_url}
-          </p>
-        </div>
-      )}
+      <input hidden ref={platformIdRef} name="platformId" />
 
-      {agentType && agentType === "ycombinator" && (
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="yc_username">YC Username</Label>
-          <Input id="yc_username" name="yc_username" required />
-          <p className="text-sm text-red-500">
-            {errors.yc_username && errors.yc_username}
-          </p>
-        </div>
-      )}
-
-      {agentType && agentType === "ycombinator" && (
-        <div className="flex flex-col gap-2">
-          <Label className="flex items-center gap-2" htmlFor="yc_password">
-            YC Password
-            <InfoTooltip
-              content={
-                <p>
-                  Stored safely with proper encryption. This will be used to
-                  login to your YC account and fetch job postings/Apply to job
-                  postings.
-                </p>
+      {platforms && agentType && (
+        <div className="flex flex-col gap-4 w-full">
+          {platforms
+            .filter((platform) => platform.slug === agentType)[0]
+            .fields.map((field) => {
+              if (field.type === "textarea") {
+                return (
+                  <div key={field.id} className="flex flex-col gap-2">
+                    <Label
+                      htmlFor={field.name}
+                      className="flex items-center gap-2"
+                    >
+                      {field.label}
+                      {field.tooltip && (
+                        <InfoTooltip
+                          content={
+                            <p>
+                              {field.tooltip.text}{" "}
+                              <a
+                                href={field.tooltip.linkHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-700 hover:underline"
+                              >
+                                {field.tooltip.linkText}
+                              </a>
+                            </p>
+                          }
+                        />
+                      )}
+                    </Label>
+                    <Textarea
+                      id={field.id}
+                      name={field.name}
+                      placeholder={field.placeholder}
+                      required={field.required}
+                    />
+                    <p className="text-sm text-red-500">
+                      {errors[field.name] && errors[field.name]}
+                    </p>
+                  </div>
+                );
+              } else if (field.type === "text" || field.type === "password") {
+                return (
+                  <div key={field.id} className="flex flex-col gap-2">
+                    <Label
+                      htmlFor={field.name}
+                      className="flex items-center gap-2"
+                    >
+                      {field.label}
+                      {field.tooltip && (
+                        <InfoTooltip
+                          content={
+                            <p>
+                              {field.tooltip.text}{" "}
+                              <a
+                                href={field.tooltip.linkHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-700 hover:underline"
+                              >
+                                {field.tooltip.linkText}
+                              </a>
+                            </p>
+                          }
+                        />
+                      )}
+                    </Label>
+                    <Input
+                      id={field.id}
+                      name={field.name}
+                      type={field.type}
+                      placeholder={field.placeholder}
+                      required={field.required}
+                    />
+                    <p className="text-sm text-red-500">
+                      {errors[field.name] && errors[field.name]}
+                    </p>
+                  </div>
+                );
               }
-            />
-          </Label>
-          <Input id="yc_password" name="yc_password" type="password" required />
-          <p className="text-sm text-red-500">
-            {errors.yc_password && errors.yc_password}
-          </p>
+            })}
         </div>
       )}
 
@@ -153,66 +223,5 @@ export default function CreateAgentForm({ closeDialog }: CreateAgentFormProps) {
         {isPending ? "Creating..." : "Create Agent"}
       </Button>
     </form>
-  );
-}
-
-function FilterUrlField({ agentType }: { agentType: EAgentType }) {
-  let variableContent;
-
-  switch (agentType) {
-    case "ycombinator":
-      variableContent = {
-        infoLinkHref: "https://www.workatastartup.com/companies",
-        infoLinkText: "Work At A Startup",
-        placeholder:
-          "e.g. https://www.workatastartup.com/companies?demographic=any&hasEquity=any&hasSalary=any&industry=any",
-      };
-      break;
-    case "remoteok":
-      variableContent = {
-        infoLinkHref: "https://remoteok.com",
-        infoLinkText: "Remote OK",
-        placeholder:
-          "e.g. https://remoteok.com/remote-dev+engineer-jobs?location=Worldwide",
-      };
-      break;
-    default:
-      variableContent = {
-        infoLinkHref: "",
-        infoLinkText: "",
-        placeholder: "",
-      };
-      break;
-  }
-  return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor="filter_url" className="flex items-center gap-2">
-        Job Posting URL
-        <InfoTooltip
-          content={
-            <p>
-              Enter the URL of the job postings page after you have selected the
-              filters. You can find this URL on the{" "}
-              <a
-                href={variableContent.infoLinkHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-700 hover:underline"
-              >
-                {variableContent.infoLinkText}
-              </a>{" "}
-              website.
-            </p>
-          }
-        />
-      </Label>
-
-      <Textarea
-        id="filter_url"
-        name="filter_url"
-        placeholder={variableContent.placeholder}
-        required
-      />
-    </div>
   );
 }

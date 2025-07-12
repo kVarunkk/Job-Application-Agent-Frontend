@@ -13,6 +13,7 @@ import {
 } from "./ui/dialog";
 import CreateWorkflowForm from "./CreateWorkflowForm";
 import { useState } from "react";
+import { Agent } from "@/lib/types";
 
 interface CreateWorkflowDialogProps {
   agent: Agent;

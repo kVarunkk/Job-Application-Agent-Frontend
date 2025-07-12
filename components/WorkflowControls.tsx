@@ -4,6 +4,7 @@ import { Loader2, Pause, Play, PlayCircle, RefreshCcw } from "lucide-react";
 import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import { IWorkflow } from "@/lib/types";
 
 interface WorkflowControlsProps {
   workflow: IWorkflow;
