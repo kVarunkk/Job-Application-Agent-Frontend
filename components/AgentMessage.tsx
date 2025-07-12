@@ -65,7 +65,7 @@ export default function AgentMessage({
             <strong className="font-semibold" {...props} />
           ),
           code: ({ node, className, children, ...props }) => (
-            <pre className="bg-black text-white p-4 rounded overflow-x-auto my-4">
+            <pre className="  p-4 rounded overflow-x-auto my-4">
               <code className="text-sm" {...props}>
                 {children}
               </code>

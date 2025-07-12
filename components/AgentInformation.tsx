@@ -32,7 +32,7 @@ export default function AgentInformation({
   agent,
   updateSidebarAfterUpdation,
 }: AgentInformationProps) {
-  const [filterUrl, setFilterUrl] = useState(agent.filter_url);
+  const [filterUrl, setFilterUrl] = useState(agent.filter_url ?? "");
   const [loading, setLoading] = useState(false);
 
   const updateAgent = async () => {

@@ -17,7 +17,7 @@ export default async function AgentIdPage({
 
     const { data: agentData, error: agentError } = await supabase
       .from("agents")
-      .select("*")
+      .select("*, workflows(*)")
       .eq("id", agent_id);
 
     if (agentError) {

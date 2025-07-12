@@ -55,13 +55,19 @@ export default function AgentDeleteDialog({
         supabase.from("checkpoints").delete().eq("thread_id", agentId),
         supabase.from("checkpoint_writes").delete().eq("thread_id", agentId),
         supabase.from("checkpoint_blobs").delete().eq("thread_id", agentId),
+        // supabase.from("workflows").delete().eq("agent_id", agentId),
       ]);
 
-      if (response1.error || response2.error || response3.error) {
+      if (
+        response1.error ||
+        response2.error ||
+        response3.error
+        // response4.error
+      ) {
         throw new Error(
           `Failed to delete: ${response1.error?.message || ""} ${
             response2.error?.message || ""
-          } ${response3.error?.message || ""}`
+          } ${response3.error?.message || ""} `
         );
       }
     } catch (err) {

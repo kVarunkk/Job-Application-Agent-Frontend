@@ -10,11 +10,16 @@ export default async function AgentLayout({
   children: React.ReactNode;
 }) {
   try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     return (
       <div className="h-screen w-screen flex items-center gap-0 overflow-x-hidden">
         {/* sidebar */}
-        <div className={cn("hidden lg:block")}>
-          <AgentSidebar screen={"lg"} />
+        <div className={cn("hidden lg:block h-screen")}>
+          <AgentSidebar screen={"lg"} user={user} />
         </div>
         {/* main layout */}
         <div className="flex-1 h-full overflow-hidden">{children}</div>

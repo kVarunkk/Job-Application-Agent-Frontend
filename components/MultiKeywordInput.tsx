@@ -22,12 +22,17 @@ interface MultiKeywordInputProps {
     "included_keywords" | "excluded_keywords" | "title_included_keywords"
   >;
   placeholder?: string;
+  initialKeywords?: {
+    id: string;
+    content: string;
+  }[];
 }
 
 export default function MultiKeywordInput({
   type,
   updateFormValues,
   placeholder,
+  initialKeywords,
 }: MultiKeywordInputProps) {
   const [input, setInput] = useState("");
   const [keywords, setKeywords] = useState<
@@ -35,36 +40,52 @@ export default function MultiKeywordInput({
       id: string;
       content: string;
     }[]
-  >([]);
+  >(initialKeywords ?? []);
 
   useEffect(() => {
     updateFormValues(type, keywords);
   }, [keywords]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && input.trim()) {
-      e.preventDefault();
-      setKeywords((prev) => [
-        ...prev,
-        {
-          id: uuidv4(),
-          content: input.trim(),
-        },
-      ]);
-      setInput("");
-    }
-  };
-
   const addKeyword = () => {
-    if (!input.trim()) return;
+    const trimmed = input.trim();
+    if (
+      !trimmed ||
+      keywords.some((k) => k.content.toLowerCase() === trimmed.toLowerCase())
+    ) {
+      setInput("");
+      return;
+    }
     setKeywords((prev) => [
       ...prev,
       {
         id: uuidv4(),
-        content: input.trim(),
+        content: trimmed,
       },
     ]);
     setInput("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && input.trim()) {
+      e.preventDefault();
+      const trimmed = input.trim();
+      if (
+        keywords.some((k) => k.content.toLowerCase() === trimmed.toLowerCase())
+      ) {
+        {
+          setInput("");
+          return;
+        }
+      }
+      setKeywords((prev) => [
+        ...prev,
+        {
+          id: uuidv4(),
+          content: trimmed,
+        },
+      ]);
+      setInput("");
+    }
   };
 
   const removeKeyword = (id: string) => {

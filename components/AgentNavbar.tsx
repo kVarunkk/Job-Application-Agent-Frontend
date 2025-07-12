@@ -21,6 +21,9 @@ import {
 } from "./ui/sheet";
 import AgentSidebar from "./AgentSidebar";
 import CreateWorkflowDialog from "./CreateWorkflowDialog";
+import { useCallback, useEffect, useState } from "react";
+import WorkflowStatusSheet from "./WorkflowStatusSheet";
+import { Badge } from "./ui/badge";
 
 interface AgentNavbarProps {
   agent?: Agent;
@@ -28,6 +31,8 @@ interface AgentNavbarProps {
 }
 
 export default function AgentNavbar({ agent, user }: AgentNavbarProps) {
+  const [agentState, setAgentState] = useState<Agent>();
+
   const router = useRouter();
 
   const logout = async () => {
@@ -36,6 +41,22 @@ export default function AgentNavbar({ agent, user }: AgentNavbarProps) {
     router.push("/auth/login");
   };
 
+  const updateAgent = useCallback(async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("agents")
+      .select(
+        "id, created_at, filter_url, name, resume_path, updated_at, user_id, workflows(*)"
+      )
+      .eq("id", agent?.id)
+      .single();
+    data && setAgentState(data as unknown as Agent);
+  }, []);
+
+  useEffect(() => {
+    updateAgent();
+  }, [updateAgent]);
+
   return (
     <div className="absolute z-10 p-4 bg-transparent w-full flex items-center justify-between">
       <div className="flex items-center space-x-2">
@@ -43,43 +64,30 @@ export default function AgentNavbar({ agent, user }: AgentNavbarProps) {
           <SheetTrigger className="lg:hidden">
             <Menu />
           </SheetTrigger>
-          <SheetContent>
+          <SheetContent side={"left"}>
             <SheetHeader className="hidden">
               <SheetTitle></SheetTitle>
             </SheetHeader>
-            <AgentSidebar screen="sm" />
+            <AgentSidebar screen="sm" user={user} />
           </SheetContent>
         </Sheet>
-        <h1 className="text-2xl font-bold">
-          {agent ? `${agent.name}` : "Agent"}
+        <h1 className="sm:text-2xl font-bold truncate whitespace-nowrap overflow-hidden max-w-[100px] sm:max-w-[300px]">
+          {agentState ? `${agentState.name}` : "Agent"}
         </h1>
+        <Badge className="ml-2">{agent?.type}</Badge>
       </div>
 
       <div className="flex items-center gap-2">
-        {user && <CreateWorkflowDialog />}
-        {user && (
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Avatar className="bg-muted">
-                <AvatarImage src="/" />
-                <AvatarFallback className="text-primary uppercase">
-                  {user.email?.slice(0, 2)}
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
-              <DropdownMenuItem disabled>
-                <Settings />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={logout}>
-                <LogOut />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        {user &&
+          agentState &&
+          (agentState.workflows.length > 0 ? (
+            <WorkflowStatusSheet agent={agentState} />
+          ) : (
+            <CreateWorkflowDialog
+              agent={agentState}
+              updateAgent={updateAgent}
+            />
+          ))}
       </div>
     </div>
   );

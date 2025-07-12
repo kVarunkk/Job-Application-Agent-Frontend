@@ -49,7 +49,7 @@ export default function AgentSidebarBtn({
           : "text-muted-foreground"
       )}
     >
-      <Link href={"/agent/" + agent.id} className={cn("p-2 flex-1")}>
+      <Link href={"/agent/" + agent.id} className={cn("p-2 flex-1 truncate")}>
         {agent.name}
       </Link>
 
@@ -77,7 +77,7 @@ export default function AgentSidebarBtn({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <DialogContent>
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>
               {dialogType === "edit" ? "Update Agent" : "Delete Agent"}

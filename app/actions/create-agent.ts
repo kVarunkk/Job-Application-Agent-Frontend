@@ -4,29 +4,53 @@ import { encryptAES, encryptWithKEK, generateAESKey } from "@/lib/encryption";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 
-const formSchema = z.object({
+const ycSchema = z.object({
   name: z.string().min(2),
+  agentType: z.enum(["ycombinator", "remoteok"]),
   filter_url: z.string().url(),
   yc_username: z.string(),
   yc_password: z.string().min(4),
 });
 
+const baseSchema = z.object({
+  name: z.string().min(2),
+  agentType: z.enum(["ycombinator", "remoteok"]),
+  filter_url: z.string().url(),
+});
+
 export async function createAgent(prevState: any, formData: FormData) {
   try {
-    const parsed = formSchema.safeParse({
-      name: formData.get("name"),
-      filter_url: formData.get("filter_url"),
-      yc_username: formData.get("yc_username"),
-      yc_password: formData.get("yc_password"),
-    });
+    const agentType = formData.get("agentType");
+    const name = formData.get("name");
+
+    let parsed;
+
+    switch (agentType) {
+      case "ycombinator":
+        parsed = ycSchema.safeParse({
+          name,
+          agentType,
+          filter_url: formData.get("filter_url"),
+          yc_username: formData.get("yc_username"),
+          yc_password: formData.get("yc_password"),
+        });
+        break;
+      case "remoteok":
+        parsed = baseSchema.safeParse({
+          name,
+          agentType: formData.get("agentType"),
+          filter_url: formData.get("filter_url"),
+        });
+        break;
+      default:
+        return { success: false, error: "Unknown agent type" };
+    }
 
     if (!parsed.success) {
       return { success: false, error: parsed.error.message };
     }
 
-    const { name, filter_url, yc_username, yc_password } = parsed.data;
     const resumeFile = formData.get("resume") as File;
-
     if (!resumeFile || resumeFile.type !== "application/pdf") {
       return { success: false, error: "Invalid or missing resume file" };
     }
@@ -38,8 +62,6 @@ export async function createAgent(prevState: any, formData: FormData) {
     }
 
     const user_id = authUser.user.id;
-
-    // Generate file path and name
     const fileName = `resume-${crypto.randomUUID()}.pdf`;
     const filePath = `resumes/${user_id}/${fileName}`;
 
@@ -54,10 +76,18 @@ export async function createAgent(prevState: any, formData: FormData) {
       return { success: false, error: "Resume upload failed" };
     }
 
-    // Insert agent with resume file path (not public URL)
     const { data: agent, error: insertError } = await supabase
       .from("agents")
-      .insert({ name, filter_url, user_id, resume_path: filePath })
+      .insert({
+        name: parsed.data.name,
+        user_id,
+        resume_path: filePath,
+        filter_url:
+          parsed.data.agentType === "ycombinator"
+            ? (parsed.data as z.infer<typeof ycSchema>).filter_url
+            : (parsed.data as z.infer<typeof baseSchema>).filter_url,
+        type: parsed.data.agentType,
+      })
       .select()
       .single();
 
@@ -65,24 +95,26 @@ export async function createAgent(prevState: any, formData: FormData) {
       return { success: false, error: insertError?.message };
     }
 
-    // 2. Encrypt password using AES, then encrypt AES key with KEK
-    const aesKey = generateAESKey();
-    const encryptedPassword = encryptAES(yc_password, aesKey);
-    const kek = process.env.KEK_SECRET!;
-    const encryptedAESKey = encryptWithKEK(aesKey, kek);
+    if (parsed.data.agentType === "ycombinator") {
+      // Type guard to assert yc_password and yc_username exist
+      const ycData = parsed.data as z.infer<typeof ycSchema>;
+      const aesKey = generateAESKey();
+      const encryptedPassword = encryptAES(ycData.yc_password, aesKey);
+      const kek = process.env.KEK_SECRET!;
+      const encryptedAESKey = encryptWithKEK(aesKey, kek);
 
-    // 3. Store in encrypted credentials table
-    const { error: credError } = await supabase
-      .from("encrypted_credentials_yc")
-      .insert({
-        agent_id: agent.id,
-        username: yc_username,
-        password_enc: encryptedPassword,
-        aes_key_enc: encryptedAESKey,
-      });
+      const { error: credError } = await supabase
+        .from("encrypted_credentials_yc")
+        .insert({
+          agent_id: agent.id,
+          username: ycData.yc_username,
+          password_enc: encryptedPassword,
+          aes_key_enc: encryptedAESKey,
+        });
 
-    if (credError) {
-      return { success: false, error: credError.message };
+      if (credError) {
+        return { success: false, error: credError.message };
+      }
     }
 
     return { success: true, agentId: agent.id };

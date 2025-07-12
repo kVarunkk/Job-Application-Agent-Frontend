@@ -4,9 +4,11 @@ import { cn } from "@/lib/utils";
 import {
   ChevronLeft,
   ChevronRight,
+  LogOut,
   MoreVertical,
   Pencil,
   Plus,
+  Settings,
   Trash,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -18,17 +20,36 @@ import CreateAgentDialog from "./CreateAgentDialog";
 import AgentDeleteDialog from "./AgentDeleteDialog";
 import AgentInformation from "./AgentInformation";
 import { createClient } from "@/lib/supabase/client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 import AgentSidebarBtn from "./AgentSidebarBtn";
+import { useRouter } from "next/navigation";
+import { User } from "@supabase/supabase-js";
 
 interface AgentSidebarProps {
   screen: "lg" | "sm";
+  user: User | null;
 }
 
-export default function AgentSidebar({ screen }: AgentSidebarProps) {
+export default function AgentSidebar({ screen, user }: AgentSidebarProps) {
   const [open, setOpen] = useState(true);
   const [sidebarAgents, setSidebarAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
+
+  const logout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
 
   const fetchAgents = useCallback(async () => {
     try {
@@ -81,7 +102,7 @@ export default function AgentSidebar({ screen }: AgentSidebarProps) {
   return (
     <div
       className={cn(
-        "flex h-screen flex-col gap-5 transition-all",
+        "flex max-h-screen h-full flex-col gap-5 transition-all",
         screen === "lg" ? " border-r p-4" : "",
         {
           "w-20": !open,
@@ -111,7 +132,7 @@ export default function AgentSidebar({ screen }: AgentSidebarProps) {
       <CreateAgentDialog
         triggerBtn={
           open ? (
-            <Button variant={"outline"}>
+            <Button variant={"outline"} className="truncate">
               <Plus />
               Create New Agent
             </Button>
@@ -144,10 +165,38 @@ export default function AgentSidebar({ screen }: AgentSidebarProps) {
         </div>
       )}
       <div className="flex flex-col gap-2 mt-auto">
-        <div className="flex items-center gap-2">
-          <ThemeSwitcher />
-          {open && <div>Theme</div>}
-        </div>
+        <ThemeSwitcher sidebarOpen={open} />
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant={"ghost"}
+                className={`!gap-3  ${
+                  open ? "!justify-start" : "!justify-center"
+                }`}
+              >
+                <Avatar className="bg-muted h-6 w-6">
+                  <AvatarImage src="/" />
+                  <AvatarFallback className="text-xs uppercase">
+                    {user.email?.slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+                {open && <span>Account</span>}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+              <DropdownMenuItem disabled>
+                <Settings />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={logout}>
+                <LogOut />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </div>
   );

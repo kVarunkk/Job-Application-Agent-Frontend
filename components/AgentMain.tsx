@@ -96,11 +96,15 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
     setMessages((prev) => [...prev, newMessage, agentMessage]);
     setAgentMsgLoading(true);
     try {
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+      if (sessionError || !sessionData.session) throw sessionError;
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/chat/${agent?.id}`,
         {
           method: "POST",
           headers: {
+            Authorization: `Bearer ${sessionData.session.access_token}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -174,23 +178,13 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
         {agent?.id ? (
           <div className="w-full h-full relative">
             {/* messages */}
-            <div className="h-full overflow-y-auto px-4 py-28 lg:px-40 xl:px-56 flex flex-col gap-4">
+            <div className="h-full overflow-y-auto overflow-x-hidden px-4 py-28 lg:px-40 xl:px-56 flex flex-col gap-4">
               {messages.length === 0 && (
                 <div className="w-full flex flex-col gap-5 items-center justify-center">
                   <div className="text-center  text-2xl text-primary">
-                    Start chatting with your agent!
+                    Start applying to your dream jobs!
                   </div>
-                  <p className="text-lg text-center text-muted-foreground">
-                    This agent helps you to find suitable YCombinator jobs from{" "}
-                    <a
-                      className="underline"
-                      target="_blank"
-                      href="https://workatastartup.com"
-                    >
-                      Workatastartup.com
-                    </a>{" "}
-                    according to your resume and apply to them for you.
-                  </p>
+                  <Greeting agentType={agent.type} />
                   <div className="flex items-center justify-center gap-4 flex-wrap">
                     {startPrompts.map((prompt) => (
                       <Button
@@ -290,4 +284,44 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
       </div>
     </div>
   );
+}
+
+function Greeting({ agentType }: { agentType: EAgentType }) {
+  let greeting: React.ReactNode;
+  switch (agentType) {
+    case "ycombinator":
+      greeting = (
+        <p className="text-lg text-center text-muted-foreground">
+          This agent helps you to find suitable YCombinator jobs from{" "}
+          <a
+            className="underline"
+            target="_blank"
+            href="https://workatastartup.com"
+          >
+            Workatastartup.com
+          </a>{" "}
+          according to your resume, compare with your resume, generate cover
+          letter and apply to them for you.
+        </p>
+      );
+      break;
+
+    case "remoteok":
+      greeting = (
+        <p className="text-lg text-center text-muted-foreground">
+          This agent helps you to find suitable jobs from{" "}
+          <a className="underline" target="_blank" href="https://remoteok.com">
+            remoteok.com
+          </a>{" "}
+          according to your resume, compare with your resume, generate cover
+          letter and much more.
+        </p>
+      );
+      break;
+
+    default:
+      <p></p>;
+  }
+
+  return greeting;
 }

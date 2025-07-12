@@ -7,33 +7,27 @@ import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";
 import MultiKeywordInput from "./MultiKeywordInput";
 import { createClient } from "@/lib/supabase/client";
+import { IFormValues } from "./CreateWorkflowForm";
+import { v4 as uuidv4 } from "uuid";
+import InfoTooltip from "./InfoTooltip";
 import { FormField } from "./FormField";
 
-export interface IFormValues {
-  no_jobs: number;
-  interval: string;
-  auto_apply: boolean;
-  included_keywords: string[];
-  excluded_keywords: string[];
-  title_included_keywords: string[];
+interface WorkflowSheetConfigFormProps {
+  workflow: IWorkflow;
+  fetchWorkflow: () => Promise<void>;
 }
 
-interface CreateWorkflowFormProps {
-  agent: Agent;
-  closeDialog: () => void;
-}
-
-export default function CreateWorkflowForm({
-  agent,
-  closeDialog,
-}: CreateWorkflowFormProps) {
+export default function WorkflowSheetConfigForm({
+  workflow,
+  fetchWorkflow,
+}: WorkflowSheetConfigFormProps) {
   const [formValues, setFormValues] = useState<IFormValues>({
-    no_jobs: 1,
-    interval: "0 8 * * *",
-    auto_apply: false,
-    included_keywords: [],
-    excluded_keywords: [],
-    title_included_keywords: [],
+    no_jobs: workflow.no_jobs,
+    interval: workflow.interval,
+    auto_apply: workflow.auto_apply,
+    included_keywords: workflow.required_keywords,
+    excluded_keywords: workflow.excluded_keywords,
+    title_included_keywords: workflow.job_title_contains,
   });
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
@@ -54,7 +48,7 @@ export default function CreateWorkflowForm({
     }));
   };
 
-  const createWorkflow = async () => {
+  const updateWorkflow = async () => {
     try {
       setLoading(true);
       if (
@@ -64,22 +58,21 @@ export default function CreateWorkflowForm({
       )
         throw new Error("Issue with FormValues");
 
-      const { data, error } = await supabase.from("workflows").insert([
-        {
+      const { data, error } = await supabase
+        .from("workflows")
+        .update({
           no_jobs: formValues.no_jobs,
           required_keywords: formValues.included_keywords ?? [],
           excluded_keywords: formValues.excluded_keywords ?? [],
           job_title_contains: formValues.title_included_keywords ?? [],
           interval: formValues.interval,
           auto_apply: formValues.auto_apply,
-          agent_id: agent.id,
-          user_id: agent.user_id,
-        },
-      ]);
+        })
+        .eq("id", workflow.id);
 
       if (error) throw error;
 
-      closeDialog();
+      fetchWorkflow();
     } catch (error) {
       console.error("Some error occured while creating Workflow");
     } finally {
@@ -88,49 +81,51 @@ export default function CreateWorkflowForm({
   };
 
   return (
-    <div className="flex flex-col gap-4 max-w-md max-h-full">
+    <div className="flex flex-col gap-4 w-full">
+      {/* Scrollable container for form fields */}
       <div
         className="flex flex-col gap-4 w-full overflow-y-auto pr-1"
-        style={{ maxHeight: "calc(70vh - 15rem)" }}
+        style={{ maxHeight: "calc(100vh - 17rem)" }}
       >
+        {/* Number of Jobs */}
         <FormField label="Number of Jobs to scrape/apply to" htmlFor="no_jobs">
           <Input
             id="no_jobs"
             name="no_jobs"
-            placeholder="e.g. 5"
             type="number"
             min={1}
             max={5}
+            placeholder="e.g. 5"
             required
             value={formValues.no_jobs}
             onChange={(e) => {
               const value = Number(e.target.value);
-              if (value >= 1 && value <= 5) {
-                setFormValues((prev) => ({
-                  ...prev,
-                  no_jobs: value,
-                }));
-              } else if (e.target.value === "") {
-                setFormValues((prev) => ({
-                  ...prev,
-                  no_jobs: 1,
-                }));
-              }
+              setFormValues((prev) => ({
+                ...prev,
+                no_jobs: value >= 1 && value <= 5 ? value : 1,
+              }));
             }}
           />
         </FormField>
+
+        {/* Keywords to Include */}
         <FormField
           label="Keywords to include"
           htmlFor="included_keywords"
           tooltip="If any of these keywords match with the Job Description, it will be considered fit for further evaluations."
         >
           <MultiKeywordInput
-            type={"included_keywords"}
-            updateFormValues={updateFormValues}
+            type="included_keywords"
             placeholder="e.g. Python"
+            updateFormValues={updateFormValues}
+            initialKeywords={formValues.included_keywords.map((kw) => ({
+              id: uuidv4(),
+              content: kw,
+            }))}
           />
         </FormField>
 
+        {/* Keywords to Exclude */}
         <FormField
           label="Keywords to exclude"
           htmlFor="excluded_keywords"
@@ -138,11 +133,16 @@ export default function CreateWorkflowForm({
         >
           <MultiKeywordInput
             type="excluded_keywords"
-            updateFormValues={updateFormValues}
             placeholder="e.g. Docker"
+            updateFormValues={updateFormValues}
+            initialKeywords={formValues.excluded_keywords.map((kw) => ({
+              id: uuidv4(),
+              content: kw,
+            }))}
           />
         </FormField>
 
+        {/* Title Keywords */}
         <FormField
           label="Job Title keywords to include"
           htmlFor="title_included_keywords"
@@ -150,11 +150,16 @@ export default function CreateWorkflowForm({
         >
           <MultiKeywordInput
             type="title_included_keywords"
-            updateFormValues={updateFormValues}
             placeholder="e.g. Founding Engineer"
+            updateFormValues={updateFormValues}
+            initialKeywords={formValues.title_included_keywords.map((kw) => ({
+              id: uuidv4(),
+              content: kw,
+            }))}
           />
         </FormField>
 
+        {/* CRON Interval */}
         <FormField
           label="Interval"
           htmlFor="interval"
@@ -175,6 +180,7 @@ export default function CreateWorkflowForm({
           />
         </FormField>
 
+        {/* Auto Apply */}
         <FormField
           label="Auto Apply"
           htmlFor="auto_apply"
@@ -192,8 +198,9 @@ export default function CreateWorkflowForm({
         </FormField>
       </div>
 
-      <Button onClick={createWorkflow} disabled={loading}>
-        {loading ? "Creating..." : "Create Workflow"}
+      {/* Submit Button */}
+      <Button onClick={updateWorkflow} disabled={loading}>
+        {loading ? "Updating..." : "Update Workflow"}
       </Button>
     </div>
   );
