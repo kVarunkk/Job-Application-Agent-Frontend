@@ -31,29 +31,29 @@ export default function AgentMessage({
     <div className="mb-4 p-3 rounded-lg justify-start whitespace-pre-wrap">
       <ReactMarkdown
         components={{
-          h1: ({ node, ...props }) => (
+          h1: ({ ...props }) => (
             <h1 className="text-2xl font-bold my-4" {...props} />
           ),
-          h2: ({ node, ...props }) => (
+          h2: ({ ...props }) => (
             <h2 className="text-xl font-semibold my-3" {...props} />
           ),
-          h3: ({ node, ...props }) => (
+          h3: ({ ...props }) => (
             <h3 className="text-lg font-medium my-2" {...props} />
           ),
-          p: ({ node, ...props }) => (
+          p: ({ ...props }) => (
             <p className=" leading-relaxed text-sm sm:text-base" {...props} />
           ),
-          ul: ({ node, ...props }) => (
+          ul: ({ ...props }) => (
             <ul className="list-disc list-inside space-y-1 pl-4" {...props} />
           ),
-          ol: ({ node, ...props }) => (
+          ol: ({ ...props }) => (
             <ol
               className="list-decimal list-inside space-y-1 pl-4"
               {...props}
             />
           ),
-          li: ({ node, ...props }) => <li className="ml-2" {...props} />,
-          a: ({ node, ...props }) => (
+          li: ({ ...props }) => <li className="ml-2" {...props} />,
+          a: ({ ...props }) => (
             <a
               className="text-blue-600 hover:underline break-all"
               target="_blank"
@@ -61,10 +61,10 @@ export default function AgentMessage({
               {...props}
             />
           ),
-          strong: ({ node, ...props }) => (
+          strong: ({ ...props }) => (
             <strong className="font-semibold" {...props} />
           ),
-          code: ({ node, className, children, ...props }) => (
+          code: ({ children, ...props }) => (
             <pre className="  p-4 rounded overflow-x-auto my-4">
               <code className="text-sm" {...props}>
                 {children}

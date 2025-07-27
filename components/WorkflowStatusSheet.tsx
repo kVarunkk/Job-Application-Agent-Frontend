@@ -31,7 +31,7 @@ export default function WorkflowStatusSheet({
     try {
       const { data, error } = await supabase
         .from("workflows")
-        .select("*, workflow_runs(*)")
+        .select("*, workflow_runs(*), agents(platforms(*))")
         .eq("agent_id", agent.id)
         .single();
 
@@ -43,7 +43,7 @@ export default function WorkflowStatusSheet({
     } catch (e) {
       console.error(e);
     }
-  }, [agent]);
+  }, [agent, supabase]);
 
   const updateWorkflow = useCallback(
     async (checked: boolean) => {
@@ -54,7 +54,7 @@ export default function WorkflowStatusSheet({
             pause: !checked,
           })
           .eq("agent_id", agent.id)
-          .select("*, workflow_runs(*)")
+          .select("*, workflow_runs(*), agents(platforms(*))")
           .single();
         if (error) throw error;
         if (!error && data) {
@@ -64,12 +64,12 @@ export default function WorkflowStatusSheet({
         console.error(e);
       }
     },
-    [agent]
+    [agent, supabase]
   );
 
   const triggerWorkflow = useCallback(async () => {
     try {
-      const { data: workflowsUpdateData, error } = await supabase
+      const { error } = await supabase
         .from("workflows")
         .update({
           running: true,
@@ -109,7 +109,7 @@ export default function WorkflowStatusSheet({
     } catch (e) {
       console.error(e);
     } finally {
-      const { data: workflowsUpdateData, error } = await supabase
+      const { error } = await supabase
         .from("workflows")
         .update({
           running: false,
@@ -118,7 +118,7 @@ export default function WorkflowStatusSheet({
       if (error) throw error;
       fetchWorkflow();
     }
-  }, [agent]);
+  }, [agent, fetchWorkflow, supabase]);
 
   useEffect(() => {
     fetchWorkflow();

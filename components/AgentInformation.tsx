@@ -1,16 +1,7 @@
 "use client";
 
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "./ui/dialog";
+import { DialogFooter } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { MoreVertical } from "lucide-react";
 import { useState } from "react";
 import { Label } from "./ui/label";
 import {
@@ -19,7 +10,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
-import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { createClient } from "@/lib/supabase/client";
 import { Agent } from "@/lib/types";
@@ -40,14 +30,14 @@ export default function AgentInformation({
     try {
       setLoading(true);
       const supabase = createClient();
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("agents")
         .update({
           filter_url: filterUrl,
         })
         .eq("id", agent.id);
       if (error) throw error;
-    } catch (error) {
+    } catch {
       console.error("Some error occured while updating Agent");
     } finally {
       setLoading(false);

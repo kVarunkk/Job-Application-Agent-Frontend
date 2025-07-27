@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { createAgent } from "@/app/actions/create-agent";
+import { createAgent, FormState } from "@/app/actions/create-agent";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
@@ -33,8 +33,7 @@ interface IError {
 export default function CreateAgentForm({ closeDialog }: CreateAgentFormProps) {
   const [formState, formAction, isPending] = useActionState(createAgent, {
     success: false,
-    error: null,
-  });
+  } as FormState);
   const [agentType, setAgentType] = useState<TAgentType>();
   const [errors, setErrors] = useState<IError>({
     name: "",
@@ -57,7 +56,7 @@ export default function CreateAgentForm({ closeDialog }: CreateAgentFormProps) {
       setPlatforms(data);
     };
     fetchPlatforms();
-  }, []);
+  }, [closeDialog, router]);
 
   useEffect(() => {
     if (formState.error) {
@@ -74,7 +73,7 @@ export default function CreateAgentForm({ closeDialog }: CreateAgentFormProps) {
       closeDialog();
       router.push(`/agent/${formState.agentId}`);
     }
-  }, [formState]);
+  }, [formState, closeDialog, router]);
 
   return (
     <form action={formAction} className="flex flex-col gap-4 max-w-md">

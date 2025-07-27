@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUp,
-  LogOut,
-  Send,
-  Settings,
-} from "lucide-react";
+import { ArrowDown, ArrowRight, Send } from "lucide-react";
 import { Button } from "./ui/button";
 import AgentNavbar from "./AgentNavbar";
 import { createClient } from "@/lib/supabase/client";
@@ -44,7 +37,7 @@ const startPrompts = [
 ];
 
 export default function AgentMain({ agent, activeUser }: AgentMainProps) {
-  const [user, setUser] = useState<User | null>(activeUser);
+  // const [user, setUser] = useState<User | null>(activeUser);
   const [messages, setMessages] = useState<Message[]>(agent?.messages || []);
   const [agentMsgLoading, setAgentMsgLoading] = useState(false);
   const supabase = createClient();
@@ -77,103 +70,106 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
     };
   }, []);
 
-  const submitUserInput = useCallback(async (input: string) => {
-    if (!input.trim()) return;
+  const submitUserInput = useCallback(
+    async (input: string) => {
+      if (!input.trim()) return;
 
-    const newMessage: Message = {
-      id: uuidv4(),
-      content: input,
-      role: "user",
-      created_at: new Date().toISOString(),
-    };
+      const newMessage: Message = {
+        id: uuidv4(),
+        content: input,
+        role: "user",
+        created_at: new Date().toISOString(),
+      };
 
-    const agentMessage: Message = {
-      id: uuidv4(),
-      content: "",
-      role: "agent",
-      created_at: new Date().toISOString(),
-    };
+      const agentMessage: Message = {
+        id: uuidv4(),
+        content: "",
+        role: "agent",
+        created_at: new Date().toISOString(),
+      };
 
-    setMessages((prev) => [...prev, newMessage, agentMessage]);
-    setAgentMsgLoading(true);
-    try {
-      const { data: sessionData, error: sessionError } =
-        await supabase.auth.getSession();
-      if (sessionError || !sessionData.session) throw sessionError;
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/chat/${agent?.id}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${sessionData.session.access_token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: input,
-          }),
+      setMessages((prev) => [...prev, newMessage, agentMessage]);
+      setAgentMsgLoading(true);
+      try {
+        const { data: sessionData, error: sessionError } =
+          await supabase.auth.getSession();
+        if (sessionError || !sessionData.session) throw sessionError;
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/chat/${agent?.id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${sessionData.session.access_token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: input,
+            }),
+          }
+        );
+
+        if (!res.ok || !res.body) {
+          throw new Error("Agent failed to respond.");
         }
-      );
 
-      if (!res.ok || !res.body) {
-        throw new Error("Agent failed to respond.");
-      }
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let finalText = "";
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let finalText = "";
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
 
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n").filter(Boolean); // remove empty lines
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n").filter(Boolean); // remove empty lines
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const jsonStr = line.replace(/^data:\s*/, ""); // Remove "data: " prefix
+              const data = JSON.parse(jsonStr);
+              finalText += data.text;
 
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const jsonStr = line.replace(/^data:\s*/, ""); // Remove "data: " prefix
-            const data = JSON.parse(jsonStr);
-            finalText += data.text;
-
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === agentMessage.id
-                  ? { ...msg, content: finalText }
-                  : msg
-              )
-            );
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === agentMessage.id
+                    ? { ...msg, content: finalText }
+                    : msg
+                )
+              );
+            }
           }
         }
+
+        const { error } = await supabase
+          .from("agents")
+          .update({
+            messages: messagesRef.current,
+          })
+          .eq("id", agent?.id);
+
+        if (error) throw new Error("Failed to update messages in database.");
+      } catch {
+        // console.error("Error chatting with agent:", error);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            content: "⚠️ Agent failed to respond.",
+            role: "agent",
+            created_at: new Date().toISOString(),
+          },
+        ]);
+      } finally {
+        setAgentMsgLoading(false);
       }
-
-      const { data, error } = await supabase
-        .from("agents")
-        .update({
-          messages: messagesRef.current,
-        })
-        .eq("id", agent?.id);
-
-      if (error) throw new Error("Failed to update messages in database.");
-    } catch (error) {
-      // console.error("Error chatting with agent:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          content: "⚠️ Agent failed to respond.",
-          role: "agent",
-          created_at: new Date().toISOString(),
-        },
-      ]);
-    } finally {
-      setAgentMsgLoading(false);
-    }
-  }, []);
+    },
+    [agent?.id, supabase]
+  );
 
   return (
     <div className=" h-full w-full overflow-y-hidden relative">
       {/* navbar */}
-      <AgentNavbar agent={agent} user={user} />
+      <AgentNavbar agent={agent} user={activeUser} />
       {/* chat area */}
       <div className="h-full w-full flex justify-center items-center p-4">
         {agent?.id ? (
@@ -258,7 +254,7 @@ export default function AgentMain({ agent, activeUser }: AgentMainProps) {
               className="absolute inset-x-0 px-4 lg:px-40 xl:px-56 bottom-10 w-full flex justify-center items-center gap-2"
             >
               <Textarea
-                className="flex-1 bg-secondary text-secondary-foreground"
+                className="flex-1 bg-input"
                 name="userInput"
                 placeholder="Start typing your message..."
                 required

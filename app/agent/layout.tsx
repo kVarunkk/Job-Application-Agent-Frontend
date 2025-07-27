@@ -1,4 +1,3 @@
-import AgentMain from "@/components/AgentMain";
 import AgentSidebar from "@/components/AgentSidebar";
 import Error from "@/components/Error";
 import { createClient } from "@/lib/supabase/server";
@@ -25,7 +24,7 @@ export default async function AgentLayout({
         <div className="flex-1 h-full overflow-hidden">{children}</div>
       </div>
     );
-  } catch (error) {
+  } catch {
     return <Error />;
   }
 }

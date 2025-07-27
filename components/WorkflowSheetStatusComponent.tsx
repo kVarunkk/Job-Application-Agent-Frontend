@@ -118,12 +118,14 @@ export default function WorkflowSheetStatusComponent({
                     {selectedRun.status}
                   </span>
                 </p>
-                <p>
-                  <strong>Auto Apply:</strong>{" "}
-                  <span className="font-mono">
-                    {workflow.auto_apply ? "true" : "false"}
-                  </span>
-                </p>
+                {workflow.agents?.platforms?.auto_apply_available && (
+                  <p>
+                    <strong>Auto Apply:</strong>{" "}
+                    <span className="font-mono">
+                      {workflow.auto_apply ? "true" : "false"}
+                    </span>
+                  </p>
+                )}
                 {selectedRun.error && (
                   <p className="text-red-600">
                     <strong>Error:</strong> {selectedRun.error}
@@ -170,10 +172,26 @@ export default function WorkflowSheetStatusComponent({
                             <strong>Suitable:</strong>{" "}
                             {job.suitable ? "Yes" : "No"}
                           </li>
-                          <li>
-                            <strong>Applied:</strong>{" "}
-                            {job.applied ? "Yes" : "No"}
-                          </li>
+                          {workflow.agents?.platforms?.auto_apply_available && (
+                            <li>
+                              <strong>Applied:</strong>{" "}
+                              {job.applied ? "Yes" : "No"}
+                            </li>
+                          )}
+
+                          {job.application_url && (
+                            <li>
+                              <strong>Application URL:</strong>{" "}
+                              <a
+                                href={job.application_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                {job.application_url}
+                              </a>
+                            </li>
+                          )}
                         </ul>
 
                         {job.cover_letter && (

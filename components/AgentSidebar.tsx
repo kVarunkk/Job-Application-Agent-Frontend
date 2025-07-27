@@ -2,37 +2,21 @@
 
 import { cn } from "@/lib/utils";
 import {
+  BriefcaseBusiness,
   ChevronLeft,
   ChevronRight,
-  LogOut,
-  MoreVertical,
-  Pencil,
   Plus,
-  Settings,
-  Trash,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import { ThemeSwitcher } from "./theme-switcher";
-import { usePathname } from "next/navigation";
 import CreateAgentDialog from "./CreateAgentDialog";
-import AgentDeleteDialog from "./AgentDeleteDialog";
-import AgentInformation from "./AgentInformation";
 import { createClient } from "@/lib/supabase/client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-
 import AgentSidebarBtn from "./AgentSidebarBtn";
-import { useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
 import { Agent } from "@/lib/types";
+import ProfileDropdown from "./ProfileDropdown";
 
 interface AgentSidebarProps {
   screen: "lg" | "sm";
@@ -44,20 +28,11 @@ export default function AgentSidebar({ screen, user }: AgentSidebarProps) {
   const [sidebarAgents, setSidebarAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const router = useRouter();
-
-  const logout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/auth/login");
-  };
-
   const fetchAgents = useCallback(async () => {
     try {
       const supabase = createClient();
       const {
         data: { user },
-        error: userError,
       } = await supabase.auth.getUser();
       if (!user) throw new Error("User not found");
       const { data, error } = await supabase
@@ -83,7 +58,7 @@ export default function AgentSidebar({ screen, user }: AgentSidebarProps) {
   const updateSidebarAfterUpdation = useCallback(async () => {
     try {
       fetchAgents();
-    } catch (error) {
+    } catch {
       console.error("Could not update the agents.");
     }
   }, [fetchAgents]);
@@ -92,7 +67,7 @@ export default function AgentSidebar({ screen, user }: AgentSidebarProps) {
     (async () => {
       try {
         await fetchAgents();
-      } catch (error) {
+      } catch {
         console.error("Could not update the agents.");
       } finally {
         setLoading(false);
@@ -166,37 +141,15 @@ export default function AgentSidebar({ screen, user }: AgentSidebarProps) {
         </div>
       )}
       <div className="flex flex-col gap-2 mt-auto">
+        <Link href={"/jobs"}>
+          <Button variant={"ghost"} className="w-full !justify-start !gap-5">
+            <BriefcaseBusiness className="h-4 w-4 text-muted-foreground" />
+            {open && "Jobs"}
+          </Button>
+        </Link>
         <ThemeSwitcher sidebarOpen={open} />
         {user && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant={"ghost"}
-                className={`!gap-3  ${
-                  open ? "!justify-start" : "!justify-center"
-                }`}
-              >
-                <Avatar className={cn("bg-muted h-6 w-6 ", open && "-ml-1")}>
-                  <AvatarImage src="/" />
-                  <AvatarFallback className="text-xs uppercase">
-                    {user.email?.slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                {open && <span>Account</span>}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
-              <DropdownMenuItem disabled>
-                <Settings />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={logout}>
-                <LogOut />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ProfileDropdown user={user} open={open} isAgentSidebar={true} />
         )}
       </div>
     </div>

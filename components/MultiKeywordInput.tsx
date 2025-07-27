@@ -5,27 +5,36 @@ import { Input } from "./ui/input";
 import { v4 as uuidv4 } from "uuid";
 import { Check, X } from "lucide-react";
 import { IFormValues } from "./CreateWorkflowForm";
+import { IFormData } from "@/lib/types";
+import { FiltersState } from "./FilterComponent";
 
 interface MultiKeywordInputProps {
   updateFormValues: (
-    type: keyof Pick<
-      IFormValues,
-      "included_keywords" | "excluded_keywords" | "title_included_keywords"
-    >,
+    type:
+      | keyof Pick<
+          IFormValues,
+          "included_keywords" | "excluded_keywords" | "title_included_keywords"
+        >
+      | keyof IFormData
+      | keyof FiltersState,
     keywords: {
       id: string;
       content: string;
     }[]
   ) => void;
-  type: keyof Pick<
-    IFormValues,
-    "included_keywords" | "excluded_keywords" | "title_included_keywords"
-  >;
+  type:
+    | keyof Pick<
+        IFormValues,
+        "included_keywords" | "excluded_keywords" | "title_included_keywords"
+      >
+    | keyof IFormData
+    | keyof FiltersState;
   placeholder?: string;
   initialKeywords?: {
     id: string;
     content: string;
   }[];
+  className?: string;
 }
 
 export default function MultiKeywordInput({
@@ -33,6 +42,7 @@ export default function MultiKeywordInput({
   updateFormValues,
   placeholder,
   initialKeywords,
+  className = "",
 }: MultiKeywordInputProps) {
   const [input, setInput] = useState("");
   const [keywords, setKeywords] = useState<
@@ -43,8 +53,18 @@ export default function MultiKeywordInput({
   >(initialKeywords ?? []);
 
   useEffect(() => {
+    if (
+      initialKeywords &&
+      initialKeywords.length > 0 &&
+      keywords.length === 0
+    ) {
+      setKeywords(initialKeywords);
+    }
+  }, [initialKeywords, keywords.length]);
+
+  useEffect(() => {
     updateFormValues(type, keywords);
-  }, [keywords]);
+  }, [keywords, type, updateFormValues]);
 
   const addKeyword = () => {
     const trimmed = input.trim();
@@ -94,34 +114,37 @@ export default function MultiKeywordInput({
 
   return (
     <div className="flex flex-col gap-2 relative">
-      <Input
-        id={type}
-        name={type}
-        placeholder={placeholder ?? ""}
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-      {input.trim() && (
-        <div className="flex items-center absolute right-1 top-1 text-muted-foreground">
-          <button
-            onClick={() => setInput("")}
-            className="p-1 hover:text-primary"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <button onClick={addKeyword} className="p-1 hover:text-primary">
-            <Check className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+      <div className="flex items-center gap-2">
+        <Input
+          id={type}
+          name={type}
+          placeholder={placeholder ?? ""}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className={`${className}`}
+        />
+        {input.trim() && (
+          <div className="flex items-center text-muted-foreground">
+            <button
+              onClick={() => setInput("")}
+              className="p-1 hover:text-primary"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <button onClick={addKeyword} className="p-1 hover:text-primary">
+              <Check className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
 
       {keywords.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {keywords.map(({ content, id }) => (
             <span
               key={id}
-              className="flex items-center border border-border text-muted-foreground px-2 py-1 rounded text-sm"
+              className="flex items-center border border-border  px-2 py-1 rounded text-sm"
             >
               {content}
               <button onClick={() => removeKeyword(id)} className="p-1">

@@ -1,7 +1,5 @@
 import crypto from "crypto";
 
-const IV_LENGTH = 16;
-
 export function encryptAES(text: string, aesKey: string): string {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(

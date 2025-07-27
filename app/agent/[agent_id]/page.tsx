@@ -27,7 +27,7 @@ export default async function AgentIdPage({
       throw "Agent not found";
     }
     return <AgentMain agent={agentData[0]} activeUser={user} />;
-  } catch (error) {
+  } catch {
     return <Error />;
   }
 }

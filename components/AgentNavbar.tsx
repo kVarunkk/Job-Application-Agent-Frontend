@@ -1,15 +1,6 @@
 "use client";
 
-import { Hamburger, LogOut, Menu, Settings } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { useRouter } from "next/navigation";
+import { Menu } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import {
@@ -36,7 +27,7 @@ export default function AgentNavbar({ agent, user }: AgentNavbarProps) {
 
   const updateAgent = useCallback(async () => {
     const supabase = createClient();
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("agents")
       .select(
         "id, created_at, filter_url, name, resume_path, updated_at, user_id, workflows(*), platforms(*)"
@@ -44,8 +35,8 @@ export default function AgentNavbar({ agent, user }: AgentNavbarProps) {
       .eq("id", agent?.id)
       .single();
     console.log(data);
-    data && setAgentState(data as unknown as Agent);
-  }, []);
+    if (data) setAgentState(data as unknown as Agent);
+  }, [agent?.id]);
 
   useEffect(() => {
     updateAgent();

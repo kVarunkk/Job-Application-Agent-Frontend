@@ -1,16 +1,6 @@
 "use client";
 
-import { Trash } from "lucide-react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+import { DialogClose, DialogFooter } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { usePathname, useRouter } from "next/navigation";
@@ -25,7 +15,7 @@ export default function AgentDeleteDialog({
   agentId,
   updateSidebarAgentsAfterDeletion,
 }: AgentDeleteDialogProps) {
-  const [openDialog, setOpenDialog] = useState(false);
+  // const [openDialog, setOpenDialog] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -45,7 +35,7 @@ export default function AgentDeleteDialog({
       console.error("Error deleting agent:", error);
     } finally {
       setDeleteLoading(false);
-      setOpenDialog(false);
+      // setOpenDialog(false);
     }
   };
 

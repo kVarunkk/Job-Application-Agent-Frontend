@@ -2,16 +2,15 @@
 
 import { useState } from "react";
 import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";
 import MultiKeywordInput from "./MultiKeywordInput";
 import { createClient } from "@/lib/supabase/client";
 import { IFormValues } from "./CreateWorkflowForm";
 import { v4 as uuidv4 } from "uuid";
-import InfoTooltip from "./InfoTooltip";
 import { FormField } from "./FormField";
-import { IWorkflow } from "@/lib/types";
+import { IFormData, IWorkflow } from "@/lib/types";
+import { FiltersState } from "./FilterComponent";
 
 interface WorkflowSheetConfigFormProps {
   workflow: IWorkflow;
@@ -34,10 +33,13 @@ export default function WorkflowSheetConfigForm({
   const supabase = createClient();
 
   const updateFormValues = (
-    type: keyof Pick<
-      IFormValues,
-      "included_keywords" | "excluded_keywords" | "title_included_keywords"
-    >,
+    type:
+      | keyof Pick<
+          IFormValues,
+          "included_keywords" | "excluded_keywords" | "title_included_keywords"
+        >
+      | keyof IFormData
+      | keyof FiltersState,
     keywords: {
       id: string;
       content: string;
@@ -59,7 +61,7 @@ export default function WorkflowSheetConfigForm({
       )
         throw new Error("Issue with FormValues");
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("workflows")
         .update({
           no_jobs: formValues.no_jobs,
@@ -67,14 +69,15 @@ export default function WorkflowSheetConfigForm({
           excluded_keywords: formValues.excluded_keywords ?? [],
           job_title_contains: formValues.title_included_keywords ?? [],
           interval: formValues.interval,
-          auto_apply: formValues.auto_apply,
+          auto_apply: formValues.auto_apply ?? false,
+          last_run_at: null,
         })
         .eq("id", workflow.id);
 
       if (error) throw error;
 
       fetchWorkflow();
-    } catch (error) {
+    } catch {
       console.error("Some error occured while creating Workflow");
     } finally {
       setLoading(false);
@@ -182,21 +185,23 @@ export default function WorkflowSheetConfigForm({
         </FormField>
 
         {/* Auto Apply */}
-        <FormField
-          label="Auto Apply"
-          htmlFor="auto_apply"
-          tooltip="All the Suitable Jobs would be Applied to if this option is set to True else the suitable jobs will be stored for you to apply to later"
-        >
-          <Switch
-            checked={formValues.auto_apply}
-            onCheckedChange={(value) =>
-              setFormValues((prev) => ({
-                ...prev,
-                auto_apply: value,
-              }))
-            }
-          />
-        </FormField>
+        {workflow.agents?.platforms?.auto_apply_available && (
+          <FormField
+            label="Auto Apply"
+            htmlFor="auto_apply"
+            tooltip="All the Suitable Jobs would be Applied to if this option is set to True else the suitable jobs will be stored for you to apply to later"
+          >
+            <Switch
+              checked={formValues.auto_apply}
+              onCheckedChange={(value) =>
+                setFormValues((prev) => ({
+                  ...prev,
+                  auto_apply: value,
+                }))
+              }
+            />
+          </FormField>
+        )}
       </div>
 
       {/* Submit Button */}
