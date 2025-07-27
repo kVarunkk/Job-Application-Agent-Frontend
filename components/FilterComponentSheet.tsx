@@ -7,7 +7,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
 import FilterComponent from "./FilterComponent";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -23,7 +22,7 @@ export default function FilterComponentSheet({
   const [openSheet, setOpenSheet] = useState(false);
   const searchParams = useSearchParams();
 
-  let filtersApplied: {
+  const filtersApplied: {
     id: string;
     name: string;
     value: string;

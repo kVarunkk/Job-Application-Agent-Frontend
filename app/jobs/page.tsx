@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import JobsList from "./JobsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AuthButton } from "@/components/auth-button";
-import FilterComponentSheet from "@/components/FilterComponentSheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function JobsPage({
