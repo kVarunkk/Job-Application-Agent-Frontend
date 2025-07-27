@@ -65,7 +65,7 @@ export default function MultiKeywordSelectInput({
       );
       isInitialized.current = true; // Mark as initialized
     }
-  }, [initialKeywords, keywords]);
+  }, [initialKeywords]);
 
   const addKeyword = (contentToAdd: string) => {
     const trimmed = contentToAdd.trim();
