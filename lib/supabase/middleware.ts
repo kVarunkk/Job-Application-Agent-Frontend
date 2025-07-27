@@ -49,7 +49,7 @@ export async function updateSession(request: NextRequest) {
   ];
 
   // Paths related to authentication (login, signup, callback)
-  const authPaths = ["/auth/login", "/auth/signup", "/auth/callback"];
+  const authPaths = ["/auth/login", "/auth/sign-up", "/auth/callback"];
 
   // Check if the current path is an auth path
   const isAuthPath = authPaths.some(
