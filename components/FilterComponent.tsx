@@ -189,26 +189,29 @@ export default function FilterComponent({
   }, [searchParams, getInitialState]); // Depend on searchParams to re-initialize state
 
   // A single handler for input changes (for type="text" or "number")
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement> // Only for Input elements
-  ) => {
-    const { name, value } = e.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name as keyof FiltersState]: value,
-    }));
-  };
+  const handleChange = useCallback(
+    (
+      e: ChangeEvent<HTMLInputElement> // Only for Input elements
+    ) => {
+      const { name, value } = e.target;
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        [name as keyof FiltersState]: value,
+      }));
+    },
+    [setFilters]
+  );
 
   // Handler for MultiKeywordInput changes (it will pass name and string[])
-  const handleMultiKeywordSelectChange = (
-    name: keyof GenericFormData,
-    keywords: string[]
-  ) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name]: keywords,
-    }));
-  };
+  const handleMultiKeywordSelectChange = useCallback(
+    (name: keyof GenericFormData, keywords: string[]) => {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        [name]: keywords,
+      }));
+    },
+    [setFilters]
+  );
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

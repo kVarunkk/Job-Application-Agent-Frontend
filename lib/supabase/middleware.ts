@@ -66,11 +66,7 @@ export async function updateSession(request: NextRequest) {
     // Allow access to public/auth paths if unauthenticated.
     // The /get-started page itself (base or edit mode) is considered a protected page
     // that requires authentication.
-    if (
-      !isAuthPath &&
-      !publicPaths.includes(pathname) &&
-      !isGetStartedBasePage
-    ) {
+    if (!isAuthPath && !publicPaths.includes(pathname)) {
       // Added !isGetStartedBasePage here
       const url = request.nextUrl.clone();
       url.pathname = "/auth/login";
@@ -109,6 +105,18 @@ export async function updateSession(request: NextRequest) {
   if (userInfo && isGetStartedBasePage && !isGetStartedEditMode) {
     const url = request.nextUrl.clone();
     url.pathname = "/jobs"; // Or '/dashboard'
+    return NextResponse.redirect(url);
+  }
+
+  if (isAuthPath && user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/jobs";
+    return NextResponse.redirect(url);
+  }
+
+  if (pathname.startsWith("/agent")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/jobs";
     return NextResponse.redirect(url);
   }
 

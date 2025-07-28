@@ -71,7 +71,7 @@ export default function JobItem({
       onClick={handleToggleDescription} // Add this line
       tabIndex={0} // Makes div focusable for accessibility
       role="button"
-      aria-pressed={showDescription}
+      //   aria-pressed={showDescription}
     >
       <div className="flex-col sm:flex-row sm:flex items-center justify-between gap-4">
         <div className="flex flex-col gap-2 mb-6 sm:mb-0">

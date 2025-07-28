@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { LogOut } from "lucide-react";
+import { LogOut, User as UserIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import {
@@ -22,6 +22,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useRouter } from "next/navigation";
 import { Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function ProfileDropdown({
   user,
@@ -33,6 +35,7 @@ export default function ProfileDropdown({
   isAgentSidebar: boolean;
 }) {
   const { theme, setTheme } = useTheme();
+  const [isUserInfo, setIsUserInfo] = useState(false);
 
   const router = useRouter();
   const logout = async () => {
@@ -40,6 +43,23 @@ export default function ProfileDropdown({
     await supabase.auth.signOut();
     router.push("/auth/login");
   };
+
+  useEffect(() => {
+    (async () => {
+      const supabase = createClient();
+
+      const { data, error } = await supabase
+        .from("user_info")
+        .select("*")
+        .eq("user_id", user?.id)
+        .single();
+
+      if (data && !error) {
+        setIsUserInfo(true);
+      }
+    })();
+  }, [user]);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -67,6 +87,19 @@ export default function ProfileDropdown({
         <DropdownMenuLabel>
           {user?.user_metadata.full_name || user?.email || "User"}
         </DropdownMenuLabel>
+        {isUserInfo ? (
+          <DropdownMenuItem>
+            <Link
+              href={"/get-started?edit"}
+              className="w-full flex items-center cursor-default gap-4"
+            >
+              <UserIcon className="text-muted-foreground  h-4 w-4" /> Edit
+              Profile
+            </Link>
+          </DropdownMenuItem>
+        ) : (
+          ""
+        )}
         {!isAgentSidebar && (
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>

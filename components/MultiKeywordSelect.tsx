@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   Select,
   SelectContent,
@@ -13,16 +13,17 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface GenericFormData {
-  [key: string]: string | number;
+  [key: string]: string | number | string[]; // Added string[] for multi-select types
 }
 
 interface MultiKeywordSelectProps {
   name: keyof GenericFormData;
   onChange: (name: keyof GenericFormData, keywords: string[]) => void;
   placeholder?: string;
+  // Renamed from initialKeywords to initialKeywords to follow controlled component conventions
   initialKeywords?: string[];
   className?: string;
-  label?: string;
+  label?: string; // Not used in this component, but keeping it as per your code
   availableItems?: string[];
 }
 
@@ -30,112 +31,104 @@ export default function MultiKeywordSelect({
   name,
   onChange,
   placeholder,
-  initialKeywords = [],
+  initialKeywords = [], // Default to empty array if not provided
   className = "",
   availableItems = [],
 }: MultiKeywordSelectProps) {
-  const [keywords, setKeywords] = useState<
-    {
-      id: string;
-      content: string;
-    }[]
-  >(initialKeywords?.map((content) => ({ id: uuidv4(), content })) ?? []);
-
+  // Internal state for the dropdown initialKeywords to ensure it resets after selection
   const [selectedDropdownValue, setSelectedDropdownValue] =
     useState<string>("");
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
 
-  const isInitialized = useRef(false);
+  // Memoize the transformation of the 'initialKeywords' prop into the {id, content} format for rendering.
+  // This array is purely for display and derives directly from the 'initialKeywords' prop.
+  const displayedKeywords = useMemo(() => {
+    // We generate UUIDs here for the key prop in the map,
+    // but the actual 'initialKeywords' (string array) passed to onChange remains clean.
+    return initialKeywords.map((content) => ({ id: uuidv4(), content }));
+  }, [initialKeywords]); // Recalculate only when the 'initialKeywords' prop changes
 
-  useEffect(() => {
-    onChangeRef.current(
-      name,
-      keywords.map((k) => k.content)
-    );
-  }, [keywords, name]);
-
-  useEffect(() => {
-    // Only run this effect once, or when initialKeywords *truly* changes
-    // and the component hasn't already processed them.
-    if (
-      !isInitialized.current ||
-      JSON.stringify(initialKeywords) !==
-        JSON.stringify(keywords.map((k) => k.content))
-    ) {
-      setKeywords(
-        initialKeywords.map((content) => ({ id: uuidv4(), content }))
-      );
-      isInitialized.current = true; // Mark as initialized
-    }
-  }, [initialKeywords]);
-
-  const addKeyword = (contentToAdd: string) => {
-    const trimmed = contentToAdd.trim();
-    if (
-      !trimmed ||
-      keywords.some((k) => k.content.toLowerCase() === trimmed.toLowerCase())
-    ) {
-      return; // Do not add if empty or duplicate
-    }
-    setKeywords((prev) => [
-      ...prev,
-      {
-        id: uuidv4(),
-        content: trimmed,
-      },
-    ]);
-  };
-
-  const handleSelectChange = (value: string) => {
-    if (value) {
-      // Ensure a valid item was selected
-      addKeyword(value);
-      setSelectedDropdownValue(""); // Reset select to placeholder after selection
-    }
-  };
-
-  const removeKeyword = (id: string) => {
-    setKeywords((prev) => prev.filter((_) => _.id !== id));
-  };
-
-  // Filter available items to exclude those already added as keywords
-  const filteredAvailableItems = availableItems.filter(
-    (item) =>
-      !keywords.some((k) => k.content.toLowerCase() === item.toLowerCase())
+  // Callback to add a keyword
+  const addKeyword = useCallback(
+    (contentToAdd: string) => {
+      const trimmed = contentToAdd.trim();
+      // Ensure content is not empty and not already in the 'initialKeywords' array
+      if (
+        !trimmed ||
+        initialKeywords.some((k) => k.toLowerCase() === trimmed.toLowerCase())
+      ) {
+        return;
+      }
+      // Call the parent's onChange with the new array
+      onChange(name, [...initialKeywords, trimmed]);
+    },
+    [name, onChange, initialKeywords] // Dependencies: name, onChange, and the current 'initialKeywords' prop
   );
+
+  // Callback to handle selection from the dropdown
+  const handleSelectChange = useCallback(
+    (selectedContent: string) => {
+      if (selectedContent) {
+        addKeyword(selectedContent); // Use the existing addKeyword logic
+        setSelectedDropdownValue(""); // Reset dropdown initialKeywords to clear selection
+      }
+    },
+    [addKeyword] // Dependency: addKeyword
+  );
+
+  // Callback to remove a keyword
+  const removeKeyword = useCallback(
+    (contentToRemove: string) => {
+      // Call the parent's onChange with the filtered array
+      onChange(
+        name,
+        initialKeywords.filter((content) => content !== contentToRemove)
+      );
+    },
+    [name, onChange, initialKeywords] // Dependencies: name, onChange, and the current 'initialKeywords' prop
+  );
+
+  // Filter available items to exclude those already added (based on the 'initialKeywords' prop)
+  const filteredAvailableItems = useMemo(() => {
+    return availableItems.filter(
+      (item) =>
+        !initialKeywords.some((k) => k.toLowerCase() === item.toLowerCase())
+    );
+  }, [availableItems, initialKeywords]);
 
   return (
     <div className={cn("flex flex-col gap-2 relative", className)}>
       <div className="flex gap-2">
-        {
-          <Select
-            onValueChange={handleSelectChange}
-            value={selectedDropdownValue}
-          >
-            <SelectTrigger className="bg-input">
-              <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent className="">
-              {filteredAvailableItems.map((item) => (
-                <SelectItem key={item} value={item}>
-                  {item}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        }
+        <Select
+          onValueChange={handleSelectChange}
+          value={selectedDropdownValue} // Controlled initialKeywords for the select dropdown
+        >
+          <SelectTrigger className="bg-input">
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent className="">
+            {filteredAvailableItems.map((item) => (
+              <SelectItem key={item} value={item}>
+                {item}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {keywords.length > 0 && (
+      {/* Display the keywords derived from the 'initialKeywords' prop */}
+      {displayedKeywords.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {keywords.map(({ content, id }) => (
+          {displayedKeywords.map(({ content, id }) => (
             <span
               key={id}
-              className="flex items-center border border-border  px-2 py-1 rounded text-sm"
+              className="flex items-center border border-border px-2 py-1 rounded text-sm"
             >
               {content}
-              <button onClick={() => removeKeyword(id)} className="p-1">
+              <button
+                type="button" // Important for buttons inside forms
+                onClick={() => removeKeyword(content)} // Pass content to remove
+                className="p-1"
+              >
                 <X className="h-4 w-4" />
               </button>
             </span>

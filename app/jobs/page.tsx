@@ -1,11 +1,10 @@
 import FilterComponent from "@/components/FilterComponent";
 import { createClient } from "@/lib/supabase/server";
-import ProfileDropdown from "@/components/ProfileDropdown";
 import { Suspense } from "react";
 import JobsList from "./JobsList";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AuthButton } from "@/components/auth-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import NavbarComponent from "@/components/Navbar";
 
 export default async function JobsPage({
   searchParams,
@@ -37,25 +36,7 @@ export default async function JobsPage({
 
   return (
     <div>
-      <div className="w-full flex items-center justify-between px-4 py-3 lg:px-20 xl:px-40 2xl:px-80 border-b">
-        <div className="flex items-center gap-2">
-          <h1 className="text-xl sm:text-2xl font-bold text-center">
-            GetHired
-          </h1>
-        </div>
-        <div className="flex items-center gap-5">
-          {/* <Link className="hover:underline" href={"/agent"}>
-            Create Agent
-          </Link> */}
-          {user ? (
-            <ProfileDropdown user={user} isAgentSidebar={false} />
-          ) : (
-            <div className="">
-              <AuthButton />
-            </div>
-          )}
-        </div>
-      </div>
+      <NavbarComponent user={user} />
       <div className="flex items-start px-4 lg:px-20 xl:px-40 2xl:px-80 py-5 h-full gap-5">
         <div className="hidden md:block w-1/3 px-2 h-screen overflow-y-auto sticky top-0 z-10">
           <FilterComponent
