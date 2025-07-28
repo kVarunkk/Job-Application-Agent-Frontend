@@ -136,7 +136,7 @@ export default function JobsComponent({
               value={selectValue}
               onValueChange={(value) => handleSorting(value)}
             >
-              <SelectTrigger className="flex-grow bg-input">
+              <SelectTrigger className="max-w-[120px] sm:max-w-full bg-input">
                 <SelectValue placeholder="Sort By" />
               </SelectTrigger>
               <SelectContent>

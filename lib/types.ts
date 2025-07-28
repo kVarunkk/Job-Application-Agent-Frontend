@@ -133,6 +133,7 @@ export interface IFormData {
   company_size_preference: string;
   resume_file: File | null;
   resume_url: string | null;
+  resume_path: string | null;
   resume_name: string | null;
   default_locations: string[];
   job_type: string[];

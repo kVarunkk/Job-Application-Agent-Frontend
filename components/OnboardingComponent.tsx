@@ -38,6 +38,8 @@ import { useRouter } from "next/navigation";
 import MultiKeywordSelectInput from "./MultiKeywordSelectInput";
 import MultiKeywordSelect from "./MultiKeywordSelect";
 import { User } from "@supabase/supabase-js";
+import ResumePreviewDialog from "./ResumePreviewDialog";
+import { X } from "lucide-react";
 
 // --- Step Components ---
 
@@ -432,40 +434,149 @@ const Step6ResumeUpload: React.FC<StepProps> = ({
   formData,
   setFormData,
   errors,
-}) => (
-  <CardContent className="!p-0">
-    <Label htmlFor="resume_file">Upload Your Resume (PDF, DOCX)</Label>
-    <Input
-      id="resume_file"
-      type="file"
-      accept=".pdf,.doc,.docx"
-      onChange={(e) =>
-        setFormData({
-          ...formData,
-          resume_file: e.target.files ? e.target.files[0] : null,
-        })
-      }
-      className={cn(
-        "mt-2 bg-input",
-        errors.resume_file ? "border-red-500 " : ""
-      )}
-    />
-    {errors.resume_file && (
-      <p className="text-red-500 text-sm mt-1">{errors.resume_file}</p>
-    )}
-    {formData.resume_file && (
-      <p className="text-sm text-muted-foreground mt-2">
-        Selected file: {formData.resume_file.name}
-      </p>
-    )}
+}) => {
+  // State for the signed URL to display
+  const [signedDisplayUrl, setSignedDisplayUrl] = useState<string | null>(null);
+  const [signedUrlError, setSignedUrlError] = useState<string | null>(null);
 
-    {formData.resume_url && formData.resume_name && (
-      <p className="text-sm text-muted-foreground mt-2">
-        Current resume uploaded: {formData.resume_name}
-      </p>
-    )}
-  </CardContent>
-);
+  // State for the local file preview URL (for newly selected files before upload)
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
+
+  // --- Effect to generate signed URL ---
+  useEffect(() => {
+    const fetchSignedUrl = async () => {
+      // Only fetch if resume_url exists (meaning it was previously uploaded and stored)
+      if (formData.resume_path) {
+        setSignedUrlError(null);
+        setSignedDisplayUrl(null); // Clear previous URL
+
+        try {
+          const supabase = createClient();
+
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
+
+          if (user === null || userError) {
+            setSignedUrlError(
+              `Failed to load resume: ${userError ? userError.message : ""}`
+            );
+          }
+
+          const { data, error } = await supabase.storage
+            .from("resumes")
+            .createSignedUrl(`${formData.resume_path}`, 3600); // URL valid for 1 hour
+
+          if (error) {
+            setSignedUrlError(`Failed to load resume: ${error.message}`);
+          } else if (data?.signedUrl) {
+            setSignedDisplayUrl(data.signedUrl);
+          } else {
+            setSignedUrlError("Could not get signed URL for resume.");
+          }
+        } catch (err: unknown) {
+          setSignedUrlError(
+            `An unexpected error occurred: ${
+              err instanceof Error ? err.message : String(err)
+            }`
+          );
+        } finally {
+        }
+      } else {
+        // If formData.resume_url is null, clear any previous signed URL
+        setSignedDisplayUrl(null);
+        setSignedUrlError(null);
+      }
+    };
+
+    fetchSignedUrl();
+  }, [formData.resume_path]); // Re-run when the Supabase URL changes
+
+  // --- Effect to generate local preview URL for newly selected files ---
+  useEffect(() => {
+    if (formData.resume_file) {
+      // Create a URL for the local file object
+      const url = URL.createObjectURL(formData.resume_file);
+      setLocalPreviewUrl(url);
+
+      // Clean up the object URL when the component unmounts or the file changes
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setLocalPreviewUrl(null);
+    }
+  }, [formData.resume_file]); // Re-run when the selected file changes
+
+  return (
+    <CardContent className="!p-0">
+      <Label htmlFor="resume_file">Upload Your Resume (PDF, DOCX)</Label>
+      <Input
+        id="resume_file"
+        type="file"
+        accept=".pdf,.doc,.docx"
+        onChange={(e) => {
+          const file = e.target.files ? e.target.files[0] : null;
+          setFormData((prev) => ({
+            ...prev,
+            resume_file: file, // Store the File object
+            resume_name: file ? file.name : null, // Update resume_name immediately
+          }));
+        }}
+        className={cn(
+          "mt-2 bg-input",
+          errors.resume_file ? "border-red-500 " : ""
+        )}
+      />
+      {errors.resume_file && (
+        <p className="text-red-500 text-sm mt-1">{errors.resume_file}</p>
+      )}
+
+      {formData.resume_file && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground mt-2">
+            Selected file: {formData.resume_file.name}
+          </p>
+
+          <button
+            onClick={() => {
+              setFormData((prev) => ({
+                ...prev,
+                resume_file: null,
+                resume_name: null,
+              }));
+            }}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {formData.resume_path && signedDisplayUrl && !signedUrlError && (
+        <p className="text-sm text-muted-foreground mt-2 flex items-center gap-1">
+          <ResumePreviewDialog
+            displayUrl={signedDisplayUrl}
+            isPdf={signedDisplayUrl.endsWith(".pdf")}
+          />
+          for your currently stored Resume
+        </p>
+      )}
+
+      {signedUrlError && (
+        <p className="text-red-500 text-sm mt-2">{signedUrlError}</p>
+      )}
+
+      {formData.resume_file && localPreviewUrl && (
+        <p className="text-sm text-muted-foreground mt-2 flex items-center gap-1">
+          <ResumePreviewDialog
+            displayUrl={localPreviewUrl}
+            isPdf={localPreviewUrl.endsWith(".pdf")}
+          />
+          for the Resume you just uploaded
+        </p>
+      )}
+    </CardContent>
+  );
+};
 
 const Step7ReviewSubmit: React.FC<StepProps> = ({ formData }) => (
   <CardContent className="!p-0">
@@ -546,12 +657,7 @@ const Step7ReviewSubmit: React.FC<StepProps> = ({ formData }) => (
       <h4 className="font-semibold  mb-2">Resume</h4>
       <div className="space-y-1 text-sm ">
         <p>
-          <span>Resume File:</span>{" "}
-          {formData.resume_file
-            ? formData.resume_file.name
-            : formData.resume_url
-            ? "Uploaded"
-            : "N/A"}
+          <span>Resume File:</span> {formData.resume_name}
         </p>
       </div>
     </div>
@@ -576,6 +682,7 @@ export const OnboardingForm: React.FC = () => {
     company_size_preference: "",
     resume_file: null,
     resume_url: null,
+    resume_path: null,
     resume_name: null,
     default_locations: [],
     job_type: [],
@@ -778,21 +885,22 @@ export const OnboardingForm: React.FC = () => {
           return;
         }
 
-        const { data: publicUrlData } = supabase.storage
-          .from("resumes")
-          .getPublicUrl(filePath);
+        // const { data: publicUrlData } = supabase.storage
+        //   .from("resumes")
+        //   .getPublicUrl(filePath);
 
-        if (publicUrlData && publicUrlData.publicUrl) {
-          setFormData((prev) => ({
-            ...prev,
-            resume_url: publicUrlData.publicUrl,
-            resume_name: file.name,
-          }));
-        } else {
-          setError("Could not get public URL for resume.");
-          setIsLoading(false);
-          return;
-        }
+        // if (publicUrlData && publicUrlData.publicUrl) {
+        setFormData((prev) => ({
+          ...prev,
+          // resume_url: publicUrlData.publicUrl,
+          resume_path: filePath,
+          resume_name: file.name,
+        }));
+        // } else {
+        //   setError("Could not get public URL for resume.");
+        //   setIsLoading(false);
+        //   return;
+        // }
       } catch (uploadException: unknown) {
         setError(
           `An unexpected error occurred during resume upload: ${
@@ -849,8 +957,8 @@ export const OnboardingForm: React.FC = () => {
         career_goals_short_term: formData.career_goals_short_term,
         career_goals_long_term: formData.career_goals_long_term,
         company_size_preference: formData.company_size_preference,
-        resume_url: formData.resume_url, // This will be null if no file uploaded/URL generated
         resume_name: formData.resume_name,
+        resume_path: formData.resume_path,
         job_type: formData.job_type,
       };
       const supabase = createClient();
@@ -939,6 +1047,9 @@ export const OnboardingForm: React.FC = () => {
               : "Next"}
           </Button>
         </CardFooter>
+        <p className="text-muted-foreground text-xs text-center mt-5">
+          No need to panic, you can always update this information.
+        </p>
       </Card>
 
       {successMessage ? toast.success(successMessage) : ""}
