@@ -657,7 +657,8 @@ const Step7ReviewSubmit: React.FC<StepProps> = ({ formData }) => (
       <h4 className="font-semibold  mb-2">Resume</h4>
       <div className="space-y-1 text-sm ">
         <p>
-          <span>Resume File:</span> {formData.resume_name}
+          <span>Resume File:</span>{" "}
+          {formData.resume_path ? "Stored" : "Not Stored"}
         </p>
       </div>
     </div>

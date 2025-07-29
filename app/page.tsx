@@ -1,3 +1,8 @@
+import FAQSection from "@/components/landing-page/FAQSection";
+import Footer from "@/components/landing-page/Footer";
+import Hero from "@/components/landing-page/Hero";
+import { HowWeHelp } from "@/components/landing-page/HowWeHelp";
+import TheGetHiredAdvantageSection from "@/components/landing-page/TheGetHiredAdvantageSection";
 import NavbarComponent from "@/components/Navbar";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -37,7 +42,15 @@ export default async function Home() {
             </Link>,
           ]}
         />
-        <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5"></div>
+        <div className="flex-1 flex flex-col gap-32  w-full">
+          {/* Hero */}
+          <Hero />
+          {/* How we help */}
+          <HowWeHelp />
+          <TheGetHiredAdvantageSection />
+          <FAQSection />
+          <Footer />
+        </div>
       </div>
     </main>
   );
