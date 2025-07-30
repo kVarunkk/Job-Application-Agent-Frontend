@@ -28,17 +28,17 @@ export default async function Home() {
             </Link>,
             <Link
               key={uuidv4()}
-              href={"/features"}
+              href={"#howwehelp"}
               className="hover:underline underline-offset-2"
             >
               Features
             </Link>,
             <Link
               key={uuidv4()}
-              href={"/pricing"}
+              href={"#faq"}
               className="hover:underline underline-offset-2"
             >
-              Pricing
+              FAQs
             </Link>,
           ]}
         />

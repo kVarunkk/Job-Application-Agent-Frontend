@@ -62,7 +62,7 @@ const platforms = [
 
 export function HowWeHelp() {
   const [isPaused, setIsPaused] = useState(false);
-  const { theme } = useTheme();
+  const { theme, systemTheme } = useTheme();
 
   const memoizedFeatures = useMemo(() => {
     return [
@@ -77,7 +77,7 @@ export function HowWeHelp() {
           <Image
             alt="Feature"
             src={
-              theme === "dark"
+              theme === "dark" || (theme === "system" && systemTheme === "dark")
                 ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20205115.png"
                 : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20204910.png"
             }
@@ -99,7 +99,7 @@ export function HowWeHelp() {
           <Image
             alt="Feature"
             src={
-              theme === "dark"
+              theme === "dark" || (theme === "system" && systemTheme === "dark")
                 ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20203706.png"
                 : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20204646.png"
             }
@@ -198,7 +198,7 @@ export function HowWeHelp() {
           <Image
             alt="Feature"
             src={
-              theme === "dark"
+              theme === "dark" || (theme === "system" && systemTheme === "dark")
                 ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20223352.png"
                 : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20223643.png"
             }
@@ -210,9 +210,12 @@ export function HowWeHelp() {
         className: "lg:col-start-1 lg:col-end-3 lg:row-start-3 lg:row-end-4",
       },
     ];
-  }, [isPaused, setIsPaused, theme]);
+  }, [isPaused, setIsPaused, theme, systemTheme]);
   return (
-    <div className="flex flex-col  items-center px-4 py-3 lg:px-20 xl:px-40 2xl:px-80">
+    <div
+      id="howwehelp"
+      className="flex flex-col  items-center px-4 py-3 lg:px-20 xl:px-40 2xl:px-80"
+    >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
           How We Help You Get Hired

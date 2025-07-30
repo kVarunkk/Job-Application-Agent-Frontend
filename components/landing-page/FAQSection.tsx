@@ -38,7 +38,7 @@ export default function FAQSection() {
   ];
 
   return (
-    <section className="px-4 py-3 lg:px-20 xl:px-40 2xl:px-80 ">
+    <section id="faq" className="px-4 py-3 lg:px-20 xl:px-40 2xl:px-80 ">
       <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">

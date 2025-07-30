@@ -12,7 +12,8 @@ const maskStyle = {
 };
 
 export default function Hero() {
-  const { theme } = useTheme();
+  const { theme, systemTheme } = useTheme();
+  console.log(theme, systemTheme);
   const [mounted, setMounted] = useState(false); // State to track if component is mounted
 
   // When component mounts, set mounted to true
@@ -40,7 +41,7 @@ export default function Hero() {
         <Image
           className="rounded-xl border border-border drop-shadow-xl"
           src={
-            theme === "dark"
+            theme === "dark" || (theme === "system" && systemTheme === "dark")
               ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-28%20at%2023-32-47%20Job%20Application%20Agent.png"
               : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-28%20at%2023-32-35%20Job%20Application%20Agent.png"
           }

@@ -11,6 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import Brand from "./Brand";
 
 // Define a type for a ReactElement that is expected to have a 'href' prop
 interface HasHrefProps {
@@ -34,9 +35,7 @@ export default function NavbarComponent({
       <div className="flex items-center gap-4">
         {items ? <NavbarSheet items={items} /> : ""}
         <Link href={"/"}>
-          <h1 className="text-xl sm:text-2xl font-bold text-center">
-            GetHired
-          </h1>
+          <Brand type="long" />
         </Link>
       </div>
       {items ? (
@@ -81,9 +80,7 @@ const NavbarSheet = ({
         <SheetHeader>
           <SheetTitle>
             <Link href={"/"}>
-              <h1 className="text-xl sm:text-2xl font-bold text-center">
-                GetHired
-              </h1>
+              <Brand type="long" />
             </Link>
           </SheetTitle>
         </SheetHeader>

@@ -46,6 +46,8 @@ export async function updateSession(request: NextRequest) {
     "/", // Homepage
     "/jobs", // Main jobs board (assuming it can show public jobs)
     "/api/jobs", // API route for jobs (might be public or handle auth internally)
+    "/privacy-policy",
+    "/terms-of-service",
   ];
 
   // Paths related to authentication (login, signup, callback)

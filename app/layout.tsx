@@ -11,8 +11,8 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Job Application Agent",
-  description: "Your Dream Job is just around the corner",
+  title: "GetHired",
+  description: "Your smartest path to the perfect job. ",
 };
 
 const geistSans = Geist({

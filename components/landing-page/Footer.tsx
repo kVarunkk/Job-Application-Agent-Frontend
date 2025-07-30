@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link"; // For internal links
-import { LinkedInLogoIcon, TwitterLogoIcon } from "@radix-ui/react-icons";
+import { BriefcaseBusiness } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -41,7 +41,7 @@ export default function Footer() {
             </li>
             <li>
               <Link
-                href="/privacy"
+                href="/privacy-policy"
                 className="hover:underline  hover:opacity-100 transition-opacity"
               >
                 Privacy Policy
@@ -49,7 +49,7 @@ export default function Footer() {
             </li>
             <li>
               <Link
-                href="/terms"
+                href="/terms-of-service"
                 className="hover:underline  hover:opacity-100 transition-opacity"
               >
                 Terms of Service
@@ -70,7 +70,7 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-bold mb-3">Connect With Us</h3>
           <div className="flex justify-center md:justify-start space-x-4 mb-4 text-muted-foreground">
-            <Link
+            {/* <Link
               href="https://linkedin.com/yourprofile"
               target="_blank"
               rel="noopener noreferrer"
@@ -85,6 +85,9 @@ export default function Footer() {
               className="hover:text-accent-foreground transition-colors"
             >
               <TwitterLogoIcon />
+            </Link> */}
+            <Link href={"mailto:varun@devhub.co.in"}>
+              <BriefcaseBusiness size={16} />
             </Link>
             {/* Add more social icons as needed */}
           </div>
