@@ -16,6 +16,8 @@ import {
 } from "./ui/select";
 import FindSuitableJobs from "./FindSuitableJobs";
 import FilterComponentSheet from "./FilterComponentSheet";
+import { Button } from "./ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export default function JobsComponent({
   initialJobs,
@@ -38,9 +40,13 @@ export default function JobsComponent({
   const searchParams = useSearchParams();
 
   const selectValue =
-    searchParams.get("sortBy") && searchParams.get("sortOrder")
+    searchParams.get("sortBy") &&
+    searchParams.get("sortOrder") &&
+    searchParams.get("sortBy") !== "vector_similarity"
       ? searchParams.get("sortBy") + "-" + searchParams.get("sortOrder")
       : "";
+
+  const isSuitable = searchParams.get("sortBy") === "vector_similarity";
 
   useEffect(() => {
     setJobs(initialJobs);
@@ -113,17 +119,38 @@ export default function JobsComponent({
     setPage(() => 1);
 
     router.push(`/jobs?${params.toString()}`);
-    // setSortCriteria({ column, ascending: order === 'asc' });
-    // setPage(1)
+  };
+
+  const navigateBack = async () => {
+    const params = new URLSearchParams(searchParams.toString());
+    const sortBy = params.get("sortBy");
+
+    if (sortBy === "vector_similarity") {
+      params.delete("sortBy");
+    }
+
+    router.push(`/jobs?${params.toString()}`);
   };
 
   return (
     <div className="flex flex-col gap-4 w-full">
       {jobs.length > 0 && (
         <div className="w-full flex items-center justify-between flex-wrap gap-4">
-          <p className="text-sm text-muted-foreground">
-            Showing {jobs.length} {jobs.length > 1 ? "jobs" : "job"}
-          </p>
+          <div className="flex items-center ">
+            {isSuitable && (
+              <Button
+                onClick={navigateBack}
+                variant={"ghost"}
+                className="rounded-full"
+              >
+                <ArrowLeft />
+              </Button>
+            )}
+            <p className="text-sm text-muted-foreground">
+              Showing {jobs.length} {isSuitable ? "suitable" : ""}{" "}
+              {jobs.length > 1 ? "jobs" : "job"}
+            </p>
+          </div>
 
           <FilterComponentSheet
             uniqueLocations={uniqueLocations}
@@ -131,7 +158,7 @@ export default function JobsComponent({
           />
 
           <div className="flex items-center gap-3">
-            {user && <FindSuitableJobs user={user} />}
+            {user && <FindSuitableJobs user={user} setPage={setPage} />}
             <Select
               value={selectValue}
               onValueChange={(value) => handleSorting(value)}
@@ -154,7 +181,9 @@ export default function JobsComponent({
         </div>
       )}
       {jobs.length > 0 ? (
-        jobs.map((job) => <JobItem key={job.id} job={job} user={user} />)
+        jobs.map((job) => (
+          <JobItem key={job.id} job={job} user={user} isSuitable={isSuitable} />
+        ))
       ) : (
         <p className="text-muted-foreground mt-20 mx-auto">
           No jobs found for the selected Filter.{" "}

@@ -1,6 +1,12 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  startTransition,
+  useEffect,
+  useState,
+} from "react";
 import {
   Select,
   SelectContent,
@@ -14,11 +20,28 @@ import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function FindSuitableJobs({ user }: { user: User | null }) {
+export default function FindSuitableJobs({
+  user,
+  setPage,
+}: {
+  user: User | null;
+  setPage: Dispatch<SetStateAction<number>>;
+}) {
   const [suitableJobsSelectValue, setSuitableJobsSelectValue] = useState("");
   const router = useRouter();
   const supabase = createClient();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const toastId = sessionStorage.getItem("ai-toast");
+
+    if (typeof window !== "undefined" && toastId) {
+      toast.success("Found suitable Jobs for you", {
+        id: toastId,
+      });
+      sessionStorage.removeItem("ai-toast");
+    }
+  }, []);
 
   const handleFindSuitableJobs = async () => {
     const toastId = toast.loading("Finding suitable jobs..."); // Show loading toast
@@ -53,7 +76,8 @@ export default function FindSuitableJobs({ user }: { user: User | null }) {
       // Preserve current sort order if it exists
       const currentSortBy = searchParams.get("sortBy");
       const currentSortOrder = searchParams.get("sortOrder");
-      if (currentSortBy) params.set("sortBy", currentSortBy);
+      if (currentSortBy && currentSortBy !== "vector_similarity")
+        params.set("sortBy", currentSortBy);
       if (currentSortOrder) params.set("sortOrder", currentSortOrder);
 
       const addMultiParam = (paramName: string, values: string[] | null) => {
@@ -96,6 +120,22 @@ export default function FindSuitableJobs({ user }: { user: User | null }) {
     }
   };
 
+  const handleAiSearch = async () => {
+    const toastId = toast.loading("AI is finding suitable jobs...");
+
+    try {
+      const params = new URLSearchParams();
+      params.set("sortBy", "vector_similarity");
+      setPage(() => 1);
+
+      sessionStorage.setItem("ai-toast", toastId);
+
+      router.push(`/jobs?${params.toString()}`);
+    } catch {
+      toast.error("AI search failed", { id: toastId });
+    }
+  };
+
   return (
     <Select
       value={suitableJobsSelectValue}
@@ -103,6 +143,9 @@ export default function FindSuitableJobs({ user }: { user: User | null }) {
         setSuitableJobsSelectValue(value); // Update local state for Select
         if (value === "find-suitable") {
           handleFindSuitableJobs(); // Call the function
+        }
+        if (value === "ai-job-search") {
+          handleAiSearch();
         }
         setTimeout(() => setSuitableJobsSelectValue(""), 100); // Reset after a short delay
       }}
@@ -123,10 +166,10 @@ export default function FindSuitableJobs({ user }: { user: User | null }) {
         <SelectItem value="find-suitable">
           Find Jobs Matching My Profile
         </SelectItem>
-        <SelectItem value="f" disabled>
+        <SelectItem value="ai-job-search">
           <div className="w-full flex items-center gap-2">
             <Sparkle className="h-4 w-4" />
-            AI Powered Job Hunt
+            AI Powered Smart Search
           </div>
         </SelectItem>
         {/* You could add more options here if needed, e.g., "Reset to default" */}

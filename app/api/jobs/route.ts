@@ -1,9 +1,11 @@
 import { buildQuery } from "@/lib/filterQueryBuilder";
 import { type NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 const JOBS_PER_PAGE = 20;
 
 export async function GET(request: NextRequest) {
+  const supabase = await createClient();
   const searchParams = request.nextUrl.searchParams;
   const page = parseInt(searchParams.get("page") || "1", 10);
 
@@ -24,6 +26,26 @@ export async function GET(request: NextRequest) {
   const endIndex = startIndex + JOBS_PER_PAGE - 1;
 
   try {
+    let userEmbedding = null;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (sortBy === "vector_similarity" && user) {
+      const { data: userData, error } = await supabase
+        .from("user_info")
+        .select("embedding")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error || !userData) {
+        console.error("Error fetching user embedding:", error);
+        // You might want to handle this gracefully for users without an embedding
+      } else {
+        userEmbedding = userData.embedding;
+      }
+    }
+
     const { data, error, count } = await buildQuery({
       jobType,
       location,
@@ -38,7 +60,9 @@ export async function GET(request: NextRequest) {
       sortOrder: sortOrder as "asc" | "desc",
       jobTitleKeywords,
       isFavoriteTabActive: isFavoriteTabActive === "true",
+      userEmbedding, // <-- ADDED: Pass the embedding to the query builder
     });
+
     if (error) {
       console.error("API Error fetching jobs:", error);
       return NextResponse.json({ error: error }, { status: 500 });
@@ -46,7 +70,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data: data || [], count });
   } catch (err: unknown) {
-    // console.error("API Exception in /api/jobs:", e);
     return NextResponse.json(
       {
         error:

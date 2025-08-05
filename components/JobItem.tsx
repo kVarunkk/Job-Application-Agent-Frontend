@@ -13,9 +13,11 @@ import { cn } from "@/lib/utils";
 export default function JobItem({
   job,
   user,
+  isSuitable,
 }: {
   job: IJob;
   user: User | null;
+  isSuitable: boolean;
 }) {
   const [showDescription, setShowDescription] = useState(false);
   const supabase = createClient();
@@ -100,7 +102,11 @@ export default function JobItem({
               </Link>
             )}
           </div>
-          <JobDetailBadges job={job} showDescription={showDescription} />
+          <JobDetailBadges
+            job={job}
+            showDescription={showDescription}
+            isSuitable={isSuitable}
+          />
         </div>
         {user ? (
           <Link href={job.job_url} target="_blank" rel="noopener noreferrer">
@@ -135,9 +141,11 @@ export default function JobItem({
 function JobDetailBadges({
   job,
   showDescription,
+  isSuitable,
 }: {
   job: IJob;
   showDescription: boolean;
+  isSuitable: boolean;
 }) {
   const jobDetails = [
     {
@@ -206,7 +214,7 @@ function JobDetailBadges({
           <Badge
             variant={"secondary"}
             className={cn(
-              "text-xs sm:text-sm font-medium ",
+              "text-xs sm:text-sm font-medium hover:!text-secondary-foreground ",
               showDescription
                 ? "border-secondary-foreground bg-primary text-primary-foreground"
                 : ""
@@ -215,6 +223,16 @@ function JobDetailBadges({
             {job.platform}
           </Badge>
         </Link>
+      )}
+      {isSuitable && (
+        <Badge
+          className={cn(
+            "text-xs sm:text-sm font-medium bg-green-200 text-green-700 !border-green-200 hover:bg-green-100",
+            showDescription ? "border-secondary-foreground" : ""
+          )}
+        >
+          JOB MATCH
+        </Badge>
       )}
     </div>
   );

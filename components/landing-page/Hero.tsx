@@ -13,7 +13,6 @@ const maskStyle = {
 
 export default function Hero() {
   const { theme, systemTheme } = useTheme();
-  console.log(theme, systemTheme);
   const [mounted, setMounted] = useState(false); // State to track if component is mounted
 
   // When component mounts, set mounted to true
