@@ -231,7 +231,7 @@ function JobDetailBadges({
             showDescription ? "border-secondary-foreground" : ""
           )}
         >
-          JOB MATCH
+          Job Match
         </Badge>
       )}
     </div>
