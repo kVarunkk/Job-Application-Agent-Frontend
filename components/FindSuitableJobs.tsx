@@ -121,7 +121,7 @@ export default function FindSuitableJobs({
   };
 
   const handleAiSearch = async () => {
-    const toastId = toast.loading("AI is finding suitable jobs...");
+    const toastId = toast.loading("Smart is finding suitable jobs...");
 
     try {
       const params = new URLSearchParams();
@@ -132,7 +132,7 @@ export default function FindSuitableJobs({
 
       router.push(`/jobs?${params.toString()}`);
     } catch {
-      toast.error("AI search failed", { id: toastId });
+      toast.error("Smart search failed", { id: toastId });
     }
   };
 
@@ -169,7 +169,7 @@ export default function FindSuitableJobs({
         <SelectItem value="ai-job-search">
           <div className="w-full flex items-center gap-2">
             <Sparkle className="h-4 w-4" />
-            AI Powered Smart Search
+            Smart Search
           </div>
         </SelectItem>
         {/* You could add more options here if needed, e.g., "Reset to default" */}
