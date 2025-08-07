@@ -4,6 +4,38 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { IJob } from "@/lib/types";
+import fs from "fs/promises";
+import path from "path";
+
+async function getVertexClient() {
+  const credentialsJson = process.env.GOOGLE_CREDENTIALS_JSON;
+
+  if (!credentialsJson) {
+    throw new Error("GOOGLE_CREDENTIALS_JSON environment variable is not set.");
+  }
+
+  // Create a temporary file in the /tmp directory
+  const tempFilePath = path.join("/tmp", "credentials.json");
+
+  try {
+    // console.log(JSON.parse(`"${credentialsJson}"`));
+    // Write the JSON string to the temporary file
+    await fs.writeFile(tempFilePath, JSON.parse(`"${credentialsJson}"`));
+    console.log("Successfully wrote credentials to temporary file.");
+  } catch (error) {
+    console.error("Failed to write temporary credentials file:", error);
+    throw new Error("Failed to set up credentials for Vertex AI.");
+  }
+
+  // Set the environment variable to the path of the temporary file
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = tempFilePath;
+
+  // Now, create the Vertex client with the configured environment
+  return createVertex({
+    project: "mern-twitter-368919",
+    location: "us-central1",
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,10 +92,7 @@ export async function POST(request: NextRequest) {
     `;
 
     // Step 3: Call the AI with the augmented prompt
-    const vertex = createVertex({
-      project: "mern-twitter-368919",
-      location: "us-central1",
-    });
+    const vertex = await getVertexClient();
     const model = vertex("gemini-2.0-flash-lite-001");
 
     const rerankPrompt = `
