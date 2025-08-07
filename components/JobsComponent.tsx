@@ -159,24 +159,26 @@ export default function JobsComponent({
 
           <div className="flex items-center gap-3">
             {user && <FindSuitableJobs user={user} setPage={setPage} />}
-            <Select
-              value={selectValue}
-              onValueChange={(value) => handleSorting(value)}
-            >
-              <SelectTrigger className="max-w-[120px] sm:max-w-full bg-input">
-                <SelectValue placeholder="Sort By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="created_at-desc">Newest First</SelectItem>
-                <SelectItem value="created_at-asc">Oldest First</SelectItem>
-                <SelectItem value="company_name-asc">
-                  Company Name (A-Z)
-                </SelectItem>
-                <SelectItem value="company_name-desc">
-                  Company Name (Z-A)
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            {searchParams.get("sortBy") !== "vector_similarity" && (
+              <Select
+                value={selectValue}
+                onValueChange={(value) => handleSorting(value)}
+              >
+                <SelectTrigger className="max-w-[120px] sm:max-w-full bg-input">
+                  <SelectValue placeholder="Sort By" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="created_at-desc">Newest First</SelectItem>
+                  <SelectItem value="created_at-asc">Oldest First</SelectItem>
+                  <SelectItem value="company_name-asc">
+                    Company Name (A-Z)
+                  </SelectItem>
+                  <SelectItem value="company_name-desc">
+                    Company Name (Z-A)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
         </div>
       )}
