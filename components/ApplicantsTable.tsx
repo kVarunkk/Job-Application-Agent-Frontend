@@ -189,10 +189,12 @@ export default function ApplicantsTable({ data }: ApplicantsTableProps) {
     },
   });
 
+  const getRowModelRows = table.getRowModel().rows;
+
   const paginatedRows = useMemo(() => {
     const start = (page - 1) * pageSize;
     return table.getRowModel().rows.slice(start, start + pageSize);
-  }, [table, page, pageSize]);
+  }, [getRowModelRows, table, page, pageSize]);
 
   const totalRecords = table.getRowModel().rows.length;
   const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));

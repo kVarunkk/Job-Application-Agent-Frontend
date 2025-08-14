@@ -185,11 +185,12 @@ export default function JobPostingsTable({ data }: JobPostingsTableProps) {
   const hasFilters = useMemo(() => {
     return columnFilters.length > 0;
   }, [columnFilters]);
+  const getRowModelRows = table.getRowModel().rows;
 
   const paginatedRows = useMemo(() => {
     const start = (page - 1) * pageSize;
     return table.getRowModel().rows.slice(start, start + pageSize);
-  }, [page, pageSize, table]);
+  }, [getRowModelRows, page, pageSize, table]);
 
   const totalRecords = table.getRowModel().rows.length;
   const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
