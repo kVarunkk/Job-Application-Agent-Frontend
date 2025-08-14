@@ -116,11 +116,15 @@ export interface IJob {
     user_id: string;
     job_id: string;
   }[];
+  job_postings?: IJobPosting[];
 }
 
 export interface IFormData {
+  user_id?: string;
+  full_name: string;
   desired_roles: string[];
   preferred_locations: string[];
+  salary_currency: string;
   min_salary: number | "";
   max_salary: number | "";
   experience_years: number | "";
@@ -137,6 +141,90 @@ export interface IFormData {
   resume_name: string | null;
   default_locations: string[];
   job_type: string[];
+}
+
+export interface ICompanyInfo {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  website: string;
+  industry: string;
+  headquarters: string;
+  company_size: string;
+  logo_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ICountry {
+  country: string;
+  cities: string[];
+  iso2: string;
+}
+
+export interface ICreateJobPostingFormData {
+  id?: string;
+  title: string;
+  description: string;
+  job_type: "Fulltime" | "Parttime" | "Contract";
+  salary_currency: string;
+  min_salary: number;
+  max_salary: number;
+  min_experience: number;
+  visa_sponsorship: "Not Required" | "Required" | "Will Sponsor";
+  location: string[];
+  max_experience?: number;
+  min_equity?: number;
+  max_equity?: number;
+  questions?: string[];
+}
+
+export interface IJobPosting {
+  id: string;
+  title: string;
+  description: string;
+  job_type: "Fulltime" | "Parttime" | "Contract";
+  salary_currency: string;
+  min_salary: number;
+  max_salary: number;
+  salary_range: string;
+  min_experience: number;
+  max_experience?: number;
+  experience: string;
+  visa_sponsorship: "Not Required" | "Required" | "Will Sponsor";
+  location: string[];
+  min_equity?: number;
+  max_equity?: number;
+  equity_range: string;
+  company_id: string;
+  created_at: string;
+  updated_at: string;
+  status: "active" | "inactive";
+  company_info?: ICompanyInfo;
+  applications?: IApplication[];
+  questions: string[];
+  job_id: string | null;
+}
+
+export interface IApplication {
+  id: string;
+  job_post_id: string;
+  applicant_user_id: string;
+  user_info?: IFormData;
+  job_postings?: IJobPosting;
+  status: TApplicationStatus;
+  resume_url: string;
+  created_at: string;
+  answers: string[];
+}
+
+export enum TApplicationStatus {
+  SUBMITTED = "submitted",
+  REVIEWED = "reviewed",
+  SELECTED = "selected",
+  STAND_BY = "stand_by",
+  REJECTED = "rejected",
 }
 
 export type TAgentType = keyof typeof agentConfigs;

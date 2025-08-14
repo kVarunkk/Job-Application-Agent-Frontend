@@ -61,6 +61,7 @@ export default async function JobsPage({
                 <TabsList>
                   <TabsTrigger value="all_jobs">All Jobs</TabsTrigger>
                   <TabsTrigger value="saved_jobs">Saved Jobs</TabsTrigger>
+                  <TabsTrigger value="applied_jobs">Applied Jobs</TabsTrigger>
                 </TabsList>
               )}
               <TabsContent value="all_jobs">
@@ -76,6 +77,17 @@ export default async function JobsPage({
                   <JobsList
                     searchParams={searchParams}
                     isFavoriteTabActive={true}
+                    uniqueLocations={uniqueLocations}
+                    uniqueCompanies={uniqueCompanies}
+                  />
+                </TabsContent>
+              )}
+              {user && (
+                <TabsContent value="applied_jobs">
+                  <JobsList
+                    searchParams={searchParams}
+                    isFavoriteTabActive={false}
+                    isAppliedJobsTabActive={true}
                     uniqueLocations={uniqueLocations}
                     uniqueCompanies={uniqueCompanies}
                   />

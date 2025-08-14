@@ -40,6 +40,13 @@ export default async function Home() {
             >
               FAQs
             </Link>,
+            <Link
+              key={uuidv4()}
+              href={"/auth/login?company=true"}
+              className="hover:underline underline-offset-2"
+            >
+              Hire
+            </Link>,
           ]}
         />
         <div className="flex-1 flex flex-col gap-32  w-full">

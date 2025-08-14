@@ -1,13 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { hasEnvVars } from "../utils"; // Assuming this utility exists
+import { hasEnvVars } from "../utils";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  // If the env vars are not set, skip middleware check. You can remove this once you setup the project.
   if (!hasEnvVars) {
     return supabaseResponse;
   }
@@ -41,87 +40,159 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname, searchParams } = request.nextUrl;
 
-  // Paths that are always public (no auth required)
   const publicPaths = [
-    "/", // Homepage
-    "/jobs", // Main jobs board (assuming it can show public jobs)
-    "/api/jobs", // API route for jobs (might be public or handle auth internally)
+    "/",
+    "/jobs",
+    "/api/jobs",
     "/privacy-policy",
     "/terms-of-service",
   ];
 
-  // Paths related to authentication (login, signup, callback)
-  const authPaths = ["/auth/login", "/auth/sign-up", "/auth/callback"];
+  const authPaths = [
+    "/auth/login",
+    "/auth/sign-up",
+    "/auth/callback",
+    "/auth/sign-up-success",
+    "/auth/error",
+    "/auth/confirm",
+    "/auth/forgot-password",
+    "/auth/update-password",
+    "/auth/login?company=true",
+    "/auth/sign-up?company=true",
+  ];
 
-  // Check if the current path is an auth path
   const isAuthPath = authPaths.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`)
   );
 
-  const isGetStartedBasePage =
-    pathname === "/get-started" || pathname === "/get-started/"; // The base /get-started page
-  const isGetStartedEditMode = isGetStartedBasePage && searchParams.has("edit"); // Check for '?edit' query param
+  const isApplicantOnboardingPath =
+    pathname === "/get-started" &&
+    !(searchParams.get("company") === "true") &&
+    !(searchParams.get("edit") === "true");
+  const isCompanyOnboardingPath =
+    pathname === "/get-started" &&
+    searchParams.get("company") === "true" &&
+    !(searchParams.get("edit") === "true");
 
   // --- 1. Handle Unauthenticated Users ---
   if (!user) {
-    // If no user is logged in AND it's not an auth path or public path, redirect to login.
-    // Allow access to public/auth paths if unauthenticated.
-    // The /get-started page itself (base or edit mode) is considered a protected page
-    // that requires authentication.
+    // If an unauthenticated user tries to access a protected page, redirect them to login.
     if (!isAuthPath && !publicPaths.includes(pathname)) {
-      // Added !isGetStartedBasePage here
       const url = request.nextUrl.clone();
-      url.pathname = "/auth/login";
+
+      url.searchParams.forEach((value, key) => {
+        url.searchParams.delete(key);
+      });
+      if (url.pathname.startsWith("/company")) {
+        url.pathname = "/auth/login";
+        url.searchParams.set("company", "true");
+      } else url.pathname = "/auth/login";
       return NextResponse.redirect(url);
     }
     return supabaseResponse;
   }
 
-  // --- 2. Handle Authenticated Users (check user_info) ---
-  // If we reach here, 'user' is guaranteed to exist.
+  // --- 2. Handle Authenticated Users ---
+  if (user) {
+    // Check if the user has an applicant profile
+    const { data: userInfo } = await supabase
+      .from("user_info")
+      .select("filled")
+      .eq("user_id", user.id)
+      .single();
 
-  // Fetch user_info
-  const { data: userInfo, error: userInfoError } = await supabase
-    .from("user_info")
-    .select("user_id")
-    .eq("user_id", user.id)
-    .single();
+    // Check if the user has a company profile
+    const { data: companyInfo } = await supabase
+      .from("company_info")
+      .select("filled")
+      .eq("user_id", user.id)
+      .single();
 
-  if (userInfoError && userInfoError.code !== "PGRST116") {
-    console.error("Error fetching user_info in middleware:", userInfoError);
-    // You might want to redirect to a generic error page or log out the user
-    // if there's a serious DB error here. For now, we'll let it pass but log.
+    const isApplicant = userInfo?.filled || false;
+    const isCompany = companyInfo?.filled || false;
+
+    // Redirect authenticated users away from auth pages
+    if (isAuthPath) {
+      const url = request.nextUrl.clone();
+      let pathname;
+      if (isApplicant === true && userInfo) {
+        pathname = "/jobs";
+        url.pathname = pathname;
+        url.searchParams.forEach((value, key) => {
+          url.searchParams.delete(key);
+        });
+        return NextResponse.redirect(url);
+      } else if (isCompany === true && companyInfo) {
+        pathname = "/company";
+        url.pathname = pathname;
+        url.searchParams.forEach((value, key) => {
+          url.searchParams.delete(key);
+        });
+        return NextResponse.redirect(url);
+      } else {
+        url.pathname = "/get-started";
+        url.searchParams.forEach((value, key) => {
+          url.searchParams.delete(key);
+        });
+
+        if (companyInfo) {
+          url.searchParams.set("company", "true");
+        }
+        return NextResponse.redirect(url);
+      }
+    }
+
+    // --- Enforce Onboarding ---
+    // If the user has no profile and is not on an onboarding page, redirect them.
+    if (
+      !isApplicant &&
+      !isCompany &&
+      !isApplicantOnboardingPath &&
+      !publicPaths
+    ) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/get-started";
+      url.searchParams.forEach((value, key) => {
+        url.searchParams.delete(key);
+      });
+      if (companyInfo) {
+        url.searchParams.set("company", "true");
+      }
+      return NextResponse.redirect(url);
+    }
+
+    // --- Restrict Access to Company Routes ---
+    if (pathname.startsWith("/company") && !companyInfo) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/jobs";
+      return NextResponse.redirect(url);
+    }
+
+    if (pathname.startsWith("/company") && !isCompany && companyInfo) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/get-started";
+      url.searchParams.forEach((value, key) => {
+        url.searchParams.delete(key);
+      });
+      if (companyInfo) {
+        url.searchParams.set("company", "true");
+      }
+      return NextResponse.redirect(url);
+    }
+
+    // If a user has completed onboarding and tries to access the onboarding page, redirect them.
+    if (
+      (isApplicant && isApplicantOnboardingPath) ||
+      (isCompany && isCompanyOnboardingPath)
+    ) {
+      const url = request.nextUrl.clone();
+      url.pathname = isCompany ? "/company" : "/jobs";
+      url.searchParams.forEach((value, key) => {
+        url.searchParams.delete(key);
+      });
+      return NextResponse.redirect(url);
+    }
   }
 
-  // If user is logged in, but no user_info record exists, AND they are not on the /get-started page,
-  // redirect them to /get-started.
-  if (!userInfo && !isGetStartedBasePage) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/get-started";
-    return NextResponse.redirect(url);
-  }
-
-  // If user is logged in, and they *do* have a user_info record,
-  // AND they are trying to access the /get-started page,
-  // redirect them away (e.g., to the jobs board or dashboard) as onboarding is complete.
-  if (userInfo && isGetStartedBasePage && !isGetStartedEditMode) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/jobs"; // Or '/dashboard'
-    return NextResponse.redirect(url);
-  }
-
-  if (isAuthPath && user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/jobs";
-    return NextResponse.redirect(url);
-  }
-
-  if (pathname.startsWith("/agent")) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/jobs";
-    return NextResponse.redirect(url);
-  }
-
-  // If none of the above conditions triggered a redirect, allow the request to proceed.
   return supabaseResponse;
 }

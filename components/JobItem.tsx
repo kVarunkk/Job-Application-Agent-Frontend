@@ -7,8 +7,9 @@ import { Badge } from "./ui/badge";
 import { IJob } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
+import JobApplicationDialog from "./JobApplicationDialog";
 
 export default function JobItem({
   job,
@@ -20,6 +21,7 @@ export default function JobItem({
   isSuitable: boolean;
 }) {
   const [showDescription, setShowDescription] = useState(false);
+  const [isDialogOpenState, setIsDialogOpenState] = useState(false);
   const supabase = createClient();
   const [isFavorite, setIsFavorite] = useState(
     job.user_favorites.filter((each) => each.user_id === user?.id).length > 0
@@ -58,6 +60,13 @@ export default function JobItem({
     setShowDescription((prev) => !prev);
   };
 
+  const dialogStateCallback = useCallback(
+    (state: boolean) => {
+      setIsDialogOpenState(state);
+    },
+    [setIsDialogOpenState]
+  );
+
   return (
     <div
       className={cn(
@@ -65,12 +74,14 @@ export default function JobItem({
         showDescription ? "bg-secondary" : ""
       )}
       onMouseEnter={() => {
-        setShowDescription(true);
+        if (!isDialogOpenState) setShowDescription(true);
       }}
       onMouseLeave={() => {
-        setShowDescription(false);
+        if (!isDialogOpenState) setShowDescription(false);
       }}
-      onClick={handleToggleDescription} // Add this line
+      onClick={() => {
+        if (!isDialogOpenState) handleToggleDescription();
+      }}
       tabIndex={0} // Makes div focusable for accessibility
       role="button"
       //   aria-pressed={showDescription}
@@ -109,11 +120,19 @@ export default function JobItem({
           />
         </div>
         {user ? (
-          <Link href={job.job_url} target="_blank" rel="noopener noreferrer">
-            <Button>
-              Apply Now <ArrowRight />
-            </Button>
-          </Link>
+          job.job_url ? (
+            <Link href={job.job_url} target="_blank" rel="noopener noreferrer">
+              <Button>
+                Apply Now <ArrowRight />
+              </Button>
+            </Link>
+          ) : (
+            <JobApplicationDialog
+              dialogStateCallback={dialogStateCallback}
+              jobPost={job}
+              user={user}
+            />
+          )
         ) : (
           <Link href={"/auth/sign-up"} rel="noopener noreferrer">
             <Button>
@@ -129,9 +148,11 @@ export default function JobItem({
       >
         <div>
           {job.description && job.description}...{" "}
-          <Link href={job.job_url} target="_blank" className="underline">
-            Read more
-          </Link>
+          {job.job_url && (
+            <Link href={job.job_url} target="_blank" className="underline">
+              Read more
+            </Link>
+          )}
         </div>
       </div>
     </div>
@@ -191,6 +212,9 @@ function JobDetailBadges({
       break;
     case "remoteok":
       platform_url = "https://remoteok.com";
+      break;
+    default:
+      platform_url = "";
       break;
   }
   return (

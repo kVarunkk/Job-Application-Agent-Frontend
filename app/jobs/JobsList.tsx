@@ -11,6 +11,7 @@ import { IJob } from "@/lib/types";
 export default function JobsList({
   searchParams,
   isFavoriteTabActive,
+  isAppliedJobsTabActive,
   uniqueLocations,
   uniqueCompanies,
 }: {
@@ -18,6 +19,7 @@ export default function JobsList({
   uniqueLocations: { location: string }[];
   uniqueCompanies: { company_name: string }[];
   isFavoriteTabActive: boolean;
+  isAppliedJobsTabActive?: boolean;
 }) {
   const supabase = createClient();
 
@@ -47,6 +49,10 @@ export default function JobsList({
       const params = new URLSearchParams(searchParameters.toString());
       params.set("page", (1).toString()); // Ensure page is reset for initial fetch
       params.set("isFavoriteTabActive", isFavoriteTabActive.toString());
+      params.set(
+        "isAppliedJobsTabActive",
+        isAppliedJobsTabActive?.toString() || "false"
+      );
 
       // Initial fetch of jobs from your /api/jobs endpoint
       const res = await fetch(`/api/jobs?${params.toString()}`);
@@ -127,7 +133,13 @@ export default function JobsList({
     };
 
     fetchJobsAndRerank();
-  }, [isFavoriteTabActive, searchParams, searchParameters, supabase]);
+  }, [
+    isFavoriteTabActive,
+    isAppliedJobsTabActive,
+    searchParams,
+    searchParameters,
+    supabase,
+  ]);
 
   if (loading) {
     return (

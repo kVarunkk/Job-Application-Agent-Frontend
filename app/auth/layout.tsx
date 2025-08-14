@@ -39,6 +39,13 @@ export default async function AuthLayout({
           >
             Pricing
           </Link>,
+          <Link
+            key={uuidv4()}
+            href={"/auth/login?company=true"}
+            className="hover:underline underline-offset-2"
+          >
+            Hire
+          </Link>,
         ]}
       />
       {children}

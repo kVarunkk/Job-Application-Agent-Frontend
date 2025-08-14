@@ -56,6 +56,26 @@ const Step1JobRole = ({ formData, setFormData, errors }: StepProps) => {
   return (
     <CardContent className="flex flex-col gap-4 !p-0">
       <div>
+        <Label htmlFor="full_name">Full Name</Label>
+        <Input
+          id="full_name"
+          type="text"
+          placeholder="e.g., John Doe"
+          value={formData.full_name ?? ""}
+          onChange={(e) =>
+            setFormData({ ...formData, full_name: e.target.value })
+          }
+          className={cn(
+            "mt-2 bg-input",
+            errors.full_name ? "border-red-500" : ""
+          )}
+        />
+
+        {errors.full_name && (
+          <p className="text-red-500 text-sm mt-1">{errors.full_name}</p>
+        )}
+      </div>
+      <div>
         <Label htmlFor="desired_roles">Desired Job Titles / Roles</Label>
 
         <div className="mt-2">
@@ -94,29 +114,6 @@ const Step1JobRole = ({ formData, setFormData, errors }: StepProps) => {
           availableItems={["Fulltime", "Intern", "Contract"]}
         />
 
-        {/* <Select
-          onValueChange={(value) =>
-            setFormData({ ...formData, job_type: value })
-          }
-          value={formData.job_type ?? "any"}
-        >
-          <SelectTrigger
-            className={cn(
-              "mt-2 bg-input",
-              errors.job_type ? "border-red-500" : ""
-            )}
-          >
-            <SelectValue placeholder="Select job type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">
-              Any (Full-time, Internship, Contract)
-            </SelectItem>
-            <SelectItem value="Fulltime">Full-time</SelectItem>
-            <SelectItem value="Intern">Internship</SelectItem>
-            <SelectItem value="Contract">Contract</SelectItem>
-          </SelectContent>
-        </Select> */}
         {errors.job_type && (
           <p className="text-red-500 text-sm mt-1">{errors.job_type}</p>
         )}
@@ -158,22 +155,42 @@ const Step2LocationSalary: React.FC<StepProps> = ({
       <Label htmlFor="min_salary" className="mt-4">
         Minimum Salary (USD/year)
       </Label>
-      <Input
-        id="min_salary"
-        type="number"
-        placeholder="e.g., 60000"
-        value={formData.min_salary}
-        onChange={(e) =>
-          setFormData({
-            ...formData,
-            min_salary: e.target.value === "" ? "" : parseInt(e.target.value),
-          })
-        }
-        className={cn(
-          "mt-2 bg-input",
-          errors.min_salary ? "border-red-500 " : ""
-        )}
-      />
+      <div className="flex items-center gap-2">
+        <Select
+          value={formData.salary_currency ?? "$"}
+          onValueChange={(value) =>
+            setFormData({ ...formData, salary_currency: value })
+          }
+        >
+          <SelectTrigger className="bg-input mt-2 w-[80px]">
+            <SelectValue placeholder="Currency" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="₹">₹</SelectItem>
+            <SelectItem value="$">$</SelectItem>
+            <SelectItem value="€">€</SelectItem>
+            <SelectItem value="£">£</SelectItem>
+            <SelectItem value="C$">C$</SelectItem>
+            <SelectItem value="A$">A$</SelectItem>
+          </SelectContent>
+        </Select>
+        <Input
+          id="min_salary"
+          type="number"
+          placeholder="e.g., 60000"
+          value={formData.min_salary}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              min_salary: e.target.value === "" ? "" : parseInt(e.target.value),
+            })
+          }
+          className={cn(
+            "mt-2 bg-input",
+            errors.min_salary ? "border-red-500 " : ""
+          )}
+        />
+      </div>
       {errors.min_salary && (
         <p className="text-red-500 text-sm mt-1">{errors.min_salary}</p>
       )}
@@ -183,22 +200,43 @@ const Step2LocationSalary: React.FC<StepProps> = ({
       <Label htmlFor="max_salary" className="mt-4">
         Maximum Salary (Optional)
       </Label>
-      <Input
-        id="max_salary"
-        type="number"
-        placeholder="e.g., 90000"
-        value={formData.max_salary}
-        onChange={(e) =>
-          setFormData({
-            ...formData,
-            max_salary: e.target.value === "" ? "" : parseInt(e.target.value),
-          })
-        }
-        className={cn(
-          "mt-2 bg-input",
-          errors.max_salary ? "border-red-500 " : ""
-        )}
-      />
+      <div className="flex items-center gap-2">
+        <Select
+          value={formData.salary_currency ?? "$"}
+          onValueChange={(value) =>
+            setFormData({ ...formData, salary_currency: value })
+          }
+        >
+          <SelectTrigger className="bg-input mt-2  w-[80px]">
+            <SelectValue placeholder="Currency" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="₹">₹</SelectItem>
+            <SelectItem value="$">$</SelectItem>
+            <SelectItem value="€">€</SelectItem>
+            <SelectItem value="£">£</SelectItem>
+            <SelectItem value="C$">C$</SelectItem>
+            <SelectItem value="A$">A$</SelectItem>
+          </SelectContent>
+        </Select>{" "}
+        <Input
+          id="max_salary"
+          type="number"
+          placeholder="e.g., 90000"
+          value={formData.max_salary}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              max_salary: e.target.value === "" ? "" : parseInt(e.target.value),
+            })
+          }
+          className={cn(
+            "mt-2 bg-input",
+            errors.max_salary ? "border-red-500 " : ""
+          )}
+        />
+      </div>
+
       {errors.max_salary && (
         <p className="text-red-500 text-sm mt-1">{errors.max_salary}</p>
       )}
@@ -587,6 +625,9 @@ const Step7ReviewSubmit: React.FC<StepProps> = ({ formData }) => (
       <h4 className="font-semibold  mb-2">Job & Location Preferences</h4>
       <div className="space-y-1 text-sm ">
         <p>
+          <span>Full Name:</span> {formData.full_name || "N/A"}
+        </p>
+        <p>
           <span>Desired Roles:</span>{" "}
           {formData.desired_roles.join(", ") || "N/A"}
         </p>
@@ -595,8 +636,9 @@ const Step7ReviewSubmit: React.FC<StepProps> = ({ formData }) => (
           {formData.preferred_locations.join(", ") || "N/A"}
         </p>
         <p>
-          <span>Salary Range:</span> {formData.min_salary || "N/A"} -{" "}
-          {formData.max_salary || "N/A"}
+          <span>Salary Range:</span> {formData.min_salary || "N/A"}
+          {formData.salary_currency} - {formData.max_salary || "N/A"}
+          {formData.salary_currency}
         </p>
       </div>
     </div>
@@ -669,8 +711,10 @@ const Step7ReviewSubmit: React.FC<StepProps> = ({ formData }) => (
 export const OnboardingForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<IFormData>({
+    full_name: "",
     desired_roles: [],
     preferred_locations: [],
+    salary_currency: "$",
     min_salary: "",
     max_salary: "",
     experience_years: "",
@@ -690,7 +734,7 @@ export const OnboardingForm: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  // const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<
     Partial<Record<keyof IFormData, string>>
   >({});
@@ -698,11 +742,20 @@ export const OnboardingForm: React.FC = () => {
   const router = useRouter();
   const steps = useMemo(() => {
     return [
-      { name: "Job Role", component: Step1JobRole, fields: ["desired_roles"] },
+      {
+        name: "Job Role",
+        component: Step1JobRole,
+        fields: ["full_name", "desired_roles", "job_type"],
+      },
       {
         name: "Location & Salary",
         component: Step2LocationSalary,
-        fields: ["preferred_locations", "min_salary"],
+        fields: [
+          "preferred_locations",
+          "min_salary",
+          "max_salary",
+          "salary_currency",
+        ],
       },
       {
         name: "Experience & Skills",
@@ -786,6 +839,17 @@ export const OnboardingForm: React.FC = () => {
       const value = formData[field as keyof IFormData];
 
       switch (field) {
+        case "full_name":
+          if (!value || (value as string).trim() === "") {
+            newErrors[field] = "Full name is required.";
+            isValid = false;
+          }
+          break;
+        case "salary_currency":
+          if (!value) {
+            newErrors[field] = "Please select a salary currency.";
+            isValid = false;
+          }
         case "desired_roles":
         case "preferred_locations":
         case "top_skills":
@@ -850,7 +914,7 @@ export const OnboardingForm: React.FC = () => {
 
   const handleNext = async () => {
     setError(null);
-    setSuccessMessage(null);
+    // setSuccessMessage(null);
 
     if (!validateStep()) {
       return;
@@ -886,22 +950,11 @@ export const OnboardingForm: React.FC = () => {
           return;
         }
 
-        // const { data: publicUrlData } = supabase.storage
-        //   .from("resumes")
-        //   .getPublicUrl(filePath);
-
-        // if (publicUrlData && publicUrlData.publicUrl) {
         setFormData((prev) => ({
           ...prev,
-          // resume_url: publicUrlData.publicUrl,
           resume_path: filePath,
           resume_name: file.name,
         }));
-        // } else {
-        //   setError("Could not get public URL for resume.");
-        //   setIsLoading(false);
-        //   return;
-        // }
       } catch (uploadException: unknown) {
         setError(
           `An unexpected error occurred during resume upload: ${
@@ -924,7 +977,7 @@ export const OnboardingForm: React.FC = () => {
 
   const handleBack = () => {
     setError(null);
-    setSuccessMessage(null);
+    // setSuccessMessage(null);
     if (currentStep > 0) {
       setCurrentStep((prev) => prev - 1);
     }
@@ -932,7 +985,7 @@ export const OnboardingForm: React.FC = () => {
 
   const handleSubmit = async () => {
     setError(null);
-    setSuccessMessage(null);
+    // setSuccessMessage(null);
     setIsLoading(true);
 
     if (!user) {
@@ -945,8 +998,11 @@ export const OnboardingForm: React.FC = () => {
       // Prepare data for Supabase upsert
       const dataToSave = {
         user_id: user.id,
+        email: user.email,
         desired_roles: formData.desired_roles,
+        full_name: formData.full_name,
         preferred_locations: formData.preferred_locations,
+        salary_currency: formData.salary_currency || "$",
         min_salary: formData.min_salary === "" ? null : formData.min_salary,
         max_salary: formData.max_salary === "" ? null : formData.max_salary,
         experience_years:
@@ -961,6 +1017,7 @@ export const OnboardingForm: React.FC = () => {
         resume_name: formData.resume_name,
         resume_path: formData.resume_path,
         job_type: formData.job_type,
+        filled: true,
       };
       const supabase = createClient();
       const { error: dbError } = await supabase
@@ -970,7 +1027,8 @@ export const OnboardingForm: React.FC = () => {
       if (dbError) {
         setError(`Failed to save data: ${dbError.message}`);
       } else {
-        setSuccessMessage("Your profile has been saved successfully!");
+        toast.success("Your profile has been saved successfully!");
+        // setSuccessMessage("Your profile has been saved successfully!");
         // Optionally, redirect user or show a success screen
         router.push("/jobs");
       }
@@ -1017,11 +1075,6 @@ export const OnboardingForm: React.FC = () => {
       </p>
       <Card className="w-full max-w-2xl !border-none !p-0 shadow-none">
         <CardHeader className="!p-0 mb-5">
-          {/* <CardTitle>Tell Us About Yourself</CardTitle>
-          <CardDescription>
-            Help us find the perfect jobs for you. ({currentStep + 1}/
-            {totalSteps})
-          </CardDescription> */}
           <Progress value={progress} className="mt-4" />
         </CardHeader>
         <CurrentStepComponent
@@ -1053,7 +1106,7 @@ export const OnboardingForm: React.FC = () => {
         </p>
       </Card>
 
-      {successMessage ? toast.success(successMessage) : ""}
+      {/* {successMessage ? toast.success(successMessage) : ""} */}
     </div>
   );
 };

@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
   const sortOrder = searchParams.get("sortOrder");
   const jobTitleKeywords = searchParams.get("jobTitleKeywords");
   const isFavoriteTabActive = searchParams.get("isFavoriteTabActive");
+  const isAppliedJobsTabActive = searchParams.get("isAppliedJobsTabActive");
 
   const startIndex = (page - 1) * JOBS_PER_PAGE;
   const endIndex = startIndex + JOBS_PER_PAGE - 1;
@@ -60,6 +61,7 @@ export async function GET(request: NextRequest) {
       sortOrder: sortOrder as "asc" | "desc",
       jobTitleKeywords,
       isFavoriteTabActive: isFavoriteTabActive === "true",
+      isAppliedJobsTabActive: isAppliedJobsTabActive === "true",
       userEmbedding, // <-- ADDED: Pass the embedding to the query builder
     });
 

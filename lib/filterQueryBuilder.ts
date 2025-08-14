@@ -13,6 +13,7 @@ export const buildQuery = async ({
   end_index,
   jobTitleKeywords,
   isFavoriteTabActive,
+  isAppliedJobsTabActive,
   sortBy,
   sortOrder,
   userEmbedding, // <-- ADDED: The user's vector embedding
@@ -30,6 +31,7 @@ export const buildQuery = async ({
   sortOrder?: "asc" | "desc";
   jobTitleKeywords?: string | null;
   isFavoriteTabActive: boolean;
+  isAppliedJobsTabActive?: boolean;
   userEmbedding?: string | null; // <-- ADDED: Type definition
 }) => {
   try {
@@ -40,7 +42,8 @@ export const buildQuery = async ({
     } = await supabase.auth.getUser();
 
     let query;
-    let selectString = "*, user_favorites(*)";
+    let selectString =
+      "*, user_favorites(*), job_postings(*, company_info(*), applications(*))";
 
     if (isFavoriteTabActive) {
       if (!user) {
@@ -50,12 +53,36 @@ export const buildQuery = async ({
           count: 0,
         };
       }
-      selectString = `*, user_favorites!inner(user_id)`;
+      selectString = `*, user_favorites!inner(user_id), job_postings(*, company_info(*), applications(*))`;
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
         .eq("user_favorites.user_id", user.id);
+    } else if (isAppliedJobsTabActive) {
+      if (!user) {
+        return {
+          data: [],
+          error: "User not authenticated to view applied jobs.",
+          count: 0,
+        };
+      }
+      console.log("hola");
+      selectString = `
+  *,
+  user_favorites!inner(user_id),
+  job_postings!inner (
+    company_info(*),
+    applications!inner (
+      *
+    )
+  )
+`;
+      query = supabase
+        .from("all_jobs")
+        .select(selectString, { count: "exact" })
+        .eq("job_postings.applications.applicant_user_id", user.id);
     } else {
+      console.log("fuck off");
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" });
