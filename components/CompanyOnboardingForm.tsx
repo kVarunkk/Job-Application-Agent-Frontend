@@ -249,10 +249,7 @@ export default function CompanyOnboardingForm({ user }: { user: User | null }) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Company Size</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-input">
                         <SelectValue placeholder="Select size" />
