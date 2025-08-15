@@ -36,6 +36,7 @@ export default function ProfileDropdown({
 }) {
   const { theme, setTheme } = useTheme();
   const [isUserInfo, setIsUserInfo] = useState(false);
+  const [isCompanyUser, setIsCompanyUser] = useState(false);
 
   const router = useRouter();
   const logout = async () => {
@@ -53,6 +54,16 @@ export default function ProfileDropdown({
         .select("*")
         .eq("user_id", user?.id)
         .single();
+
+      const { data: companyData, error: companyError } = await supabase
+        .from("company_info")
+        .select("*")
+        .eq("user_id", user?.id)
+        .single();
+
+      if (companyData && !companyError) {
+        setIsCompanyUser(true);
+      }
 
       if (data && !error) {
         setIsUserInfo(true);
@@ -95,6 +106,19 @@ export default function ProfileDropdown({
             >
               <UserIcon className="text-muted-foreground  h-4 w-4" /> Edit
               Profile
+            </Link>
+          </DropdownMenuItem>
+        ) : (
+          ""
+        )}
+        {isCompanyUser ? (
+          <DropdownMenuItem>
+            <Link
+              className="w-full flex items-center cursor-default gap-4"
+              href={"/company"}
+            >
+              <UserIcon className="text-muted-foreground h-4 w-4" />
+              Dashboard
             </Link>
           </DropdownMenuItem>
         ) : (

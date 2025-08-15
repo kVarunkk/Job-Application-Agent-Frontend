@@ -14,37 +14,35 @@ export default function JobsList({
   isAppliedJobsTabActive,
   uniqueLocations,
   uniqueCompanies,
+  user,
+  isCompanyUser,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
   uniqueLocations: { location: string }[];
   uniqueCompanies: { company_name: string }[];
   isFavoriteTabActive: boolean;
   isAppliedJobsTabActive?: boolean;
+  user: User | null;
+  isCompanyUser: boolean;
 }) {
   const supabase = createClient();
 
-  const [user, setUser] = useState<User | null>(null);
+  // const [user, setUser] = useState<User | null>(null);
   const [dataState, setData] = useState<IJob[] | never[] | null>();
   const [countState, setCount] = useState<number | null>();
   const searchParameters = useSearchParams();
   const [loading, setLoading] = useState(false);
+  // const [isCompanyUser, setIsCompanyUser] = useState(false);
 
   useEffect(() => {
     const fetchJobsAndRerank = async () => {
       setLoading(true);
 
-      // Fetch user information
-      const {
-        data: { user: fetchedUser },
-      } = await supabase.auth.getUser();
-
       const { data } = await supabase
         .from("user_info")
         .select("*")
-        .eq("user_id", fetchedUser?.id)
+        .eq("user_id", user?.id)
         .single();
-
-      if (fetchedUser) setUser(fetchedUser);
 
       const params = new URLSearchParams(searchParameters.toString());
       params.set("page", (1).toString()); // Ensure page is reset for initial fetch
@@ -72,7 +70,7 @@ export default function JobsList({
       // --- AI Re-ranking Logic ---
       if (
         params.get("sortBy") === "vector_similarity" &&
-        fetchedUser &&
+        user &&
         fetchedJobs &&
         fetchedJobs.length > 0 &&
         data.ai_search_uses <= 3
@@ -84,7 +82,7 @@ export default function JobsList({
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              userId: fetchedUser.id,
+              userId: user.id,
               jobs: fetchedJobs.map((job: IJob) => ({
                 id: job.id,
                 job_name: job.job_name,
@@ -132,13 +130,16 @@ export default function JobsList({
       setLoading(false);
     };
 
-    fetchJobsAndRerank();
+    if (user) {
+      fetchJobsAndRerank();
+    }
   }, [
     isFavoriteTabActive,
     isAppliedJobsTabActive,
     searchParams,
     searchParameters,
     supabase,
+    user,
   ]);
 
   if (loading) {
@@ -158,6 +159,7 @@ export default function JobsList({
         user={user}
         uniqueLocations={uniqueLocations}
         uniqueCompanies={uniqueCompanies}
+        isCompanyUser={isCompanyUser}
       />
     );
   }

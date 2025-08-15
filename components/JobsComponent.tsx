@@ -25,12 +25,14 @@ export default function JobsComponent({
   user,
   uniqueLocations,
   uniqueCompanies,
+  isCompanyUser,
 }: {
   initialJobs: IJob[];
   totalJobs: number;
   user: User | null;
   uniqueLocations: { location: string }[];
   uniqueCompanies: { company_name: string }[];
+  isCompanyUser: boolean;
 }) {
   const [jobs, setJobs] = useState<IJob[]>(initialJobs ?? []);
   const [page, setPage] = useState(1);
@@ -158,7 +160,9 @@ export default function JobsComponent({
           />
 
           <div className="flex items-center gap-3">
-            {user && <FindSuitableJobs user={user} setPage={setPage} />}
+            {user && !isCompanyUser && (
+              <FindSuitableJobs user={user} setPage={setPage} />
+            )}
             {searchParams.get("sortBy") !== "vector_similarity" && (
               <Select
                 value={selectValue}
@@ -184,7 +188,13 @@ export default function JobsComponent({
       )}
       {jobs.length > 0 ? (
         jobs.map((job) => (
-          <JobItem key={job.id} job={job} user={user} isSuitable={isSuitable} />
+          <JobItem
+            isCompanyUser={isCompanyUser}
+            key={job.id}
+            job={job}
+            user={user}
+            isSuitable={isSuitable}
+          />
         ))
       ) : (
         <p className="text-muted-foreground mt-20 mx-auto">

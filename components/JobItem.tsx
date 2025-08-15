@@ -15,10 +15,12 @@ export default function JobItem({
   job,
   user,
   isSuitable,
+  isCompanyUser,
 }: {
   job: IJob;
   user: User | null;
   isSuitable: boolean;
+  isCompanyUser: boolean;
 }) {
   const [showDescription, setShowDescription] = useState(false);
   const [isDialogOpenState, setIsDialogOpenState] = useState(false);
@@ -92,7 +94,9 @@ export default function JobItem({
             <h3 className="text-lg sm:text-xl font-semibold">{job.job_name}</h3>
             <Dot />
             <p className="text-muted-foreground">{job.company_name}</p>
-            {user ? (
+            {isCompanyUser ? (
+              ""
+            ) : user ? (
               <button
                 onClick={() => {
                   setIsFavorite(!isFavorite);
@@ -119,7 +123,9 @@ export default function JobItem({
             isSuitable={isSuitable}
           />
         </div>
-        {user ? (
+        {isCompanyUser ? (
+          ""
+        ) : user ? (
           job.job_url ? (
             <Link href={job.job_url} target="_blank" rel="noopener noreferrer">
               <Button>

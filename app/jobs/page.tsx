@@ -15,6 +15,18 @@ export default async function JobsPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const { data: companyData } = await supabase
+    .from("company_info")
+    .select("*")
+    .eq("user_id", user?.id)
+    .single();
+
+  let isCompanyUser = false;
+  if (companyData) {
+    isCompanyUser = true;
+  }
+
   // --- Data Fetching ---
 
   const [locationsResult, companiesResult] = await Promise.all([
@@ -57,7 +69,7 @@ export default async function JobsPage({
             }
           >
             <Tabs defaultValue="all_jobs" className="">
-              {user && (
+              {user && !isCompanyUser && (
                 <TabsList>
                   <TabsTrigger value="all_jobs">All Jobs</TabsTrigger>
                   <TabsTrigger value="saved_jobs">Saved Jobs</TabsTrigger>
@@ -66,15 +78,19 @@ export default async function JobsPage({
               )}
               <TabsContent value="all_jobs">
                 <JobsList
+                  isCompanyUser={isCompanyUser}
+                  user={user}
                   searchParams={searchParams}
                   isFavoriteTabActive={false}
                   uniqueLocations={uniqueLocations}
                   uniqueCompanies={uniqueCompanies}
                 />
               </TabsContent>
-              {user && (
+              {user && !isCompanyUser && (
                 <TabsContent value="saved_jobs">
                   <JobsList
+                    isCompanyUser={isCompanyUser}
+                    user={user}
                     searchParams={searchParams}
                     isFavoriteTabActive={true}
                     uniqueLocations={uniqueLocations}
@@ -82,9 +98,11 @@ export default async function JobsPage({
                   />
                 </TabsContent>
               )}
-              {user && (
+              {user && !isCompanyUser && (
                 <TabsContent value="applied_jobs">
                   <JobsList
+                    isCompanyUser={isCompanyUser}
+                    user={user}
                     searchParams={searchParams}
                     isFavoriteTabActive={false}
                     isAppliedJobsTabActive={true}
@@ -94,7 +112,6 @@ export default async function JobsPage({
                 </TabsContent>
               )}
             </Tabs>
-            {/* This component will fetch its own data */}
           </Suspense>
         </div>
       </div>
