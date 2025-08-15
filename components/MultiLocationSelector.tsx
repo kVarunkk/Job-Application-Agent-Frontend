@@ -157,8 +157,8 @@ export default function MultiLocationSelector({
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-2 flex-1">
+      <div>
+        <div className="flex items-center gap-2 flex-1 flex-wrap">
           {/* Country Dropdown */}
           <div className="relative flex-1">
             <Select
