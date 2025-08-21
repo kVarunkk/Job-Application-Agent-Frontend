@@ -3,9 +3,8 @@ import Footer from "@/components/landing-page/Footer";
 import Hero from "@/components/landing-page/Hero";
 import { HowWeHelp } from "@/components/landing-page/HowWeHelp";
 import TheGetHiredAdvantageSection from "@/components/landing-page/TheGetHiredAdvantageSection";
-import NavbarComponent from "@/components/Navbar";
+import NavbarParent, { INavItem } from "@/components/NavbarParent";
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 
 export default async function Home() {
@@ -13,46 +12,39 @@ export default async function Home() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const navItems: INavItem[] = [
+    {
+      id: uuidv4(),
+      label: "Find Jobs",
+      href: "/jobs",
+      type: "startswith",
+    },
+    {
+      id: uuidv4(),
+      label: "Features",
+      href: "/#howwehelp",
+      type: "includes",
+    },
+    {
+      id: uuidv4(),
+      label: "FAQs",
+      href: "/#faq",
+      type: "includes",
+    },
+    {
+      id: uuidv4(),
+      label: "Hire",
+      href: "/auth/login?company=true",
+      type: "includes",
+    },
+  ];
   return (
     <main className="min-h-screen flex flex-col items-center">
       <div className="flex-1 w-full flex flex-col gap-20 items-center">
-        <NavbarComponent
-          user={user}
-          items={[
-            <Link
-              key={uuidv4()}
-              href={"/jobs"}
-              className="hover:underline underline-offset-2"
-            >
-              Find Jobs
-            </Link>,
-            <Link
-              key={uuidv4()}
-              href={"#howwehelp"}
-              className="hover:underline underline-offset-2"
-            >
-              Features
-            </Link>,
-            <Link
-              key={uuidv4()}
-              href={"#faq"}
-              className="hover:underline underline-offset-2"
-            >
-              FAQs
-            </Link>,
-            <Link
-              key={uuidv4()}
-              href={"/auth/login?company=true"}
-              className="hover:underline underline-offset-2"
-            >
-              Hire
-            </Link>,
-          ]}
-        />
+        <NavbarParent user={user} navItems={navItems} />
         <div className="flex-1 flex flex-col gap-32  w-full">
-          {/* Hero */}
           <Hero />
-          {/* How we help */}
           <HowWeHelp />
           <TheGetHiredAdvantageSection />
           <FAQSection />

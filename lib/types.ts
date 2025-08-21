@@ -122,6 +122,7 @@ export interface IJob {
 export interface IFormData {
   user_id?: string;
   full_name: string;
+  email: string;
   desired_roles: string[];
   preferred_locations: string[];
   salary_currency: string;
@@ -141,6 +142,14 @@ export interface IFormData {
   resume_name: string | null;
   default_locations: string[];
   job_type: string[];
+  company_favorites?: {
+    id: string;
+    created_at: string;
+    updated_at: string;
+    user_info_id: string;
+    company_id: string;
+  }[];
+  applications?: IApplication[];
 }
 
 export interface ICompanyInfo {
@@ -155,6 +164,7 @@ export interface ICompanyInfo {
   logo_url: string;
   created_at: string;
   updated_at: string;
+  ai_search_uses: number;
 }
 
 export interface ICountry {

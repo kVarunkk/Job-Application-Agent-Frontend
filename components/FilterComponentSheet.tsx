@@ -15,9 +15,21 @@ import { v4 as uuidv4 } from "uuid";
 export default function FilterComponentSheet({
   uniqueLocations,
   uniqueCompanies,
+  uniqueJobRoles,
+  uniqueIndustryPreferences,
+  uniqueWorkStylePreferences,
+  uniqueSkills,
+  isCompanyUser,
+  isProfilesPage = false,
 }: {
   uniqueLocations: { location: string }[];
   uniqueCompanies: { company_name: string }[];
+  uniqueJobRoles: { job_role: string }[];
+  uniqueIndustryPreferences: { industry_preference: string }[];
+  uniqueWorkStylePreferences: { work_style_preference: string }[];
+  uniqueSkills: { skill: string }[];
+  isCompanyUser: boolean;
+  isProfilesPage?: boolean;
 }) {
   const [openSheet, setOpenSheet] = useState(false);
   const searchParams = useSearchParams();
@@ -49,13 +61,27 @@ export default function FilterComponentSheet({
       </SheetTrigger>
       <SheetContent side={"left"} className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Job Search Filters</SheetTitle>
+          <SheetTitle>
+            {isCompanyUser ? "Profile" : "Job"} Search Filters
+          </SheetTitle>
         </SheetHeader>
-        <FilterComponent
-          uniqueLocations={uniqueLocations}
-          uniqueCompanies={uniqueCompanies}
-          setOpenSheet={setOpenSheet}
-        />
+        {isProfilesPage && isCompanyUser ? (
+          <FilterComponent
+            uniqueLocations={uniqueLocations}
+            uniqueJobRoles={uniqueJobRoles}
+            uniqueIndustryPreferences={uniqueIndustryPreferences}
+            uniqueWorkStylePreferences={uniqueWorkStylePreferences}
+            uniqueSkills={uniqueSkills}
+            isProfilesPage={isProfilesPage}
+            setOpenSheet={setOpenSheet}
+          />
+        ) : (
+          <FilterComponent
+            uniqueLocations={uniqueLocations}
+            uniqueCompanies={uniqueCompanies}
+            setOpenSheet={setOpenSheet}
+          />
+        )}
       </SheetContent>
     </Sheet>
   );

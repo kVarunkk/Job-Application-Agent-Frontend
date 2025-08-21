@@ -24,7 +24,9 @@ export default function AppLoader({
           color ? `border-${color}` : "border-black dark:border-white"
         } ${sizeClasses[size]}`}
       ></div>
-      {text && <p className="text-muted-foreground text-sm">{text}</p>}
+      {text && (
+        <p className="text-muted-foreground text-sm text-center">{text}</p>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { LogOut, User as UserIcon } from "lucide-react";
+import { LogOut, Pencil, User as UserIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import {
@@ -119,6 +119,19 @@ export default function ProfileDropdown({
             >
               <UserIcon className="text-muted-foreground h-4 w-4" />
               Dashboard
+            </Link>
+          </DropdownMenuItem>
+        ) : (
+          ""
+        )}
+        {isCompanyUser ? (
+          <DropdownMenuItem>
+            <Link
+              className="w-full flex items-center cursor-default gap-4"
+              href={"/get-started?company=true&edit=true"}
+            >
+              <Pencil className="text-muted-foreground h-4 w-4" />
+              Edit Profile
             </Link>
           </DropdownMenuItem>
         ) : (

@@ -1,5 +1,5 @@
 import CompanyOnboardingForm from "@/components/CompanyOnboardingForm";
-import NavbarComponent from "@/components/Navbar";
+import NavbarParent from "@/components/NavbarParent";
 import { OnboardingForm } from "@/components/OnboardingComponent";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,7 +17,7 @@ export default async function GetStartedPage({
 
   return (
     <div>
-      <NavbarComponent user={user} />
+      <NavbarParent user={user} />
       {company ? <CompanyOnboardingForm user={user} /> : <OnboardingForm />}
     </div>
   );

@@ -12,12 +12,12 @@ import {
   useCallback,
   useMemo,
 } from "react";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import AppLoader from "./AppLoader";
 
 import MultiKeywordSelect, { GenericFormData } from "./MultiKeywordSelect";
 import MultiKeywordSelectInput from "./MultiKeywordSelectInput";
+import InputFilter from "./InputFilterComponent";
 
 type FilterConfig = {
   name: keyof FiltersState;
@@ -37,121 +37,222 @@ export type FiltersState = {
   platform: string[];
   company_name: string[];
   jobTitleKeywords: string[];
+  jobRole: string[];
+  industryPreference: string[];
+  workStylePreference: string[];
+  skills: string[];
+  maxSalary?: string;
 };
 
 export default function FilterComponent({
   uniqueLocations,
   uniqueCompanies,
   setOpenSheet,
+  uniqueJobRoles,
+  uniqueIndustryPreferences,
+  uniqueWorkStylePreferences,
+  uniqueSkills,
+  isProfilesPage = false,
 }: {
   uniqueLocations: { location: string }[];
-  uniqueCompanies: { company_name: string }[];
+  uniqueCompanies?: { company_name: string }[];
   setOpenSheet?: Dispatch<SetStateAction<boolean>>;
+  uniqueJobRoles?: { job_role: string }[];
+  uniqueIndustryPreferences?: { industry_preference: string }[];
+  uniqueWorkStylePreferences?: { work_style_preference: string }[];
+  uniqueSkills?: { skill: string }[];
+  isProfilesPage?: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-
   // Define FILTER_CONFIG with 'multi-select' types for all relevant fields
   const FILTER_CONFIG: FilterConfig[] = useMemo(() => {
-    return [
-      {
-        name: "jobType",
-        label: "Job Type",
-        type: "multi-select", // Changed to multi-select
-        placeholder: "Select the type of Job",
-        options: [
-          { value: "Fulltime", label: "Full Time" },
-          { value: "Intern", label: "Internship" },
-          { value: "Contract", label: "Contract" },
-          // 'all' is handled by the absence of the parameter in the URL
-        ],
-      },
-      {
-        name: "location",
-        label: "Location",
-        type: "multi-select", // Changed to multi-select
-        placeholder: "Select the location of Job",
-
-        options: uniqueLocations.map((each) => ({
-          value: each.location,
-          label: each.location,
-        })),
-      },
-      {
-        name: "visaRequirement",
-        label: "Visa Requirement",
-        type: "multi-select", // Changed to multi-select
-        placeholder: "Select the Visa configuration",
-
-        options: [
+    return isProfilesPage
+      ? [
           {
-            value: "US Citizenship/Visa Not Required",
-            label: "US Citizenship/Visa Not Required",
+            name: "jobType",
+            label: "Job Type",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the type of Job",
+            options: [
+              { value: "Fulltime", label: "Full Time" },
+              { value: "Intern", label: "Internship" },
+              { value: "Contract", label: "Contract" },
+              // 'all' is handled by the absence of the parameter in the URL
+            ],
           },
-          { value: "Will Sponsor", label: "Will Sponsor" },
-          { value: "US Citizen/Visa Only", label: "US Citizen/Visa Only" },
-        ],
-      },
+          {
+            name: "jobRole",
+            label: "Job Role",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Job Role",
+            options: uniqueJobRoles?.map((each) => ({
+              value: each.job_role,
+              label: each.job_role,
+            })),
+          },
+          {
+            name: "industryPreference",
+            label: "Industry Preference",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Industry Preference",
+            options: uniqueIndustryPreferences?.map((each) => ({
+              value: each.industry_preference,
+              label: each.industry_preference,
+            })),
+          },
+          {
+            name: "workStylePreference",
+            label: "Work Style Preference",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Work Style Preference",
+            options: uniqueWorkStylePreferences?.map((each) => ({
+              value: each.work_style_preference,
+              label: each.work_style_preference,
+            })),
+          },
+          {
+            name: "skills",
+            label: "Skills",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Skills",
+            options: uniqueSkills?.map((each) => ({
+              value: each.skill,
+              label: each.skill,
+            })),
+          },
+          {
+            name: "location",
+            label: "Location",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the location of Job",
 
-      {
-        name: "company_name",
-        label: "Company",
-        type: "multi-select", // Changed to multi-select
-        placeholder: "Select the company",
+            options: uniqueLocations.map((each) => ({
+              value: each.location,
+              label: each.location,
+            })),
+          },
 
-        options: uniqueCompanies.map((each) => ({
-          value: each.company_name,
-          label: each.company_name,
-        })),
-      },
-      {
-        name: "platform",
-        label: "Platform",
-        type: "multi-select", // Changed to multi-select
-        placeholder: "Select the platform",
+          {
+            name: "maxSalary",
+            label: "Maximum Salary",
+            type: "number",
+            placeholder: "e.g., 80000",
+          },
+          {
+            name: "minExperience",
+            label: "Minimum Experience (years)",
+            type: "number",
+            placeholder: "e.g., 2",
+          },
+        ]
+      : [
+          {
+            name: "jobType",
+            label: "Job Type",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the type of Job",
+            options: [
+              { value: "Fulltime", label: "Full Time" },
+              { value: "Intern", label: "Internship" },
+              { value: "Contract", label: "Contract" },
+              // 'all' is handled by the absence of the parameter in the URL
+            ],
+          },
+          {
+            name: "location",
+            label: "Location",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the location of Job",
 
-        options: [
-          { value: "remoteok", label: "Remote Ok" },
-          { value: "uplers", label: "Uplers" },
-          { value: "ycombinator", label: "YCombinator" },
-        ],
-      },
-      {
-        name: "jobTitleKeywords",
-        label: "Job Title Keywords",
-        type: "multi-select-input", // Use multi-select for this
-        placeholder: "Type or select from dropdown",
-        options: [
-          // Provide a list of common job title keywords for the dropdown
-          // You can import this from a constants file if you have one
-          { value: "Engineer", label: "Engineer" },
-          { value: "Developer", label: "Developer" },
-          { value: "Manager", label: "Manager" },
-          { value: "Analyst", label: "Analyst" },
-          { value: "Lead", label: "Lead" },
-          { value: "Senior", label: "Senior" },
-          { value: "Junior", label: "Junior" },
-          { value: "Director", label: "Director" },
-          { value: "Architect", label: "Architect" },
-          { value: "Specialist", label: "Specialist" },
-          // ... add more common keywords as needed
-        ],
-      },
-      {
-        name: "minSalary",
-        label: "Minimum Salary",
-        type: "number",
-        placeholder: "e.g., 80000",
-      },
-      {
-        name: "minExperience",
-        label: "Minimum Experience (years)",
-        type: "number",
-        placeholder: "e.g., 2",
-      },
-    ];
-  }, [uniqueCompanies, uniqueLocations]);
+            options: uniqueLocations.map((each) => ({
+              value: each.location,
+              label: each.location,
+            })),
+          },
+          {
+            name: "visaRequirement",
+            label: "Visa Requirement",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Visa configuration",
+
+            options: [
+              {
+                value: "US Citizenship/Visa Not Required",
+                label: "US Citizenship/Visa Not Required",
+              },
+              { value: "Will Sponsor", label: "Will Sponsor" },
+              { value: "US Citizen/Visa Only", label: "US Citizen/Visa Only" },
+            ],
+          },
+
+          {
+            name: "company_name",
+            label: "Company",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the company",
+
+            options: uniqueCompanies?.map((each) => ({
+              value: each.company_name,
+              label: each.company_name,
+            })),
+          },
+          {
+            name: "platform",
+            label: "Platform",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the platform",
+
+            options: [
+              { value: "remoteok", label: "Remote Ok" },
+              { value: "uplers", label: "Uplers" },
+              { value: "ycombinator", label: "YCombinator" },
+            ],
+          },
+          {
+            name: "jobTitleKeywords",
+            label: "Job Title Keywords",
+            type: "multi-select-input", // Use multi-select for this
+            placeholder: "Type or select from dropdown",
+            options: [
+              // Provide a list of common job title keywords for the dropdown
+              // You can import this from a constants file if you have one
+              { value: "Engineer", label: "Engineer" },
+              { value: "Developer", label: "Developer" },
+              { value: "Manager", label: "Manager" },
+              { value: "Analyst", label: "Analyst" },
+              { value: "Lead", label: "Lead" },
+              { value: "Senior", label: "Senior" },
+              { value: "Junior", label: "Junior" },
+              { value: "Director", label: "Director" },
+              { value: "Architect", label: "Architect" },
+              { value: "Specialist", label: "Specialist" },
+              // ... add more common keywords as needed
+            ],
+          },
+          {
+            name: "minSalary",
+            label: "Minimum Salary",
+            type: "number",
+            placeholder: "e.g., 80000",
+          },
+          {
+            name: "minExperience",
+            label: "Minimum Experience (years)",
+            type: "number",
+            placeholder: "e.g., 2",
+          },
+        ];
+  }, [
+    uniqueCompanies,
+    uniqueLocations,
+    uniqueJobRoles,
+    uniqueIndustryPreferences,
+    uniqueWorkStylePreferences,
+    uniqueSkills,
+    isProfilesPage,
+  ]);
 
   const sortBy = searchParams.get("sortBy");
   const sortOrder = searchParams.get("sortOrder");
@@ -183,10 +284,8 @@ export default function FilterComponent({
   const [filters, setFilters] = useState<FiltersState>(getInitialState());
 
   useEffect(() => {
-    // This effect ensures the filters state updates when searchParams change,
-    // which happens when navigating via browser back/forward or direct URL access.
     setFilters(getInitialState());
-  }, [searchParams, getInitialState]); // Depend on searchParams to re-initialize state
+  }, [getInitialState]); // Depend on searchParams to re-initialize state
 
   // A single handler for input changes (for type="text" or "number")
   const handleChange = useCallback(
@@ -250,9 +349,19 @@ export default function FilterComponent({
     if (setOpenSheet) setOpenSheet(false);
 
     startTransition(() => {
-      router.push(`/jobs?${params.toString()}`);
+      router.push(
+        `/${isProfilesPage ? "company/profiles" : "jobs"}?${params.toString()}`
+      );
     });
   };
+
+  const inputFilterOnChange = useCallback(
+    (name: string, value: string | string[] | undefined) =>
+      handleChange({
+        target: { name, value },
+      } as ChangeEvent<HTMLInputElement>),
+    [handleChange]
+  );
 
   const renderInput = (config: FilterConfig) => {
     switch (config.type) {
@@ -281,13 +390,12 @@ export default function FilterComponent({
       case "number":
       case "text":
         return (
-          <Input
-            id={String(config.name)} // Ensure ID is string
-            name={String(config.name)} // Ensure name is string
+          <InputFilter
+            name={String(config.name)}
             type={config.type}
             placeholder={config.placeholder}
             value={filters[config.name]}
-            onChange={handleChange}
+            onChange={inputFilterOnChange}
             className="block w-full mt-1 bg-input"
             min={config.type === "number" ? 0 : undefined}
           />
@@ -321,7 +429,11 @@ export default function FilterComponent({
               if (sortOrder) params.set("sortOrder", sortOrder);
               if (setOpenSheet) setOpenSheet(false);
               startTransition(() => {
-                router.push(`/jobs?${params.toString()}`);
+                router.push(
+                  `/${
+                    isProfilesPage ? "company/profiles" : "jobs"
+                  }?${params.toString()}`
+                );
               });
             }}
           >

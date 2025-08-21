@@ -10,6 +10,8 @@ import { IApplication, IJobPosting } from "@/lib/types";
 import BackButton from "@/components/BackButton";
 import { JobStatusSwitch } from "@/components/JobPostingsTable";
 import ApplicantsTable from "@/components/ApplicantsTable";
+import JobDescriptionCard from "@/components/JobDetailsCard";
+import FindSuitableProfilesForJobPost from "@/components/FindSuitableProfilesForJobPost";
 
 export default async function JobPostPage({
   params,
@@ -81,24 +83,14 @@ export default async function JobPostPage({
               existingValues={existingValues}
             />
             <DeleteJobPosting job_posting_id={job.id} is_job_posting_page />
+            <FindSuitableProfilesForJobPost job_post_id={job_id} />
           </div>
         </div>
 
         {/* --- Job Details Section --- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Details Card */}
-          <Card className="md:col-span-2 shadow-sm border">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold">
-                Job Description
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground whitespace-pre-line">
-                {job.description}
-              </p>
-            </CardContent>
-          </Card>
+          <JobDescriptionCard job={job} />
 
           {/* Key Metrics/Details Sidebar */}
           <div className="grid gap-4">

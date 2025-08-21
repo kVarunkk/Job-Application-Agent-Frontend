@@ -57,7 +57,8 @@ export const buildQuery = async ({
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
-        .eq("user_favorites.user_id", user.id);
+        .eq("user_favorites.user_id", user.id)
+        .eq("status", "active");
     } else if (isAppliedJobsTabActive) {
       if (!user) {
         return {
@@ -66,7 +67,6 @@ export const buildQuery = async ({
           count: 0,
         };
       }
-      console.log("hola");
       selectString = `
   *,
   user_favorites!inner(user_id),
@@ -82,10 +82,10 @@ export const buildQuery = async ({
         .select(selectString, { count: "exact" })
         .eq("job_postings.applications.applicant_user_id", user.id);
     } else {
-      console.log("fuck off");
       query = supabase
         .from("all_jobs")
-        .select(selectString, { count: "exact" });
+        .select(selectString, { count: "exact" })
+        .eq("status", "active");
     }
 
     // --- NEW: VECTOR SEARCH LOGIC ---

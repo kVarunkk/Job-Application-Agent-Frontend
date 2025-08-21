@@ -1,6 +1,6 @@
 "use client";
 
-import { IJob } from "@/lib/types";
+import { IFormData, IJob } from "@/lib/types";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -18,6 +18,7 @@ import FindSuitableJobs from "./FindSuitableJobs";
 import FilterComponentSheet from "./FilterComponentSheet";
 import { Button } from "./ui/button";
 import { ArrowLeft } from "lucide-react";
+import ProfileItem from "./ProfileItem";
 
 export default function JobsComponent({
   initialJobs,
@@ -26,20 +27,33 @@ export default function JobsComponent({
   uniqueLocations,
   uniqueCompanies,
   isCompanyUser,
+  isProfilesPage = false,
+  uniqueJobRoles,
+  uniqueIndustryPreferences,
+  uniqueWorkStylePreferences,
+  uniqueSkills,
+  companyId,
 }: {
-  initialJobs: IJob[];
+  initialJobs: IJob[] | IFormData[];
   totalJobs: number;
   user: User | null;
   uniqueLocations: { location: string }[];
-  uniqueCompanies: { company_name: string }[];
+  uniqueCompanies?: { company_name: string }[];
   isCompanyUser: boolean;
+  isProfilesPage?: boolean;
+  uniqueJobRoles?: { job_role: string }[];
+  uniqueIndustryPreferences?: { industry_preference: string }[];
+  uniqueWorkStylePreferences?: { work_style_preference: string }[];
+  uniqueSkills?: { skill: string }[];
+  companyId?: string;
 }) {
-  const [jobs, setJobs] = useState<IJob[]>(initialJobs ?? []);
+  const [jobs, setJobs] = useState<IJob[] | IFormData[]>(initialJobs ?? []);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
+  const [activeCardID, setActiveCardID] = useState<string>();
 
   const selectValue =
     searchParams.get("sortBy") &&
@@ -67,7 +81,11 @@ export default function JobsComponent({
     params.set("page", nextPage.toString());
 
     try {
-      const res = await fetch(`/api/jobs?${params.toString()}`);
+      const res = await fetch(
+        `/api/${
+          isProfilesPage && isCompanyUser ? "profiles" : "jobs"
+        }?${params.toString()}`
+      );
       // const newJobs = await res.json();
       if (!res.ok) throw new Error("Some error occured");
 
@@ -84,7 +102,15 @@ export default function JobsComponent({
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, jobs.length, totalJobs, page, searchParams]);
+  }, [
+    isLoading,
+    jobs.length,
+    totalJobs,
+    page,
+    searchParams,
+    isCompanyUser,
+    isProfilesPage,
+  ]);
 
   // This effect sets up the IntersectionObserver
   useEffect(() => {
@@ -120,18 +146,30 @@ export default function JobsComponent({
 
     setPage(() => 1);
 
-    router.push(`/jobs?${params.toString()}`);
+    router.push(
+      `/${
+        isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
+      }?${params.toString()}`
+    );
   };
 
   const navigateBack = async () => {
     const params = new URLSearchParams(searchParams.toString());
     const sortBy = params.get("sortBy");
+    const jobPost = params.get("job_post");
 
     if (sortBy === "vector_similarity") {
       params.delete("sortBy");
     }
+    if (jobPost) {
+      params.delete("job_post");
+    }
 
-    router.push(`/jobs?${params.toString()}`);
+    router.push(
+      `/${
+        isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
+      }?${params.toString()}`
+    );
   };
 
   return (
@@ -150,18 +188,30 @@ export default function JobsComponent({
             )}
             <p className="text-sm text-muted-foreground">
               Showing {jobs.length} {isSuitable ? "suitable" : ""}{" "}
-              {jobs.length > 1 ? "jobs" : "job"}
+              {isProfilesPage && isCompanyUser ? "profile" : "job"}
+              {jobs.length > 1 ? `s` : ``}
             </p>
           </div>
 
           <FilterComponentSheet
             uniqueLocations={uniqueLocations}
-            uniqueCompanies={uniqueCompanies}
+            uniqueCompanies={uniqueCompanies ?? []}
+            uniqueJobRoles={uniqueJobRoles ?? []}
+            uniqueIndustryPreferences={uniqueIndustryPreferences ?? []}
+            uniqueWorkStylePreferences={uniqueWorkStylePreferences ?? []}
+            uniqueSkills={uniqueSkills ?? []}
+            isCompanyUser={isCompanyUser}
+            isProfilesPage={isProfilesPage}
           />
 
           <div className="flex items-center gap-3">
-            {user && !isCompanyUser && (
-              <FindSuitableJobs user={user} setPage={setPage} />
+            {(user || (isCompanyUser && isProfilesPage)) && (
+              <FindSuitableJobs
+                user={user}
+                setPage={setPage}
+                isProfilesPage={isProfilesPage}
+                companyId={companyId}
+              />
             )}
             {searchParams.get("sortBy") !== "vector_similarity" && (
               <Select
@@ -175,10 +225,10 @@ export default function JobsComponent({
                   <SelectItem value="created_at-desc">Newest First</SelectItem>
                   <SelectItem value="created_at-asc">Oldest First</SelectItem>
                   <SelectItem value="company_name-asc">
-                    Company Name (A-Z)
+                    {isCompanyUser ? "Profile" : "Company"} Name (A-Z)
                   </SelectItem>
                   <SelectItem value="company_name-desc">
-                    Company Name (Z-A)
+                    {isCompanyUser ? "Profile" : "Company"} Name (Z-A)
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -186,20 +236,38 @@ export default function JobsComponent({
           </div>
         </div>
       )}
+
       {jobs.length > 0 ? (
-        jobs.map((job) => (
-          <JobItem
-            isCompanyUser={isCompanyUser}
-            key={job.id}
-            job={job}
-            user={user}
-            isSuitable={isSuitable}
-          />
-        ))
+        isProfilesPage && isCompanyUser ? (
+          (jobs as IFormData[]).map((job) => (
+            <ProfileItem
+              key={job.user_id}
+              profile={job}
+              user={user}
+              isSuitable={isSuitable}
+              activeCardID={activeCardID}
+              setActiveCardID={setActiveCardID}
+            />
+          ))
+        ) : (
+          (jobs as IJob[]).map((job) => (
+            <JobItem
+              isCompanyUser={isCompanyUser}
+              key={job.id}
+              job={job}
+              user={user}
+              isSuitable={isSuitable}
+            />
+          ))
+        )
       ) : (
-        <p className="text-muted-foreground mt-20 mx-auto">
-          No jobs found for the selected Filter.{" "}
-          <Link href={"/jobs"} className="underline">
+        <p className="text-muted-foreground mt-20 mx-auto text-center">
+          No {isCompanyUser ? "profiles" : "jobs"} found for the selected
+          Filter. <br />
+          <Link
+            href={isCompanyUser ? "/company/profiles" : "/jobs"}
+            className="underline"
+          >
             Clear Filters
           </Link>
         </p>

@@ -1,8 +1,10 @@
+"use client";
+
 import { User } from "@supabase/supabase-js";
 import { AuthButton } from "./auth-button";
 import ProfileDropdown from "./ProfileDropdown";
 import Link from "next/link";
-import React, { JSXElementConstructor, ReactElement } from "react";
+import React from "react";
 import {
   Sheet,
   SheetContent,
@@ -12,23 +14,15 @@ import {
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import Brand from "./Brand";
-
-// Define a type for a ReactElement that is expected to have a 'href' prop
-interface HasHrefProps {
-  href: string;
-  // You might add other common props if needed, e.g., className?: string;
-}
+import { cn } from "@/lib/utils";
+import { INavItemWithActive } from "./NavbarParent";
 
 export default function NavbarComponent({
   user,
   items,
 }: {
   user: User | null;
-  // Specify that 'items' is an array of ReactElements whose props extend HasHrefProps
-  items?: ReactElement<
-    HasHrefProps,
-    string | JSXElementConstructor<HasHrefProps>
-  >[];
+  items: INavItemWithActive[];
 }) {
   return (
     <div className="w-full flex items-center justify-between px-4 py-3 lg:px-20 xl:px-40 2xl:px-80 border-b">
@@ -40,9 +34,18 @@ export default function NavbarComponent({
       </div>
       {items ? (
         <div className=" items-center gap-4 text-sm hidden md:flex">
-          {items.map((item) =>
-            React.cloneElement(item, { key: item.props.href })
-          )}
+          {items.map((item) => (
+            <Link
+              key={item.id}
+              href={item.href}
+              className={cn(
+                "hover:underline underline-offset-2",
+                item.active && "underline underline-offset-2"
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
         </div>
       ) : (
         ""
@@ -60,14 +63,7 @@ export default function NavbarComponent({
   );
 }
 
-const NavbarSheet = ({
-  items,
-}: {
-  items?: ReactElement<
-    HasHrefProps,
-    string | JSXElementConstructor<HasHrefProps>
-  >[];
-}) => {
+const NavbarSheet = ({ items }: { items: INavItemWithActive[] }) => {
   return (
     <Sheet>
       <SheetTrigger className="md:hidden ">
@@ -87,9 +83,18 @@ const NavbarSheet = ({
 
         {items ? (
           <div className="flex flex-col gap-3 items-start ">
-            {items.map((item) =>
-              React.cloneElement(item, { key: item.props.href })
-            )}
+            {items.map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                className={cn(
+                  "hover:underline underline-offset-2",
+                  item.active && "underline underline-offset-2"
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
         ) : (
           ""

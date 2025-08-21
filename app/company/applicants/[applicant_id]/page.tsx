@@ -3,7 +3,13 @@ import Error from "@/components/Error";
 import BackButton from "@/components/BackButton";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import ApplicationStatusSelect from "@/components/ApplicationStatusSelector";
@@ -76,23 +82,6 @@ export default async function ApplicantPage({
 
     const signedUrl = signedUrlData.signedUrl;
 
-    const buildSalaryRange = () => {
-      const minSalary = application.user_info?.min_salary || 0;
-      const maxSalary = application.user_info?.max_salary || 0;
-      if (minSalary === 0 && maxSalary === 0) {
-        return "Not specified";
-      }
-      if (minSalary === maxSalary) {
-        return `${minSalary} ${application.user_info?.salary_currency || ""}`;
-      }
-      if (!maxSalary) {
-        return `${minSalary}${application.user_info?.salary_currency || ""} + `;
-      }
-      return `${minSalary} - ${maxSalary} ${
-        application.user_info?.salary_currency || ""
-      }`;
-    };
-
     return (
       <div className="flex flex-col w-full gap-8">
         <div>
@@ -112,6 +101,9 @@ export default async function ApplicantPage({
                 <CardTitle>
                   {application.user_info?.full_name || "N/A"}
                 </CardTitle>
+                <CardDescription>
+                  {application.user_info?.email}
+                </CardDescription>
                 {/* <div className="flex items-center gap-2"> */}
 
                 <p className="text-sm text-muted-foreground">
@@ -217,8 +209,9 @@ export default async function ApplicantPage({
                           Preferred Work Style
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {application.user_info?.work_style_preferences ||
-                            "Not specified"}
+                          {application.user_info?.work_style_preferences?.join(
+                            ", "
+                          ) || "Not specified"}
                         </p>
                       </div>
                       <div>
@@ -232,7 +225,11 @@ export default async function ApplicantPage({
                           Salary Expectation
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {buildSalaryRange()}
+                          {buildSalaryRange(
+                            application.user_info?.min_salary,
+                            application.user_info?.max_salary,
+                            application.user_info?.salary_currency
+                          )}
                         </p>
                       </div>
                       <div>
@@ -253,18 +250,6 @@ export default async function ApplicantPage({
                             </span>
                           )}
                         </div>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm">Work Style</p>
-                        <p className="text-sm text-muted-foreground">
-                          {application.user_info?.work_style_preferences &&
-                          application.user_info?.work_style_preferences.length >
-                            0
-                            ? application.user_info?.work_style_preferences.join(
-                                ", "
-                              )
-                            : "Not specified"}
-                        </p>
                       </div>
                     </div>
                   </TabsContent>
@@ -351,3 +336,22 @@ export default async function ApplicantPage({
     return <Error />;
   }
 }
+
+export const buildSalaryRange = (
+  min_salary?: number | "",
+  max_salary?: number | "",
+  salary_currency?: string
+) => {
+  const minSalary = min_salary || 0;
+  const maxSalary = max_salary || 0;
+  if (minSalary === 0 && maxSalary === 0) {
+    return "Not specified";
+  }
+  if (minSalary === maxSalary) {
+    return `${minSalary} ${salary_currency || ""}`;
+  }
+  if (!maxSalary) {
+    return `${minSalary}${salary_currency || ""} + `;
+  }
+  return `${minSalary} - ${maxSalary} ${salary_currency || ""}`;
+};

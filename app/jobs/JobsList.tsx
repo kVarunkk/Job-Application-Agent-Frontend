@@ -26,13 +26,10 @@ export default function JobsList({
   isCompanyUser: boolean;
 }) {
   const supabase = createClient();
-
-  // const [user, setUser] = useState<User | null>(null);
   const [dataState, setData] = useState<IJob[] | never[] | null>();
   const [countState, setCount] = useState<number | null>();
   const searchParameters = useSearchParams();
   const [loading, setLoading] = useState(false);
-  // const [isCompanyUser, setIsCompanyUser] = useState(false);
 
   useEffect(() => {
     const fetchJobsAndRerank = async () => {
@@ -76,7 +73,7 @@ export default function JobsList({
         data.ai_search_uses <= 3
       ) {
         try {
-          const aiRerankRes = await fetch("/api/ai-search", {
+          const aiRerankRes = await fetch("/api/jobs/ai-search", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -130,9 +127,7 @@ export default function JobsList({
       setLoading(false);
     };
 
-    if (user) {
-      fetchJobsAndRerank();
-    }
+    fetchJobsAndRerank();
   }, [
     isFavoriteTabActive,
     isAppliedJobsTabActive,

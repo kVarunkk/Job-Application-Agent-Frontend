@@ -731,6 +731,7 @@ export const OnboardingForm: React.FC = () => {
     resume_name: null,
     default_locations: [],
     job_type: [],
+    email: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -851,8 +852,20 @@ export const OnboardingForm: React.FC = () => {
             isValid = false;
           }
         case "desired_roles":
+          if ((value as string[]).length === 0) {
+            newErrors[field] = "Please select atleast one role.";
+            isValid = false;
+          }
         case "preferred_locations":
+          if ((value as string[]).length === 0) {
+            newErrors[field] = "Please select atleast one location.";
+            isValid = false;
+          }
         case "top_skills":
+          if ((value as string[]).length === 0) {
+            newErrors[field] = "Please select atleast one skill.";
+            isValid = false;
+          }
         case "industry_preferences":
         case "work_style_preferences":
           if ((value as string[]).length === 0) {

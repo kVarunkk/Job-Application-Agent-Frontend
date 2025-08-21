@@ -25,7 +25,7 @@ export default function Hero() {
       <h1 className="text-5xl sm:text-6xl font-extrabold">
         The Future of Job Search Starts Here
       </h1>
-      <p className="text-muted-foreground">
+      <p className="">
         Uncover <strong>Personalized</strong> opportunities,{" "}
         <strong>Automate</strong> your applications, and connect{" "}
         <strong>Directly</strong> with hiring companies

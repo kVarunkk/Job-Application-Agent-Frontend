@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import JobsList from "./JobsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import NavbarComponent from "@/components/Navbar";
+import NavbarParent from "@/components/NavbarParent";
 
 export default async function JobsPage({
   searchParams,
@@ -15,16 +15,17 @@ export default async function JobsPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { data: companyData } = await supabase
-    .from("company_info")
-    .select("*")
-    .eq("user_id", user?.id)
-    .single();
-
   let isCompanyUser = false;
-  if (companyData) {
-    isCompanyUser = true;
+  if (user) {
+    const { data: companyData } = await supabase
+      .from("company_info")
+      .select("*")
+      .eq("user_id", user?.id)
+      .single();
+
+    if (companyData) {
+      isCompanyUser = true;
+    }
   }
 
   // --- Data Fetching ---
@@ -48,7 +49,7 @@ export default async function JobsPage({
 
   return (
     <div>
-      <NavbarComponent user={user} />
+      <NavbarParent user={user} />
       <div className="flex items-start px-4 lg:px-20 xl:px-40 2xl:px-80 py-5 h-full gap-5">
         <div className="hidden md:block w-1/3 px-2 h-screen overflow-y-auto sticky top-0 z-10">
           <FilterComponent

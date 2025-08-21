@@ -1,8 +1,7 @@
 import Footer from "@/components/landing-page/Footer";
-import NavbarComponent from "@/components/Navbar";
+import NavbarParent, { INavItem } from "@/components/NavbarParent";
 import TermsOfService from "@/components/TermsOfService";
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 
 export default async function TermsOfServicePage() {
@@ -10,41 +9,43 @@ export default async function TermsOfServicePage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const navItems: INavItem[] = [
+    {
+      id: uuidv4(),
+      label: "Home",
+      href: "/",
+      type: "equals",
+    },
+    {
+      id: uuidv4(),
+      label: "Find Jobs",
+      href: "/jobs",
+      type: "startswith",
+    },
+    {
+      id: uuidv4(),
+      label: "Features",
+      href: "/#howwehelp",
+      type: "includes",
+    },
+    {
+      id: uuidv4(),
+      label: "FAQs",
+      href: "/#faq",
+      type: "includes",
+    },
+    {
+      id: uuidv4(),
+      label: "Hire",
+      href: "/auth/login?company=true",
+      type: "includes",
+    },
+  ];
+
   return (
     <>
-      <NavbarComponent
-        user={user}
-        items={[
-          <Link
-            key={uuidv4()}
-            href={"/"}
-            className="hover:underline underline-offset-2"
-          >
-            Home
-          </Link>,
-          <Link
-            key={uuidv4()}
-            href={"/jobs"}
-            className="hover:underline underline-offset-2"
-          >
-            Find Jobs
-          </Link>,
-          <Link
-            key={uuidv4()}
-            href={"#howwehelp"}
-            className="hover:underline underline-offset-2"
-          >
-            Features
-          </Link>,
-          <Link
-            key={uuidv4()}
-            href={"#faq"}
-            className="hover:underline underline-offset-2"
-          >
-            FAQs
-          </Link>,
-        ]}
-      />
+      <NavbarParent user={user} navItems={navItems} />
       <TermsOfService />
       <Footer />
     </>
