@@ -11,6 +11,10 @@ export default async function JobsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
+  const searchParameters = await searchParams;
+  const applicationStatusFilter = searchParameters
+    ? searchParameters["applicationStatus"]
+    : false;
   const supabase = await createClient();
   const {
     data: { user },
@@ -69,25 +73,36 @@ export default async function JobsPage({
               </div>
             }
           >
-            <Tabs defaultValue="all_jobs" className="">
+            <Tabs
+              defaultValue={
+                applicationStatusFilter ? "applied_jobs" : "all_jobs"
+              }
+              className=""
+            >
               {user && !isCompanyUser && (
                 <TabsList>
-                  <TabsTrigger value="all_jobs">All Jobs</TabsTrigger>
-                  <TabsTrigger value="saved_jobs">Saved Jobs</TabsTrigger>
+                  {!applicationStatusFilter && (
+                    <TabsTrigger value="all_jobs">All Jobs</TabsTrigger>
+                  )}
+                  {!applicationStatusFilter && (
+                    <TabsTrigger value="saved_jobs">Saved Jobs</TabsTrigger>
+                  )}
                   <TabsTrigger value="applied_jobs">Applied Jobs</TabsTrigger>
                 </TabsList>
               )}
-              <TabsContent value="all_jobs">
-                <JobsList
-                  isCompanyUser={isCompanyUser}
-                  user={user}
-                  searchParams={searchParams}
-                  isFavoriteTabActive={false}
-                  uniqueLocations={uniqueLocations}
-                  uniqueCompanies={uniqueCompanies}
-                />
-              </TabsContent>
-              {user && !isCompanyUser && (
+              {!applicationStatusFilter && (
+                <TabsContent value="all_jobs">
+                  <JobsList
+                    isCompanyUser={isCompanyUser}
+                    user={user}
+                    searchParams={searchParams}
+                    isFavoriteTabActive={false}
+                    uniqueLocations={uniqueLocations}
+                    uniqueCompanies={uniqueCompanies}
+                  />
+                </TabsContent>
+              )}
+              {user && !isCompanyUser && !applicationStatusFilter && (
                 <TabsContent value="saved_jobs">
                   <JobsList
                     isCompanyUser={isCompanyUser}

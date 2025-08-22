@@ -235,17 +235,17 @@ export default function FilterComponent({
               { value: "gethired", label: "GetHired" },
             ],
           },
-          // {
-          //   name: "applicationStatus",
-          //   label: "Application Status",
-          //   type: "multi-select", // Changed to multi-select
-          //   placeholder: "Select the status",
-          //   options: Object.keys(TApplicationStatus).map((each) => ({
-          //     label: each,
-          //     value:
-          //       TApplicationStatus[each as keyof typeof TApplicationStatus],
-          //   })),
-          // },
+          {
+            name: "applicationStatus",
+            label: "Application Status",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the status",
+            options: Object.keys(TApplicationStatus).map((each) => ({
+              label: each,
+              value:
+                TApplicationStatus[each as keyof typeof TApplicationStatus],
+            })),
+          },
 
           {
             name: "minSalary",

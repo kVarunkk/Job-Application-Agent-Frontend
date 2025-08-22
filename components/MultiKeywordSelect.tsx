@@ -129,7 +129,10 @@ export default function MultiKeywordSelect({
           <SelectTrigger className="bg-input">
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
-          <SelectContent className="max-h-[300px]">
+          <SelectContent
+            className="max-h-[300px]"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
             {isVirtualized && (
               <div className=" pl-1 flex items-center gap-1 sticky top-0 bg-background z-10 border-b">
                 <Search className="h-4 w-4 text-muted-foreground" />
@@ -138,10 +141,10 @@ export default function MultiKeywordSelect({
                   className="text-sm border-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
+                  // onClick={(e) => {
+                  //   e.stopPropagation();
+                  //   e.preventDefault();
+                  // }}
                 />
               </div>
             )}
