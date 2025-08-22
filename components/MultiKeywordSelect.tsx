@@ -138,6 +138,10 @@ export default function MultiKeywordSelect({
                   className="text-sm border-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
                 />
               </div>
             )}
