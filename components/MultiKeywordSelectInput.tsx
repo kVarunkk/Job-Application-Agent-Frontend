@@ -145,7 +145,7 @@ export default memo(function MultiKeywordSelectInput({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="!rounded-r-none !border-0 bg-input !ring-0"
+            className="!rounded-r-none !border-0 bg-input !ring-0 text-sm"
             onFocus={handleFocus}
             onBlur={handleBlur}
           />

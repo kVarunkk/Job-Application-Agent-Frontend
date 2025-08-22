@@ -139,6 +139,7 @@ export default function MultiLocationSelector({
               selectedItem={selectedCountry}
               handleItemChange={(value) => handleCountryChange(value)}
               isLoading={isLoading}
+              placeholder="Select Country"
             />
           </div>
 
@@ -150,27 +151,8 @@ export default function MultiLocationSelector({
                 selectedItem={selectedCity}
                 handleItemChange={(value) => handleCityChange(value)}
                 isLoading={false}
+                placeholder="Select City"
               />
-              {/* <Select
-                onValueChange={handleCityChange}
-                value={selectedCity}
-                disabled={cities.length === 0}
-              >
-                <SelectTrigger className="bg-input">
-                  <SelectValue
-                    placeholder={
-                      cities.length > 0 ? "Select City" : "No cities available"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select> */}
             </div>
           )}
 

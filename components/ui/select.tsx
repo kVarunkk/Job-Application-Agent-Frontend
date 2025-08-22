@@ -93,7 +93,7 @@ const SelectContent = React.forwardRef<
       >
         {children}
       </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
+      {/* <SelectScrollDownButton /> */}
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ));
