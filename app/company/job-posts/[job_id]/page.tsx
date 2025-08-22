@@ -56,6 +56,7 @@ export default async function JobPostPage({
       min_equity: job.min_equity ?? 0,
       max_equity: job.max_equity ?? 0,
       questions: job.questions ?? [],
+      job_id: job.job_id,
     };
 
     return (

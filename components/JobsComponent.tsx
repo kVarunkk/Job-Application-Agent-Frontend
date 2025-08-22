@@ -205,7 +205,15 @@ export default function JobsComponent({
           />
 
           <div className="flex items-center gap-3">
-            {(user || (isCompanyUser && isProfilesPage)) && (
+            {user && !isCompanyUser && !isProfilesPage && (
+              <FindSuitableJobs
+                user={user}
+                setPage={setPage}
+                isProfilesPage={isProfilesPage}
+                companyId={companyId}
+              />
+            )}
+            {user && isCompanyUser && isProfilesPage && (
               <FindSuitableJobs
                 user={user}
                 setPage={setPage}
@@ -257,6 +265,8 @@ export default function JobsComponent({
               job={job}
               user={user}
               isSuitable={isSuitable}
+              activeCardID={activeCardID}
+              setActiveCardID={setActiveCardID}
             />
           ))
         )

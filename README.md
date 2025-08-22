@@ -1,105 +1,91 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# GetHired: The AI-Powered Job and Candidate Platform
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+**GetHired** is a full-stack application designed to streamline the hiring process for both job seekers and companies. The platform uses AI to provide a personalized experience, helping job seekers find the most relevant roles and enabling companies to discover the best-fit candidates for their job postings.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## ✨ Features
 
-## Features
+### For Job Seekers:
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+- **Personalized Job Matching:** AI-powered recommendations based on your profile, skills, and preferences.
 
-## Demo
+- **Job Board:** A comprehensive list of all available job postings with powerful filtering and sorting options.
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+- **Application Tracking:** Track the status of your job applications from submission to final decision.
 
-## Deploy to Vercel
+- **Favorite Jobs:** Save job postings you're interested in for future reference.
 
-Vercel deployment will guide you through creating a Supabase account and project.
+### For Companies:
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+- **Job Post Management:** A dedicated dashboard to create, edit, and manage all your job postings.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+- **Applicant Tracking System (ATS):** View all applicants for each job posting, with the ability to filter and update their status.
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+- **AI-Powered Candidate Search:** Re-rank and filter candidate profiles based on a specific job's requirements to find the perfect fit.
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+- **Secure Resume Management:** Resumes are securely handled and stored in a private bucket, accessible only by authorized company users.
 
-## Clone and run locally
+## 🛠️ Technology Stack
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+- **Frontend:** **Next.js 15** with **React** for a performant and modern user interface.
 
-2. Create a Next.js app using the Supabase Starter template npx command
+- **Styling:** **Tailwind CSS** for rapid and responsive UI development, with **Shadcn UI** components for a beautiful design.
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+- **Backend:** **FastAPI** for the AI-powered search and embedding generation.
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+- **Database:** **Supabase** (PostgreSQL) for authentication, database management, and file storage.
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+- **AI/Vector Search:** **Google Gemini API** for re-ranking profiles and **`pgvector`** for storing and querying vector embeddings directly in PostgreSQL.
 
-3. Use `cd` to change into the app's directory
+<!-- ## 🚀 Getting Started
 
-   ```bash
-   cd with-supabase-app
-   ```
+To get the project up and running locally, follow these steps:
 
-4. Rename `.env.example` to `.env.local` and update the following:
+1.  **Clone the repository:**
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+    ```bash
+    git clone [https://github.com/your-username/your-app.git](https://github.com/your-username/your-app.git)
+    cd your-app
+    ```
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+2.  **Install dependencies:**
 
-5. You can now run the Next.js local development server:
+    ```bash
+    npm install
+    ```
 
-   ```bash
-   npm run dev
-   ```
+3.  **Set up Supabase:**
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+    - Create a new project on [Supabase](https://supabase.com/).
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+    - Copy your Project URL and Anon Key.
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+    - Set up your database tables and RLS policies as defined in the `supabase/schemas` directory (if applicable).
 
-## Feedback and issues
+4.  **Configure Environment Variables:**
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+    - Create a `.env.local` file in the root of your project.
 
-## More Supabase examples
+    - Add your Supabase credentials:
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+      ```
+      NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_URL
+      NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+      ```
+
+    - Add your Google API key for AI features.
+
+      ```
+      GOOGLE_API_KEY=YOUR_GOOGLE_API_KEY
+      ```
+
+5.  **Run the development server:**
+
+    ```bash
+    npm run dev
+    ```
+
+    Open [http://localhost:3000](https://www.google.com/search?q=http://localhost:3000) in your browser to see the result.
+
+## 🤝 Contribution
+
+We welcome contributions! If you have suggestions for new features, bug fixes, or improvements to the documentation, feel free to open an issue or submit a pull request. -->

@@ -11,22 +11,17 @@ import {
 import { X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ICountry } from "@/lib/types";
-
-export interface GenericFormData {
-  [key: string]: string | number | string[];
-}
+import VirtualizedSelect from "./VirtualizedSelect";
 
 interface MultiLocationSelectorProps {
-  name: keyof GenericFormData;
-  onChange: (name: keyof GenericFormData, locations: string[]) => void;
-  initialLocations?: string[];
+  value: string[]; // controlled by RHF
+  onChange: (locations: string[]) => void; // RHF setter
   className?: string;
 }
 
 export default function MultiLocationSelector({
-  name,
+  value = [],
   onChange,
-  initialLocations = [],
   className = "",
 }: MultiLocationSelectorProps) {
   const [countries, setCountries] = useState<ICountry[]>([]);
@@ -36,32 +31,29 @@ export default function MultiLocationSelector({
   const [isRemote, setIsRemote] = useState<"yes" | "no" | "">("");
   const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch countries with caching
   useEffect(() => {
     const fetchCountries = async () => {
-      // 1. Check for cached data in localStorage
       const cachedData = localStorage.getItem("countryData");
-      const now = new Date().getTime();
+      const now = Date.now();
 
       if (cachedData) {
         const { data, expiry } = JSON.parse(cachedData);
-        // 2. If cache is valid, use it
         if (now < expiry) {
           setCountries(data);
           setIsLoading(false);
           return;
         } else {
-          // 3. Cache expired, clear it
           localStorage.removeItem("countryData");
         }
       }
 
-      // 4. No valid cache, make the API call
       setIsLoading(true);
       try {
         const response = await fetch("/api/locations");
         const data = await response.json();
         setCountries(data.data);
-        // 5. Store new data with a 1-day expiration
+
         const oneDay = 24 * 60 * 60 * 1000;
         localStorage.setItem(
           "countryData",
@@ -77,37 +69,32 @@ export default function MultiLocationSelector({
     fetchCountries();
   }, []);
 
-  // Fetch cities when a country is selected
+  // Load cities when country changes
   useEffect(() => {
     if (selectedCountry) {
       const countryData = countries.find((c) => c.country === selectedCountry);
-      if (countryData) {
-        setCities(countryData.cities);
-      }
+      setCities(countryData?.cities || []);
     } else {
       setCities([]);
     }
   }, [selectedCountry, countries]);
 
-  // Callback to handle country selection
-  const handleCountryChange = useCallback((country: string) => {
-    setSelectedCountry(country);
-    setSelectedCity(""); // Reset city when country changes
-  }, []);
+  const handleCountryChange = useCallback(
+    (country: string) => {
+      setSelectedCountry(country);
+      setSelectedCity(""); // reset city
+    },
+    [setSelectedCountry, setSelectedCity]
+  );
 
-  // Callback to handle city selection
   const handleCityChange = useCallback((city: string) => {
     setSelectedCity(city);
   }, []);
 
-  // Callback to handle remote checkbox change
   const handleRemoteChange = useCallback((value: "yes" | "no") => {
     setIsRemote(value);
-    // setSelectedCountry("");
-    // setSelectedCity("");
   }, []);
 
-  // Callback to add the current selection as a single location string
   const addCurrentSelection = useCallback(() => {
     const countryData = countries.find((c) => c.country === selectedCountry);
     let locationString = "";
@@ -122,33 +109,19 @@ export default function MultiLocationSelector({
       locationString = selectedCountry;
     }
 
-    if (locationString && !initialLocations.includes(locationString)) {
-      // Call the parent's onChange to update the state
-      onChange(name, [...initialLocations, locationString]);
+    if (locationString && !value.includes(locationString)) {
+      onChange([...value, locationString]);
       setSelectedCountry("");
       setSelectedCity("");
       setIsRemote("");
     }
-  }, [
-    initialLocations,
-    name,
-    onChange,
-    isRemote,
-    selectedCountry,
-    selectedCity,
-    countries,
-  ]);
+  }, [value, onChange, isRemote, selectedCountry, selectedCity, countries]);
 
-  // Callback to remove a keyword
   const removeLocation = useCallback(
     (locationToRemove: string) => {
-      // Call the parent's onChange with the filtered array
-      onChange(
-        name,
-        initialLocations.filter((content) => content !== locationToRemove)
-      );
+      onChange(value.filter((loc) => loc !== locationToRemove));
     },
-    [name, onChange, initialLocations]
+    [value, onChange]
   );
 
   const isSelectionValid = useMemo(() => {
@@ -161,35 +134,24 @@ export default function MultiLocationSelector({
         <div className="flex items-center gap-2 flex-1 flex-wrap">
           {/* Country Dropdown */}
           <div className="relative flex-1">
-            <Select
-              onValueChange={handleCountryChange}
-              value={selectedCountry}
-              disabled={isLoading}
-            >
-              <SelectTrigger className="bg-input ">
-                <SelectValue
-                  placeholder={
-                    isLoading ? "Loading countries..." : "Select Country"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {countries.map((countryData) => (
-                  <SelectItem
-                    key={countryData.country}
-                    value={countryData.country}
-                  >
-                    {countryData.country}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <VirtualizedSelect
+              items={countries?.map((each) => each.country) ?? []}
+              selectedItem={selectedCountry}
+              handleItemChange={(value) => handleCountryChange(value)}
+              isLoading={isLoading}
+            />
           </div>
 
-          {/* City Dropdown - Conditionally rendered */}
+          {/* City Dropdown */}
           {selectedCountry && (
             <div className="relative flex-1">
-              <Select
+              <VirtualizedSelect
+                items={cities}
+                selectedItem={selectedCity}
+                handleItemChange={(value) => handleCityChange(value)}
+                isLoading={false}
+              />
+              {/* <Select
                 onValueChange={handleCityChange}
                 value={selectedCity}
                 disabled={cities.length === 0}
@@ -208,10 +170,11 @@ export default function MultiLocationSelector({
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
+              </Select> */}
             </div>
           )}
 
+          {/* Remote Dropdown */}
           <div className="relative flex-1">
             <Select onValueChange={handleRemoteChange} value={isRemote}>
               <SelectTrigger className="bg-input ">
@@ -224,6 +187,7 @@ export default function MultiLocationSelector({
             </Select>
           </div>
 
+          {/* Action buttons */}
           {(isRemote || selectedCountry) && (
             <div className="flex items-center text-muted-foreground ">
               <button
@@ -251,9 +215,9 @@ export default function MultiLocationSelector({
       </div>
 
       {/* Display selected locations */}
-      {initialLocations.length > 0 && (
+      {value.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {initialLocations.map((content) => (
+          {value.map((content) => (
             <span
               key={content}
               className="flex items-center border border-border px-2 py-1 rounded text-sm"

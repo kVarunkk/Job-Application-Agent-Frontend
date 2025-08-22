@@ -107,7 +107,7 @@ export function LoginForm({
           </CardTitle>
           <CardDescription>
             Enter your {isCompany && "company"} email below to login to your
-            hiring account
+            {isCompany && "hiring"} account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -186,6 +186,17 @@ export function LoginForm({
                   Sign up
                 </Link>
               </div>
+              {!isCompany && (
+                <div className="mt-4 text-center text-xs">
+                  Are you a company looking to hire candidates?{" "}
+                  <Link
+                    href={"/auth/login?company=true"}
+                    className="underline underline-offset-4"
+                  >
+                    Login here
+                  </Link>
+                </div>
+              )}
             </form>
           </Form>
         </CardContent>

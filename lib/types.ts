@@ -119,6 +119,33 @@ export interface IJob {
   job_postings?: IJobPosting[];
 }
 
+export interface IJobPosting {
+  id: string;
+  title: string;
+  description: string;
+  job_type: "Fulltime" | "Parttime" | "Contract";
+  salary_currency: string;
+  min_salary: number;
+  max_salary: number;
+  salary_range: string;
+  min_experience: number;
+  max_experience?: number;
+  experience: string;
+  visa_sponsorship: "Not Required" | "Required" | "Will Sponsor";
+  location: string[];
+  min_equity?: number;
+  max_equity?: number;
+  equity_range: string;
+  company_id: string;
+  created_at: string;
+  updated_at: string;
+  status: "active" | "inactive";
+  company_info?: ICompanyInfo;
+  applications?: IApplication[];
+  questions: string[];
+  job_id: string | null;
+}
+
 export interface IFormData {
   user_id?: string;
   full_name: string;
@@ -188,33 +215,6 @@ export interface ICreateJobPostingFormData {
   min_equity?: number;
   max_equity?: number;
   questions?: string[];
-}
-
-export interface IJobPosting {
-  id: string;
-  title: string;
-  description: string;
-  job_type: "Fulltime" | "Parttime" | "Contract";
-  salary_currency: string;
-  min_salary: number;
-  max_salary: number;
-  salary_range: string;
-  min_experience: number;
-  max_experience?: number;
-  experience: string;
-  visa_sponsorship: "Not Required" | "Required" | "Will Sponsor";
-  location: string[];
-  min_equity?: number;
-  max_equity?: number;
-  equity_range: string;
-  company_id: string;
-  created_at: string;
-  updated_at: string;
-  status: "active" | "inactive";
-  company_info?: ICompanyInfo;
-  applications?: IApplication[];
-  questions: string[];
-  job_id: string | null;
 }
 
 export interface IApplication {

@@ -16,12 +16,13 @@ export async function GET(request: NextRequest) {
   const minSalary = searchParams.get("minSalary");
   const minExperience = searchParams.get("minExperience");
   const platform = searchParams.get("platform");
-  const company_name = searchParams.get("company_name");
+  const companyName = searchParams.get("companyName");
   const sortBy = searchParams.get("sortBy");
   const sortOrder = searchParams.get("sortOrder");
   const jobTitleKeywords = searchParams.get("jobTitleKeywords");
   const isFavoriteTabActive = searchParams.get("isFavoriteTabActive");
   const isAppliedJobsTabActive = searchParams.get("isAppliedJobsTabActive");
+  const applicationStatus = searchParams.get("applicationStatus");
 
   const startIndex = (page - 1) * JOBS_PER_PAGE;
   const endIndex = startIndex + JOBS_PER_PAGE - 1;
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
       minSalary,
       minExperience,
       platform,
-      company_name,
+      companyName,
       start_index: startIndex,
       end_index: endIndex,
       sortBy: sortBy ?? undefined,
@@ -62,7 +63,8 @@ export async function GET(request: NextRequest) {
       jobTitleKeywords,
       isFavoriteTabActive: isFavoriteTabActive === "true",
       isAppliedJobsTabActive: isAppliedJobsTabActive === "true",
-      userEmbedding, // <-- ADDED: Pass the embedding to the query builder
+      userEmbedding,
+      applicationStatus,
     });
 
     if (error) {

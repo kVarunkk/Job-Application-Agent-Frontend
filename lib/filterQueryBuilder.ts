@@ -1,5 +1,4 @@
-// buildQuery.ts
-import { createClient } from "./supabase/server"; // Assuming this path is correct
+import { createClient } from "./supabase/server";
 
 export const buildQuery = async ({
   jobType,
@@ -8,7 +7,7 @@ export const buildQuery = async ({
   minSalary,
   minExperience,
   platform,
-  company_name,
+  companyName,
   start_index,
   end_index,
   jobTitleKeywords,
@@ -16,7 +15,8 @@ export const buildQuery = async ({
   isAppliedJobsTabActive,
   sortBy,
   sortOrder,
-  userEmbedding, // <-- ADDED: The user's vector embedding
+  userEmbedding,
+  applicationStatus,
 }: {
   jobType?: string | null;
   visaRequirement?: string | null;
@@ -24,7 +24,7 @@ export const buildQuery = async ({
   minSalary?: string | null;
   minExperience?: string | null;
   platform?: string | null;
-  company_name?: string | null;
+  companyName?: string | null;
   start_index: number;
   end_index: number;
   sortBy?: string;
@@ -32,7 +32,8 @@ export const buildQuery = async ({
   jobTitleKeywords?: string | null;
   isFavoriteTabActive: boolean;
   isAppliedJobsTabActive?: boolean;
-  userEmbedding?: string | null; // <-- ADDED: Type definition
+  userEmbedding?: string | null;
+  applicationStatus?: string | null;
 }) => {
   try {
     const supabase = await createClient();
@@ -41,9 +42,19 @@ export const buildQuery = async ({
       data: { user },
     } = await supabase.auth.getUser();
 
+    const parseMultiSelectParam = (
+      param: string | null | undefined
+    ): string[] => {
+      return param
+        ? param
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
+    };
+
     let query;
-    let selectString =
-      "*, user_favorites(*), job_postings(*, company_info(*), applications(*))";
+    let selectString;
 
     if (isFavoriteTabActive) {
       if (!user) {
@@ -68,20 +79,22 @@ export const buildQuery = async ({
         };
       }
       selectString = `
-  *,
-  user_favorites!inner(user_id),
-  job_postings!inner (
-    company_info(*),
-    applications!inner (
-      *
+    *,
+    job_postings!inner (
+      *,
+      company_info(*),
+      applications!inner (
+        *
+      )
     )
-  )
-`;
+  `;
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
         .eq("job_postings.applications.applicant_user_id", user.id);
     } else {
+      selectString =
+        "*, user_favorites(*), job_postings(*, company_info(*), applications(*))";
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
@@ -112,17 +125,6 @@ export const buildQuery = async ({
     }
     // --- END NEW LOGIC ---
 
-    const parseMultiSelectParam = (
-      param: string | null | undefined
-    ): string[] => {
-      return param
-        ? param
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : [];
-    };
-
     if (isFavoriteTabActive && user) {
       query = query.filter("user_favorites.user_id", "eq", user.id);
     }
@@ -148,7 +150,7 @@ export const buildQuery = async ({
       query = query.in("platform", platformsArray);
     }
 
-    const companyNamesArray = parseMultiSelectParam(company_name);
+    const companyNamesArray = parseMultiSelectParam(companyName);
     if (companyNamesArray.length > 0) {
       query = query.in("company_name", companyNamesArray);
     }
@@ -159,6 +161,14 @@ export const buildQuery = async ({
         .map((keyword) => `job_name.ilike.%${keyword}%`)
         .join(",");
       query = query.or(orConditions);
+    }
+
+    const applicationStatusArray = parseMultiSelectParam(applicationStatus);
+    if (applicationStatusArray.length > 0) {
+      query = query.in(
+        "job_postings.applications.status",
+        applicationStatusArray
+      );
     }
 
     if (minSalary) {

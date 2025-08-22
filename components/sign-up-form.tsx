@@ -221,6 +221,18 @@ export function SignUpForm({
                   Login
                 </Link>
               </div>
+
+              {!isCompany && (
+                <div className="mt-4 text-center text-xs">
+                  Are you a company looking to hire candidates?{" "}
+                  <Link
+                    href={"/auth/sign-up?company=true"}
+                    className="underline underline-offset-4"
+                  >
+                    Sign up here
+                  </Link>
+                </div>
+              )}
             </form>
           </Form>
         </CardContent>

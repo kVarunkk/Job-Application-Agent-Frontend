@@ -120,7 +120,9 @@ export default function CreateJobPostingDialog({
   existingValues,
 }: {
   company_id: string;
-  existingValues?: ICreateJobPostingFormData;
+  existingValues?: ICreateJobPostingFormData & {
+    job_id: string | null;
+  };
 }) {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -142,7 +144,7 @@ export default function CreateJobPostingDialog({
       visa_sponsorship: "Not Required",
       min_equity: 0,
       max_equity: 0,
-      questions: ["", ""],
+      questions: [""],
     },
   });
 
@@ -208,7 +210,7 @@ export default function CreateJobPostingDialog({
       if (existingValues && existingValues.id) {
         payload.id = existingValues.id;
       }
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("job_postings")
         .upsert(payload, {
           onConflict: "id",
@@ -218,16 +220,41 @@ export default function CreateJobPostingDialog({
 
       if (error) throw error;
 
+      if (existingValues && existingValues.job_id) {
+        const { error } = await supabase
+          .from("all_jobs")
+          .update({
+            job_name: payload.title,
+            job_type: payload.job_type,
+            salary_range: payload.salary_range,
+            salary_min: payload.min_salary,
+            salary_max: payload.max_salary,
+            experience: payload.experience,
+            experience_min: payload.min_experience,
+            experience_max: payload.max_experience,
+            equity_range: payload.equity_range,
+            equity_min: payload.min_equity,
+            equity_max: payload.max_equity,
+            visa_requirement: payload.visa_sponsorship,
+            description: payload.description,
+            locations: payload.location,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existingValues.job_id);
+
+        if (error)
+          throw new Error(
+            "Some error occured while updating the all jobs table"
+          );
+      }
+
       toast.success(
         `Job Posting ${existingValues ? "updated" : "created"} Successfully!`
       );
       form.reset();
       setIsOpen(false);
-      if (!existingValues) {
-        router.refresh();
-      } else {
-        router.push(`/company/job-posts/${data.id}`);
-      }
+
+      router.refresh();
     } catch (error) {
       console.error("API call failed:", error);
       toast.error(
@@ -281,16 +308,22 @@ export default function CreateJobPostingDialog({
       </DialogTrigger>
       <DialogContent className="flex h-[85vh] max-w-xl flex-col overflow-y-hidden">
         <DialogHeader className="h-fit">
-          <DialogTitle>Create New Job Post</DialogTitle>
+          <DialogTitle>
+            {existingValues
+              ? `Update ${existingValues.title} job post`
+              : "Create New Job Post"}
+          </DialogTitle>
           <DialogDescription>
-            Fill in the details for your new job opening.
+            {existingValues
+              ? `Fill in the details for ${existingValues.title} job opening`
+              : "Fill in the details for your new job opening."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
             id="JobPostingForm"
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4  h-full overflow-y-auto px-1 "
+            className="space-y-4 h-full overflow-y-auto px-1"
           >
             {step === 1 ? (
               <>
@@ -311,7 +344,6 @@ export default function CreateJobPostingDialog({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="description"
@@ -329,25 +361,22 @@ export default function CreateJobPostingDialog({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Location</FormLabel>
+                      <FormLabel>Locations</FormLabel>
                       <FormControl>
                         <MultiLocationSelector
-                          name={field.name}
-                          initialLocations={field.value as string[]}
-                          onChange={(_, locations) => field.onChange(locations)}
+                          value={field.value}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -376,6 +405,7 @@ export default function CreateJobPostingDialog({
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="visa_sponsorship"
@@ -404,7 +434,6 @@ export default function CreateJobPostingDialog({
                     )}
                   />
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
@@ -484,7 +513,6 @@ export default function CreateJobPostingDialog({
                     )}
                   />
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -537,7 +565,6 @@ export default function CreateJobPostingDialog({
                     )}
                   />
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -653,6 +680,7 @@ export default function CreateJobPostingDialog({
               </>
             )}
           </form>
+
           <DialogFooter className="">
             {step === 2 && (
               <Button

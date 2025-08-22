@@ -27,7 +27,7 @@ export default function JobDescriptionCard({ job }: { job: IJobPosting }) {
         <p className="whitespace-pre-line">{job.description}</p>
         <div
           className={cn(
-            "absolute inset-x-0 bottom-1 flex items-center justify-center pt-8 bg-gradient-to-t from-background via-background/90 to-transparent transition-all duration-300 rounded-b-lg",
+            "absolute inset-x-0 bottom-0 flex items-center justify-center pt-8 bg-gradient-to-t from-background via-background/90 to-transparent transition-all duration-300 rounded-b-lg",
             isExpanded ? "opacity-0 invisible" : "opacity-100 visible"
           )}
         >

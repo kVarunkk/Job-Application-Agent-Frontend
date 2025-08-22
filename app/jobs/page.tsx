@@ -19,7 +19,7 @@ export default async function JobsPage({
   if (user) {
     const { data: companyData } = await supabase
       .from("company_info")
-      .select("*")
+      .select("id")
       .eq("user_id", user?.id)
       .single();
 

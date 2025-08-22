@@ -18,6 +18,7 @@ import AppLoader from "./AppLoader";
 import MultiKeywordSelect, { GenericFormData } from "./MultiKeywordSelect";
 import MultiKeywordSelectInput from "./MultiKeywordSelectInput";
 import InputFilter from "./InputFilterComponent";
+import { TApplicationStatus } from "@/lib/types";
 
 type FilterConfig = {
   name: keyof FiltersState;
@@ -25,6 +26,7 @@ type FilterConfig = {
   type: "text" | "number" | "multi-select" | "multi-select-input"; // Removed 'select' type
   placeholder?: string;
   options?: { value: string; label: string }[]; // Options for multi-select (for availableItems prop)
+  isVirtualized?: boolean;
 };
 
 // Define the type for the component's state
@@ -35,13 +37,14 @@ export type FiltersState = {
   minSalary: string;
   minExperience: string;
   platform: string[];
-  company_name: string[];
+  companyName: string[];
   jobTitleKeywords: string[];
   jobRole: string[];
   industryPreference: string[];
   workStylePreference: string[];
   skills: string[];
   maxSalary?: string;
+  applicationStatus: TApplicationStatus;
 };
 
 export default function FilterComponent({
@@ -161,56 +164,6 @@ export default function FilterComponent({
             ],
           },
           {
-            name: "location",
-            label: "Location",
-            type: "multi-select", // Changed to multi-select
-            placeholder: "Select the location of Job",
-
-            options: uniqueLocations.map((each) => ({
-              value: each.location,
-              label: each.location,
-            })),
-          },
-          {
-            name: "visaRequirement",
-            label: "Visa Requirement",
-            type: "multi-select", // Changed to multi-select
-            placeholder: "Select the Visa configuration",
-
-            options: [
-              {
-                value: "US Citizenship/Visa Not Required",
-                label: "US Citizenship/Visa Not Required",
-              },
-              { value: "Will Sponsor", label: "Will Sponsor" },
-              { value: "US Citizen/Visa Only", label: "US Citizen/Visa Only" },
-            ],
-          },
-
-          {
-            name: "company_name",
-            label: "Company",
-            type: "multi-select", // Changed to multi-select
-            placeholder: "Select the company",
-
-            options: uniqueCompanies?.map((each) => ({
-              value: each.company_name,
-              label: each.company_name,
-            })),
-          },
-          {
-            name: "platform",
-            label: "Platform",
-            type: "multi-select", // Changed to multi-select
-            placeholder: "Select the platform",
-
-            options: [
-              { value: "remoteok", label: "Remote Ok" },
-              { value: "uplers", label: "Uplers" },
-              { value: "ycombinator", label: "YCombinator" },
-            ],
-          },
-          {
             name: "jobTitleKeywords",
             label: "Job Title Keywords",
             type: "multi-select-input", // Use multi-select for this
@@ -231,6 +184,69 @@ export default function FilterComponent({
               // ... add more common keywords as needed
             ],
           },
+          {
+            name: "location",
+            label: "Location",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the location of Job",
+            options: uniqueLocations.map((each) => ({
+              value: each.location,
+              label: each.location,
+            })),
+            isVirtualized: true,
+          },
+          {
+            name: "visaRequirement",
+            label: "Visa Requirement",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Visa configuration",
+
+            options: [
+              {
+                value: "US Citizenship/Visa Not Required",
+                label: "US Citizenship/Visa Not Required",
+              },
+              { value: "Will Sponsor", label: "Will Sponsor" },
+              { value: "US Citizen/Visa Only", label: "US Citizen/Visa Only" },
+            ],
+          },
+
+          {
+            name: "companyName",
+            label: "Company",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the company",
+            options: uniqueCompanies?.map((each) => ({
+              value: each.company_name,
+              label: each.company_name,
+            })),
+            isVirtualized: true,
+          },
+          {
+            name: "platform",
+            label: "Platform",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the platform",
+
+            options: [
+              { value: "remoteok", label: "Remote Ok" },
+              { value: "uplers", label: "Uplers" },
+              { value: "ycombinator", label: "YCombinator" },
+              { value: "gethired", label: "GetHired" },
+            ],
+          },
+          // {
+          //   name: "applicationStatus",
+          //   label: "Application Status",
+          //   type: "multi-select", // Changed to multi-select
+          //   placeholder: "Select the status",
+          //   options: Object.keys(TApplicationStatus).map((each) => ({
+          //     label: each,
+          //     value:
+          //       TApplicationStatus[each as keyof typeof TApplicationStatus],
+          //   })),
+          // },
+
           {
             name: "minSalary",
             label: "Minimum Salary",
@@ -374,6 +390,7 @@ export default function FilterComponent({
             onChange={handleMultiKeywordSelectChange}
             className="mt-1 w-full"
             availableItems={config.options?.map((e) => e.value)}
+            isVirtualized={config.isVirtualized}
           />
         );
       case "multi-select-input":

@@ -7,7 +7,13 @@ import { Badge } from "./ui/badge";
 import { IJob } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { useCallback, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { cn } from "@/lib/utils";
 import JobApplicationDialog from "./JobApplicationDialog";
 
@@ -16,25 +22,47 @@ export default function JobItem({
   user,
   isSuitable,
   isCompanyUser,
+  activeCardID,
+  setActiveCardID,
 }: {
   job: IJob;
   user: User | null;
   isSuitable: boolean;
   isCompanyUser: boolean;
+  activeCardID?: string;
+  setActiveCardID: Dispatch<SetStateAction<string | undefined>>;
 }) {
-  const [showDescription, setShowDescription] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [isDialogOpenState, setIsDialogOpenState] = useState(false);
   const supabase = createClient();
   const [isFavorite, setIsFavorite] = useState(
-    job.user_favorites.filter((each) => each.user_id === user?.id).length > 0
+    job.user_favorites?.filter((each) => each.user_id === user?.id).length > 0
   );
+
+  const isActive = activeCardID === job.id;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsTouchDevice(
+        "ontouchstart" in window || navigator.maxTouchPoints > 0
+      );
+    }
+  }, []);
+
+  const handleToggleDescription = useCallback(() => {
+    if (isActive) {
+      setActiveCardID(undefined);
+    } else {
+      setActiveCardID(job.id);
+    }
+  }, [isActive, job.id, setActiveCardID]);
 
   const handleFavorite = async (job: IJob) => {
     try {
       let query;
 
       if (
-        job.user_favorites.filter((each) => each.user_id === user?.id).length >
+        job.user_favorites?.filter((each) => each.user_id === user?.id).length >
         0
       ) {
         query = supabase
@@ -58,10 +86,6 @@ export default function JobItem({
     }
   };
 
-  const handleToggleDescription = () => {
-    setShowDescription((prev) => !prev);
-  };
-
   const dialogStateCallback = useCallback(
     (state: boolean) => {
       setIsDialogOpenState(state);
@@ -73,13 +97,13 @@ export default function JobItem({
     <div
       className={cn(
         "flex flex-col gap-3 p-4 group  rounded-lg transition ",
-        showDescription ? "bg-secondary" : ""
+        isActive ? "bg-secondary" : ""
       )}
       onMouseEnter={() => {
-        if (!isDialogOpenState) setShowDescription(true);
+        if (!isDialogOpenState || !isTouchDevice) setActiveCardID(job.id);
       }}
       onMouseLeave={() => {
-        if (!isDialogOpenState) setShowDescription(false);
+        if (!isDialogOpenState || !isTouchDevice) setActiveCardID(undefined);
       }}
       onClick={() => {
         if (!isDialogOpenState) handleToggleDescription();
@@ -119,7 +143,7 @@ export default function JobItem({
           </div>
           <JobDetailBadges
             job={job}
-            showDescription={showDescription}
+            showDescription={isActive}
             isSuitable={isSuitable}
           />
         </div>
@@ -149,7 +173,7 @@ export default function JobItem({
       </div>
       <div
         className={`transition-all duration-300 ease-in-out overflow-y-auto ${
-          showDescription ? "max-h-96 opacity-100 py-2" : "max-h-0 opacity-0"
+          isActive ? "max-h-96 opacity-100 py-2" : "max-h-0 opacity-0"
         }`}
       >
         <div>

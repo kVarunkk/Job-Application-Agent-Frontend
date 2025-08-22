@@ -38,7 +38,23 @@ export default async function CompanyPage() {
         .from("job_postings")
         .select(
           `
-          *,
+          id,
+          title,
+          company_id,
+          description,
+          location,
+          job_type,
+          salary_currency,
+          min_salary,
+          max_salary,
+          min_experience,
+          max_experience,
+          visa_sponsorship,
+          min_equity,
+          max_equity,
+          questions,
+          status,
+          job_id,
           applications(id),
           company_info(name, website)
         `
@@ -74,7 +90,8 @@ export default async function CompanyPage() {
     }
 
     const metrics = metricsData?.[0] || {};
-    const jobPosts: IJobPosting[] = jobsData || [];
+    const jobPosts: IJobPosting[] =
+      (jobsData as unknown as IJobPosting[]) || [];
     const recentApplicants =
       (applicantsData as unknown as IApplication[]) || [];
 

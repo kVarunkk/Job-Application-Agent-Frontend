@@ -63,7 +63,10 @@ export default function JobApplicationDialog({
   const [applicationStatus, setApplicationStatus] =
     useState<TApplicationStatus | null>(null);
   const questions = useMemo(
-    () => jobPost.job_postings?.[0]?.questions ?? [],
+    () =>
+      jobPost.job_postings && jobPost.job_postings.length > 0
+        ? jobPost.job_postings[0]?.questions
+        : [],
     [jobPost]
   );
 
@@ -79,7 +82,7 @@ export default function JobApplicationDialog({
   useEffect(() => {
     (async () => {
       if (jobPost.job_postings && jobPost.job_postings.length > 0) {
-        jobPost.job_postings[0].applications
+        jobPost.job_postings[0]?.applications
           ?.filter((each) => each.applicant_user_id === user?.id)
           .forEach((each) => {
             setApplicationStatus(each.status);
@@ -210,7 +213,7 @@ export default function JobApplicationDialog({
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    {jobPost.job_postings
+                    {jobPost.job_postings && jobPost.job_postings.length > 0
                       ? jobPost.job_postings[0].company_info?.description
                       : "No description provided."}
                   </p>
