@@ -59,7 +59,12 @@ export default function FilterComponentSheet({
           ? `${filtersApplied.length} Filters Applied`
           : "Apply Filters"}
       </SheetTrigger>
-      <SheetContent side={"left"} className="overflow-y-auto">
+      <SheetContent
+        side={"left"}
+        className="overflow-y-auto"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
         <SheetHeader>
           <SheetTitle>
             {isCompanyUser ? "Profile" : "Job"} Search Filters

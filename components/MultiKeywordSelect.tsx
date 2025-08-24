@@ -131,7 +131,7 @@ export default function MultiKeywordSelect({
           </SelectTrigger>
           <SelectContent
             className="max-h-[300px]"
-            onPointerDown={(e) => e.stopPropagation()}
+            onCloseAutoFocus={(e) => e.preventDefault()}
           >
             {isVirtualized && (
               <div className=" pl-1 flex items-center gap-1 sticky top-0 bg-background z-10 border-b">
