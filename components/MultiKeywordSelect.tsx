@@ -128,7 +128,7 @@ export default function MultiKeywordSelect({
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-full justify-between bg-input"
+              className="w-full justify-between bg-input text-muted-foreground"
             >
               <span className="truncate">{placeholder}</span>
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -153,7 +153,7 @@ export default function MultiKeywordSelect({
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-full justify-between bg-input"
+              className="w-full justify-between bg-input text-muted-foreground"
             >
               <span className="truncate">{placeholder}</span>
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
