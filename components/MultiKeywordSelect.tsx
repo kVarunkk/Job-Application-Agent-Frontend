@@ -2,11 +2,10 @@
 
 import { useState, useCallback, useMemo, CSSProperties } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Search, X, Check, ChevronsUpDown } from "lucide-react";
+import { X, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FixedSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
