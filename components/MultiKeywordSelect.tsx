@@ -131,7 +131,10 @@ export default function MultiKeywordSelect({
           </SelectTrigger>
           <SelectContent
             className="max-h-[300px]"
-            onCloseAutoFocus={(e) => e.preventDefault()}
+            ref={(ref) =>
+              // temporary workaround from https://github.com/shadcn-ui/ui/issues/1220
+              ref?.addEventListener("touchend", (e) => e.preventDefault())
+            }
           >
             {isVirtualized && (
               <div className=" pl-1 flex items-center gap-1 sticky top-0 bg-background z-10 border-b">
