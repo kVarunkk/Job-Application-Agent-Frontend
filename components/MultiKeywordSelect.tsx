@@ -131,10 +131,8 @@ export default function MultiKeywordSelect({
           </SelectTrigger>
           <SelectContent
             className="max-h-[300px]"
-            ref={(ref) =>
-              // temporary workaround from https://github.com/shadcn-ui/ui/issues/1220
-              ref?.addEventListener("touchend", (e) => e.preventDefault())
-            }
+            onPointerDownOutside={(e) => e.stopPropagation()}
+            onCloseAutoFocus={(e) => e.stopPropagation()}
           >
             {isVirtualized && (
               <div className=" pl-1 flex items-center gap-1 sticky top-0 bg-background z-10 border-b">
@@ -144,10 +142,8 @@ export default function MultiKeywordSelect({
                   className="text-sm border-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  // onClick={(e) => {
-                  //   e.stopPropagation();
-                  //   e.preventDefault();
-                  // }}
+                  onFocus={(e) => e.stopPropagation()}
+                  onBlur={(e) => e.stopPropagation()}
                 />
               </div>
             )}
