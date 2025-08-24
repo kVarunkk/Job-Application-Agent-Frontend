@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useCallback, useMemo, CSSProperties } from "react";
+import {
+  useState,
+  useCallback,
+  useMemo,
+  CSSProperties,
+  ReactElement,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
 import { X, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,6 +22,14 @@ import {
   CommandItem,
   CommandList,
 } from "./ui/command";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "./ui/drawer";
 
 export interface GenericFormData {
   [key: string]: string | number | string[];
@@ -43,6 +57,7 @@ export default function MultiKeywordSelect({
 }: MultiKeywordSelectProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const displayedKeywords = useMemo(() => {
     return initialKeywords.map((content) => ({ id: uuidv4(), content }));
@@ -83,7 +98,13 @@ export default function MultiKeywordSelect({
     [name, onChange, initialKeywords]
   );
 
-  const Row = ({ index, style }: { index: number; style: CSSProperties }) => {
+  const Row = ({
+    index,
+    style,
+  }: {
+    index: number;
+    style: CSSProperties;
+  }): ReactElement => {
     const itemData = filteredAvailableItems[index];
     return (
       <div style={style}>
@@ -100,67 +121,62 @@ export default function MultiKeywordSelect({
 
   return (
     <div className={cn("flex flex-col gap-2 ", className)}>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between bg-input"
-          >
-            <span className="truncate">{placeholder}</span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="p-0 " style={{ pointerEvents: "auto" }}>
-          <Command>
-            <CommandInput
-              placeholder="Search..."
-              value={searchTerm}
-              onValueChange={setSearchTerm}
+      {isDesktop ? (
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between bg-input"
+            >
+              <span className="truncate">{placeholder}</span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0 " style={{ pointerEvents: "auto" }}>
+            <ItemsList
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              isVirtualized={isVirtualized}
+              filteredAvailableItems={filteredAvailableItems}
+              Row={Row}
+              initialKeywords={initialKeywords}
+              addKeyword={addKeyword}
             />
-            <CommandList>
-              <CommandEmpty>No items available</CommandEmpty>
-              <CommandGroup>
-                {isVirtualized
-                  ? filteredAvailableItems.length > 0 && (
-                      <div className="h-60 w-full">
-                        <AutoSizer>
-                          {({ height, width }) => (
-                            <List
-                              height={height}
-                              itemCount={filteredAvailableItems.length}
-                              itemSize={40}
-                              width={width}
-                            >
-                              {Row}
-                            </List>
-                          )}
-                        </AutoSizer>
-                      </div>
-                    )
-                  : filteredAvailableItems.map((item) => (
-                      <CommandItem
-                        key={item}
-                        value={item}
-                        onSelect={() => addKeyword(item)}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            initialKeywords.includes(item)
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {item}
-                      </CommandItem>
-                    ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <Drawer open={open} onOpenChange={setOpen}>
+          <DrawerTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between bg-input"
+            >
+              <span className="truncate">{placeholder}</span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle></DrawerTitle>
+            </DrawerHeader>
+            <div className=" border-t">
+              <ItemsList
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                isVirtualized={isVirtualized}
+                filteredAvailableItems={filteredAvailableItems}
+                Row={Row}
+                initialKeywords={initialKeywords}
+                addKeyword={addKeyword}
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      )}
 
       {displayedKeywords.length > 0 && (
         <div className="flex flex-wrap gap-2">
@@ -182,5 +198,78 @@ export default function MultiKeywordSelect({
         </div>
       )}
     </div>
+  );
+}
+
+function ItemsList({
+  searchTerm,
+  setSearchTerm,
+  isVirtualized,
+  filteredAvailableItems,
+  Row,
+  initialKeywords,
+  addKeyword,
+}: {
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+  isVirtualized: boolean;
+  filteredAvailableItems: string[];
+  Row: ({
+    index,
+    style,
+  }: {
+    index: number;
+    style: CSSProperties;
+  }) => ReactElement;
+  initialKeywords: string[];
+  addKeyword: (keyword: string) => void;
+}) {
+  return (
+    <Command>
+      <CommandInput
+        placeholder="Search..."
+        value={searchTerm}
+        onValueChange={setSearchTerm}
+      />
+      <CommandList>
+        <CommandEmpty>No items available</CommandEmpty>
+        <CommandGroup>
+          {isVirtualized
+            ? filteredAvailableItems.length > 0 && (
+                <div className="h-60 w-full">
+                  <AutoSizer>
+                    {({ height, width }) => (
+                      <List
+                        height={height}
+                        itemCount={filteredAvailableItems.length}
+                        itemSize={40}
+                        width={width}
+                      >
+                        {Row}
+                      </List>
+                    )}
+                  </AutoSizer>
+                </div>
+              )
+            : filteredAvailableItems.map((item) => (
+                <CommandItem
+                  key={item}
+                  value={item}
+                  onSelect={() => addKeyword(item)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      initialKeywords.includes(item)
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                  {item}
+                </CommandItem>
+              ))}
+        </CommandGroup>
+      </CommandList>
+    </Command>
   );
 }
