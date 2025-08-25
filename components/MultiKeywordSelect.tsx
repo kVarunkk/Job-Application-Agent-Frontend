@@ -1,19 +1,35 @@
 "use client";
 
-import { useState, useCallback, useMemo, CSSProperties } from "react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+  useState,
+  useCallback,
+  useMemo,
+  CSSProperties,
+  ReactElement,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Search, X } from "lucide-react";
+import { X, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FixedSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "./ui/command";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "./ui/drawer";
 
 export interface GenericFormData {
   [key: string]: string | number | string[];
@@ -33,15 +49,15 @@ interface MultiKeywordSelectProps {
 export default function MultiKeywordSelect({
   name,
   onChange,
-  placeholder,
+  placeholder = "Select items...",
   initialKeywords = [],
   className = "",
   availableItems = [],
   isVirtualized = false,
 }: MultiKeywordSelectProps) {
-  const [selectedDropdownValue, setSelectedDropdownValue] =
-    useState<string>("");
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const displayedKeywords = useMemo(() => {
     return initialKeywords.map((content) => ({ id: uuidv4(), content }));
@@ -67,18 +83,9 @@ export default function MultiKeywordSelect({
       }
       onChange(name, [...initialKeywords, trimmed]);
       setSearchTerm("");
+      // setOpen(false);
     },
     [name, onChange, initialKeywords]
-  );
-
-  const handleSelectChange = useCallback(
-    (selectedContent: string) => {
-      if (selectedContent) {
-        addKeyword(selectedContent);
-        setSelectedDropdownValue("");
-      }
-    },
-    [addKeyword]
   );
 
   const removeKeyword = useCallback(
@@ -91,92 +98,85 @@ export default function MultiKeywordSelect({
     [name, onChange, initialKeywords]
   );
 
-  const VirtualizedItem = ({
-    children,
-    onClick,
+  const Row = ({
+    index,
+    style,
   }: {
-    children: React.ReactElement;
-    onClick: () => void;
-  }) => {
-    return (
-      <div
-        onClick={onClick}
-        className="relative flex cursor-pointer hover:bg-muted select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-      >
-        {children}
-      </div>
-    );
-  };
-
-  const Row = ({ index, style }: { index: number; style: CSSProperties }) => {
+    index: number;
+    style: CSSProperties;
+  }): ReactElement => {
     const itemData = filteredAvailableItems[index];
     return (
       <div style={style}>
-        <VirtualizedItem onClick={() => addKeyword(itemData)}>
-          <div className="whitespace-normal">{itemData}</div>
-        </VirtualizedItem>
+        <CommandItem
+          value={itemData}
+          onSelect={() => addKeyword(itemData)}
+          className="cursor-pointer"
+        >
+          {itemData}
+        </CommandItem>
       </div>
     );
   };
 
   return (
-    <div className={cn("flex flex-col gap-2 relative", className)}>
-      <div className="flex gap-2">
-        <Select
-          onValueChange={handleSelectChange}
-          value={selectedDropdownValue}
-        >
-          <SelectTrigger className="bg-input">
-            <SelectValue placeholder={placeholder} />
-          </SelectTrigger>
-          <SelectContent
-            className="max-h-[300px]"
-            onCloseAutoFocus={(e) => e.preventDefault()}
-          >
-            {isVirtualized && (
-              <div className=" pl-1 flex items-center gap-1 sticky top-0 bg-background z-10 border-b">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search..."
-                  className="text-sm border-0"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  // onClick={(e) => {
-                  //   e.stopPropagation();
-                  //   e.preventDefault();
-                  // }}
-                />
-              </div>
-            )}
-            {isVirtualized && filteredAvailableItems.length > 0 && (
-              <div className="h-60 w-full">
-                <AutoSizer>
-                  {({ height, width }) => (
-                    <List
-                      height={height}
-                      itemCount={filteredAvailableItems.length}
-                      itemSize={45}
-                      width={width}
-                    >
-                      {Row}
-                    </List>
-                  )}
-                </AutoSizer>
-              </div>
-            )}
-            {!isVirtualized &&
-              filteredAvailableItems.length > 0 &&
-              filteredAvailableItems.map((item) => (
-                <SelectItem key={item} value={item}>
-                  {item}
-                </SelectItem>
-              ))}
-            {filteredAvailableItems.length === 0 && (
-              <div className="text-sm p-2 text-center">No items available</div>
-            )}
-          </SelectContent>
-        </Select>
-      </div>
+    <div className={cn("flex flex-col gap-2 ", className)}>
+      {isDesktop ? (
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between bg-input text-muted-foreground"
+            >
+              <span className="truncate">{placeholder}</span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0 " style={{ pointerEvents: "auto" }}>
+            <ItemsList
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              isVirtualized={isVirtualized}
+              filteredAvailableItems={filteredAvailableItems}
+              Row={Row}
+              initialKeywords={initialKeywords}
+              addKeyword={addKeyword}
+            />
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <Drawer open={open} onOpenChange={setOpen}>
+          <DrawerTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between bg-input text-muted-foreground"
+            >
+              <span className="truncate">{placeholder}</span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle></DrawerTitle>
+            </DrawerHeader>
+            <div className=" border-t">
+              <ItemsList
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                isVirtualized={isVirtualized}
+                filteredAvailableItems={filteredAvailableItems}
+                Row={Row}
+                initialKeywords={initialKeywords}
+                addKeyword={addKeyword}
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      )}
 
       {displayedKeywords.length > 0 && (
         <div className="flex flex-wrap gap-2">
@@ -198,5 +198,78 @@ export default function MultiKeywordSelect({
         </div>
       )}
     </div>
+  );
+}
+
+function ItemsList({
+  searchTerm,
+  setSearchTerm,
+  isVirtualized,
+  filteredAvailableItems,
+  Row,
+  initialKeywords,
+  addKeyword,
+}: {
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+  isVirtualized: boolean;
+  filteredAvailableItems: string[];
+  Row: ({
+    index,
+    style,
+  }: {
+    index: number;
+    style: CSSProperties;
+  }) => ReactElement;
+  initialKeywords: string[];
+  addKeyword: (keyword: string) => void;
+}) {
+  return (
+    <Command shouldFilter={false}>
+      <CommandInput
+        placeholder="Search..."
+        value={searchTerm}
+        onValueChange={setSearchTerm}
+      />
+      <CommandList>
+        <CommandEmpty>No items available</CommandEmpty>
+        <CommandGroup>
+          {isVirtualized
+            ? filteredAvailableItems.length > 0 && (
+                <div className="h-60 w-full">
+                  <AutoSizer>
+                    {({ height, width }) => (
+                      <List
+                        height={height}
+                        itemCount={filteredAvailableItems.length}
+                        itemSize={40}
+                        width={width}
+                      >
+                        {Row}
+                      </List>
+                    )}
+                  </AutoSizer>
+                </div>
+              )
+            : filteredAvailableItems.map((item) => (
+                <CommandItem
+                  key={item}
+                  value={item}
+                  onSelect={() => addKeyword(item)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      initialKeywords.includes(item)
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                  {item}
+                </CommandItem>
+              ))}
+        </CommandGroup>
+      </CommandList>
+    </Command>
   );
 }

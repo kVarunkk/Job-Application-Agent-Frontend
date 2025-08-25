@@ -2,15 +2,27 @@
 
 import { FixedSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
+import { ChevronsUpDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-} from "@/components/ui/select";
-import { Input } from "./ui/input";
-import { Search } from "lucide-react";
-import { CSSProperties, useMemo, useState } from "react";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "./ui/command";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "./ui/drawer";
+import { CSSProperties, ReactElement, useMemo, useState } from "react";
+import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
 
 type Props = {
   items: string[];
@@ -28,6 +40,8 @@ export default function VirtualizedSelect({
   placeholder,
 }: Props) {
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [open, setOpen] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const filteredAvailableItems = useMemo(() => {
     return items.filter((item) =>
@@ -35,59 +49,124 @@ export default function VirtualizedSelect({
     );
   }, [items, searchTerm]);
 
-  const VirtualizedItem = ({
-    children,
-    onClick,
+  const Row = ({
+    index,
+    style,
   }: {
-    children: React.ReactElement;
-    onClick: () => void;
-  }) => {
-    return (
-      <div
-        onClick={onClick}
-        className="relative flex cursor-pointer hover:bg-muted select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-      >
-        {children}
-      </div>
-    );
-  };
-
-  const Row = ({ index, style }: { index: number; style: CSSProperties }) => {
+    index: number;
+    style: CSSProperties;
+  }): ReactElement => {
     const itemData = filteredAvailableItems[index];
     return (
       <div style={style}>
-        <VirtualizedItem onClick={() => handleItemChange(itemData)}>
-          <div className="whitespace-normal">{itemData}</div>
-        </VirtualizedItem>
+        <CommandItem
+          value={itemData}
+          onSelect={() => {
+            handleItemChange(itemData);
+            setOpen(false);
+          }}
+          className="cursor-pointer"
+        >
+          {itemData}
+        </CommandItem>
       </div>
     );
   };
 
   return (
-    <Select value={selectedItem} disabled={isLoading}>
-      <SelectTrigger className="bg-input">
-        <SelectValue placeholder={isLoading ? "Loading..." : placeholder}>
-          {selectedItem || (isLoading ? "Loading..." : placeholder)}
-        </SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        <div className=" pl-1 flex items-center gap-1 sticky top-0 bg-background z-10 border-b">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search..."
-            className="text-sm border-0"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        {filteredAvailableItems.length > 0 && (
+    <div className={cn("flex flex-col gap-2 ")}>
+      {isDesktop ? (
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between bg-input text-muted-foreground"
+              disabled={isLoading}
+            >
+              <span className="truncate">{selectedItem || placeholder}</span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0 " style={{ pointerEvents: "auto" }}>
+            <ItemsList
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filteredAvailableItems={filteredAvailableItems}
+              Row={Row}
+            />
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <Drawer open={open} onOpenChange={setOpen}>
+          <DrawerTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between bg-input text-muted-foreground"
+              disabled={isLoading}
+            >
+              <span className="truncate">{selectedItem || placeholder}</span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle></DrawerTitle>
+            </DrawerHeader>
+            <div className=" border-t">
+              <ItemsList
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                filteredAvailableItems={filteredAvailableItems}
+                Row={Row}
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      )}
+    </div>
+  );
+}
+
+function ItemsList({
+  searchTerm,
+  setSearchTerm,
+  filteredAvailableItems,
+  Row,
+}: {
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+  filteredAvailableItems: string[];
+  Row: ({
+    index,
+    style,
+  }: {
+    index: number;
+    style: CSSProperties;
+  }) => ReactElement;
+}) {
+  return (
+    <Command shouldFilter={false}>
+      <CommandInput
+        placeholder="Search..."
+        value={searchTerm}
+        onValueChange={(value) => {
+          setSearchTerm(value);
+        }}
+      />
+      <CommandList>
+        <CommandEmpty>No items available</CommandEmpty>
+        <CommandGroup>
           <div className="h-60 w-full">
             <AutoSizer>
               {({ height, width }) => (
                 <List
                   height={height}
-                  itemCount={items.length}
-                  itemSize={45}
+                  itemCount={filteredAvailableItems.length}
+                  itemSize={40}
                   width={width}
                 >
                   {Row}
@@ -95,11 +174,8 @@ export default function VirtualizedSelect({
               )}
             </AutoSizer>
           </div>
-        )}
-        {filteredAvailableItems.length === 0 && (
-          <div className="text-sm p-2 text-center">No items available</div>
-        )}
-      </SelectContent>
-    </Select>
+        </CommandGroup>
+      </CommandList>
+    </Command>
   );
 }
