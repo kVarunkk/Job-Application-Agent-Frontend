@@ -92,7 +92,7 @@ export function SignUpForm({
         email: values.email,
         password: values.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/agent`,
+          emailRedirectTo: `${window.location.origin}/jobs`,
         },
       });
       if (error) throw error;
