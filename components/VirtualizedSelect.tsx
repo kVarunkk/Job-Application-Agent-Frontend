@@ -149,7 +149,7 @@ function ItemsList({
   }) => ReactElement;
 }) {
   return (
-    <Command>
+    <Command shouldFilter={false}>
       <CommandInput
         placeholder="Search..."
         value={searchTerm}

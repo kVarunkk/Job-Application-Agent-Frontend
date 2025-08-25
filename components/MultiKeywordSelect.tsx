@@ -225,7 +225,7 @@ function ItemsList({
   addKeyword: (keyword: string) => void;
 }) {
   return (
-    <Command>
+    <Command shouldFilter={false}>
       <CommandInput
         placeholder="Search..."
         value={searchTerm}
