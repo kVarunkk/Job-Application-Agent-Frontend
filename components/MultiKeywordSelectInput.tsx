@@ -2,16 +2,10 @@
 
 import { useState, useCallback, useMemo, memo } from "react"; // Added memo, useCallback, useMemo
 import { Input } from "./ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
 import { v4 as uuidv4 } from "uuid";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import MultiKeywordSelect from "./MultiKeywordSelect";
 
 interface GenericFormData {
   [key: string]: string | number | string[]; // Ensures it can handle string arrays
@@ -39,10 +33,6 @@ export default memo(function MultiKeywordSelectInput({
 }: MultiKeywordSelectInputProps) {
   // State for the text input field initialKeywords (what the user types)
   const [input, setInput] = useState("");
-
-  // State for the selected initialKeywords in the dropdown (resets after selection)
-  const [selectedDropdownValue, setSelectedDropdownValue] =
-    useState<string>("");
 
   // State to track if the component or its children are focused, for styling purposes
   const [isFocused, setIsFocused] = useState(false);
@@ -89,17 +79,6 @@ export default memo(function MultiKeywordSelectInput({
       }
     },
     [input, handleInputAdd] // Dependencies: `input` and `handleInputAdd` (stable via useCallback)
-  );
-
-  // Handler for selecting an item from the dropdown
-  const handleSelectChange = useCallback(
-    (selectedContent: string) => {
-      if (selectedContent) {
-        addKeyword(selectedContent); // Use the shared addKeyword logic
-        setSelectedDropdownValue(""); // Reset the dropdown initialKeywords to its placeholder state
-      }
-    },
-    [addKeyword] // Dependency: `addKeyword` (stable via useCallback)
   );
 
   // Callback to remove an existing keyword
@@ -150,30 +129,40 @@ export default memo(function MultiKeywordSelectInput({
             onBlur={handleBlur}
           />
           {filteredAvailableItems.length > 0 && (
-            <Select
-              onOpenChange={(open) => {
-                // When the select dropdown opens/closes, update the focus state
-                if (open) {
-                  handleFocus();
-                } else {
-                  handleBlur();
-                }
-              }}
-              onValueChange={handleSelectChange}
-              value={selectedDropdownValue}
-            >
-              <SelectTrigger className="w-fit bg-input !rounded-l-none !border-none !ring-0">
-                {/* Placeholder for the select trigger, can be empty or a subtle hint */}
-                <SelectValue placeholder=" " />
-              </SelectTrigger>
-              <SelectContent className="">
-                {filteredAvailableItems.map((item) => (
-                  <SelectItem key={item} value={item}>
-                    {item}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            // <Select
+            //   onOpenChange={(open) => {
+            //     // When the select dropdown opens/closes, update the focus state
+            //     if (open) {
+            //       handleFocus();
+            //     } else {
+            //       handleBlur();
+            //     }
+            //   }}
+            //   onValueChange={handleSelectChange}
+            //   value={selectedDropdownValue}
+            // >
+            //   <SelectTrigger className="w-fit bg-input !rounded-l-none !border-none !ring-0">
+            //     {/* Placeholder for the select trigger, can be empty or a subtle hint */}
+            //     <SelectValue placeholder=" " />
+            //   </SelectTrigger>
+            //   <SelectContent className="">
+            //     {filteredAvailableItems.map((item) => (
+            //       <SelectItem key={item} value={item}>
+            //         {item}
+            //       </SelectItem>
+            //     ))}
+            //   </SelectContent>
+            // </Select>
+            <MultiKeywordSelect
+              name={name}
+              placeholder={""}
+              initialKeywords={displayedKeywords.map((each) => each.content)}
+              onChange={onChange}
+              className=" w-fit"
+              availableItems={filteredAvailableItems}
+              isVirtualized={true}
+              showKeywords={false}
+            />
           )}
         </div>
         {input.trim() && ( // Show add/clear buttons only if input has content

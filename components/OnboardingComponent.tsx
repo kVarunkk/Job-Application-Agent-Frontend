@@ -39,7 +39,7 @@ import MultiKeywordSelectInput from "./MultiKeywordSelectInput";
 import MultiKeywordSelect from "./MultiKeywordSelect";
 import { User } from "@supabase/supabase-js";
 import ResumePreviewDialog from "./ResumePreviewDialog";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 
 // --- Step Components ---
 
@@ -83,7 +83,7 @@ const Step1JobRole = ({ formData, setFormData, errors }: StepProps) => {
             name="desired_roles"
             label="Desired Job Titles / Roles" // Using the new label prop
             placeholder="Type or select from dropdown"
-            initialKeywords={formData.desired_roles}
+            initialKeywords={formData.desired_roles ?? []}
             onChange={(name, keywords) =>
               setFormData((prev) => ({ ...prev, [name]: keywords }))
             }
@@ -103,7 +103,7 @@ const Step1JobRole = ({ formData, setFormData, errors }: StepProps) => {
         <MultiKeywordSelect
           name={"job_type"}
           placeholder="e.g., Fulltime, Intern"
-          initialKeywords={formData.job_type}
+          initialKeywords={formData.job_type ?? []}
           onChange={(name, keywords) => {
             setFormData({
               ...formData,
@@ -135,7 +135,7 @@ const Step2LocationSalary: React.FC<StepProps> = ({
         <MultiKeywordSelectInput
           name="preferred_locations"
           placeholder="Type or select from dropdown"
-          initialKeywords={formData.preferred_locations}
+          initialKeywords={formData.preferred_locations ?? []}
           onChange={(name, keywords) =>
             setFormData((prev) => ({ ...prev, [name]: keywords }))
           }
@@ -153,7 +153,7 @@ const Step2LocationSalary: React.FC<StepProps> = ({
 
     <div>
       <Label htmlFor="min_salary" className="mt-4">
-        Minimum Salary (USD/year)
+        Minimum Salary per annum
       </Label>
       <div className="flex items-center gap-2">
         <Select
@@ -198,7 +198,7 @@ const Step2LocationSalary: React.FC<StepProps> = ({
 
     <div>
       <Label htmlFor="max_salary" className="mt-4">
-        Maximum Salary (Optional)
+        Maximum Salary per annum (Optional)
       </Label>
       <div className="flex items-center gap-2">
         <Select
@@ -283,7 +283,7 @@ const Step3SkillsExperience: React.FC<StepProps> = ({
         <MultiKeywordSelectInput
           name="top_skills"
           placeholder="Type or select from dropdown"
-          initialKeywords={formData.top_skills}
+          initialKeywords={formData.top_skills ?? []}
           onChange={(name, keywords) =>
             setFormData((prev) => ({ ...prev, [name]: keywords }))
           }
@@ -337,7 +337,7 @@ const Step4VisaWorkStyle: React.FC<StepProps> = ({
         <MultiKeywordSelectInput
           name="industry_preferences"
           placeholder="Type or select from dropdown"
-          initialKeywords={formData.industry_preferences}
+          initialKeywords={formData.industry_preferences ?? []}
           onChange={(name, keywords) =>
             setFormData((prev) => ({ ...prev, [name]: keywords }))
           }
@@ -362,7 +362,7 @@ const Step4VisaWorkStyle: React.FC<StepProps> = ({
         <MultiKeywordSelectInput
           name="work_style_preferences"
           placeholder="Type or select from dropdown"
-          initialKeywords={formData.work_style_preferences}
+          initialKeywords={formData.work_style_preferences ?? []}
           onChange={(name, keywords) =>
             setFormData((prev) => ({ ...prev, [name]: keywords }))
           }
@@ -393,7 +393,7 @@ const Step5CareerGoals: React.FC<StepProps> = ({
       <Textarea
         id="career_goals_short_term"
         placeholder="e.g., Land a senior software engineering role focusing on AI."
-        value={formData.career_goals_short_term}
+        value={formData.career_goals_short_term ?? ""}
         onChange={(e) =>
           setFormData({ ...formData, career_goals_short_term: e.target.value })
         }
@@ -476,6 +476,7 @@ const Step6ResumeUpload: React.FC<StepProps> = ({
   // State for the signed URL to display
   const [signedDisplayUrl, setSignedDisplayUrl] = useState<string | null>(null);
   const [signedUrlError, setSignedUrlError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // State for the local file preview URL (for newly selected files before upload)
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
@@ -520,11 +521,13 @@ const Step6ResumeUpload: React.FC<StepProps> = ({
             }`
           );
         } finally {
+          setLoading(false);
         }
       } else {
         // If formData.resume_url is null, clear any previous signed URL
         setSignedDisplayUrl(null);
         setSignedUrlError(null);
+        setLoading(false);
       }
     };
 
@@ -589,13 +592,15 @@ const Step6ResumeUpload: React.FC<StepProps> = ({
         </div>
       )}
 
+      {loading && <Loader2 className="animate-spin h-4 w-4 mt-2" />}
+
       {formData.resume_path && signedDisplayUrl && !signedUrlError && (
         <p className="text-sm text-muted-foreground mt-2 flex items-center gap-1">
           <ResumePreviewDialog
             displayUrl={signedDisplayUrl}
             isPdf={signedDisplayUrl.endsWith(".pdf")}
           />
-          for your currently stored Resume
+          your currently stored Resume
         </p>
       )}
 
@@ -771,7 +776,11 @@ export const OnboardingForm: React.FC = () => {
       {
         name: "Career Goals",
         component: Step5CareerGoals,
-        fields: ["career_goals_short_term", "company_size_preference"],
+        fields: [
+          "career_goals_short_term",
+          "career_goals_long_term",
+          "company_size_preference",
+        ],
       },
       {
         name: "Resume Upload",
@@ -846,29 +855,39 @@ export const OnboardingForm: React.FC = () => {
             isValid = false;
           }
           break;
+        case "desired_roles":
+          if (((value as string[]) ?? []).length === 0) {
+            newErrors[field] = "Please select atleast one role.";
+            isValid = false;
+          }
+          break;
+        case "job_type":
+          if (((value as string[]) ?? []).length === 0) {
+            newErrors[field] = "Please select atleast one type.";
+            isValid = false;
+          }
+          break;
         case "salary_currency":
           if (!value) {
             newErrors[field] = "Please select a salary currency.";
             isValid = false;
           }
-        case "desired_roles":
-          if ((value as string[]).length === 0) {
-            newErrors[field] = "Please select atleast one role.";
-            isValid = false;
-          }
+          break;
         case "preferred_locations":
-          if ((value as string[]).length === 0) {
+          if (((value as string[]) ?? []).length === 0) {
             newErrors[field] = "Please select atleast one location.";
             isValid = false;
           }
+          break;
         case "top_skills":
-          if ((value as string[]).length === 0) {
+          if (((value as string[]) ?? []).length === 0) {
             newErrors[field] = "Please select atleast one skill.";
             isValid = false;
           }
+          break;
         case "industry_preferences":
         case "work_style_preferences":
-          if ((value as string[]).length === 0) {
+          if (((value as string[]) ?? []).length === 0) {
             newErrors[field] = "This field is required.";
             isValid = false;
           }
@@ -910,8 +929,8 @@ export const OnboardingForm: React.FC = () => {
           if (
             currentStep ===
               steps.findIndex((s) => s.name === "Resume Upload") &&
-            !formData.resume_url &&
-            !formData.resume_file
+            !formData.resume_name &&
+            !formData.resume_path
           ) {
             newErrors[field] = "Please upload your resume.";
             isValid = false;

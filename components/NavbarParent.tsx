@@ -1,6 +1,5 @@
 "use client";
 
-import { User } from "@supabase/supabase-js";
 import NavbarComponent from "./Navbar";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,10 +15,8 @@ export interface INavItem {
 export type INavItemWithActive = INavItem & { active: boolean };
 
 export default function NavbarParent({
-  user,
   navItems = [],
 }: {
-  user: User | null;
   navItems?: INavItem[];
 }) {
   const [navbarItems, setNavbarItems] = useState<INavItemWithActive[]>([]);
@@ -41,5 +38,5 @@ export default function NavbarParent({
     }
   }, [navItems, pathname]);
 
-  return <NavbarComponent user={user} items={navbarItems} />;
+  return <NavbarComponent items={navbarItems} />;
 }

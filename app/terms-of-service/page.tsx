@@ -1,15 +1,9 @@
 import Footer from "@/components/landing-page/Footer";
 import NavbarParent, { INavItem } from "@/components/NavbarParent";
 import TermsOfService from "@/components/TermsOfService";
-import { createClient } from "@/lib/supabase/server";
 import { v4 as uuidv4 } from "uuid";
 
 export default async function TermsOfServicePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const navItems: INavItem[] = [
     {
       id: uuidv4(),
@@ -45,7 +39,7 @@ export default async function TermsOfServicePage() {
 
   return (
     <>
-      <NavbarParent user={user} navItems={navItems} />
+      <NavbarParent navItems={navItems} />
       <TermsOfService />
       <Footer />
     </>

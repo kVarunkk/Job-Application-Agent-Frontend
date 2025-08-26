@@ -3,7 +3,7 @@
 import JobsComponent from "@/components/JobsComponent";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
+import { PostgrestSingleResponse, User } from "@supabase/supabase-js";
 import { useSearchParams } from "next/navigation";
 import AppLoader from "@/components/AppLoader";
 import { IJob } from "@/lib/types";
@@ -16,6 +16,7 @@ export default function JobsList({
   uniqueCompanies,
   user,
   isCompanyUser,
+  isAllJobsTab = false,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
   uniqueLocations: { location: string }[];
@@ -24,22 +25,35 @@ export default function JobsList({
   isAppliedJobsTabActive?: boolean;
   user: User | null;
   isCompanyUser: boolean;
+  isAllJobsTab?: boolean;
 }) {
   const supabase = createClient();
   const [dataState, setData] = useState<IJob[] | never[] | null>();
   const [countState, setCount] = useState<number | null>();
   const searchParameters = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
 
   useEffect(() => {
     const fetchJobsAndRerank = async () => {
       setLoading(true);
 
-      const { data } = await supabase
-        .from("user_info")
-        .select("*")
-        .eq("user_id", user?.id)
-        .single();
+      const {
+        data,
+      }: PostgrestSingleResponse<{ filled: boolean; ai_search_uses: number }> =
+        isCompanyUser
+          ? await supabase
+              .from("company_info")
+              .select("ai_search_uses, filled")
+              .eq("user_id", user?.id)
+              .single()
+          : await supabase
+              .from("user_info")
+              .select("ai_search_uses, filled")
+              .eq("user_id", user?.id)
+              .single();
+
+      setIsOnboardingComplete(data?.filled || false);
 
       const params = new URLSearchParams(searchParameters.toString());
       params.set("page", (1).toString()); // Ensure page is reset for initial fetch
@@ -66,14 +80,15 @@ export default function JobsList({
 
       // --- AI Re-ranking Logic ---
       if (
-        params.get("sortBy") === "vector_similarity" &&
+        params.get("sortBy") === "relevance" &&
         user &&
         fetchedJobs &&
         fetchedJobs.length > 0 &&
+        data &&
         data.ai_search_uses <= 3
       ) {
         try {
-          const aiRerankRes = await fetch("/api/jobs/ai-search", {
+          const aiRerankRes = await fetch("/api/ai-search/jobs", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -155,6 +170,8 @@ export default function JobsList({
         uniqueLocations={uniqueLocations}
         uniqueCompanies={uniqueCompanies}
         isCompanyUser={isCompanyUser}
+        isOnboardingComplete={isOnboardingComplete}
+        isAllJobsTab={isAllJobsTab}
       />
     );
   }

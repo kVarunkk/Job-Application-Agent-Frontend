@@ -19,6 +19,8 @@ import FilterComponentSheet from "./FilterComponentSheet";
 import { Button } from "./ui/button";
 import { ArrowLeft } from "lucide-react";
 import ProfileItem from "./ProfileItem";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import toast from "react-hot-toast";
 
 export default function JobsComponent({
   initialJobs,
@@ -33,6 +35,8 @@ export default function JobsComponent({
   uniqueWorkStylePreferences,
   uniqueSkills,
   companyId,
+  isOnboardingComplete,
+  isAllJobsTab,
 }: {
   initialJobs: IJob[] | IFormData[];
   totalJobs: number;
@@ -46,6 +50,8 @@ export default function JobsComponent({
   uniqueWorkStylePreferences?: { work_style_preference: string }[];
   uniqueSkills?: { skill: string }[];
   companyId?: string;
+  isOnboardingComplete: boolean;
+  isAllJobsTab: boolean;
 }) {
   const [jobs, setJobs] = useState<IJob[] | IFormData[]>(initialJobs ?? []);
   const [page, setPage] = useState(1);
@@ -58,11 +64,11 @@ export default function JobsComponent({
   const selectValue =
     searchParams.get("sortBy") &&
     searchParams.get("sortOrder") &&
-    searchParams.get("sortBy") !== "vector_similarity"
+    searchParams.get("sortBy") !== "relevance"
       ? searchParams.get("sortBy") + "-" + searchParams.get("sortOrder")
       : "";
 
-  const isSuitable = searchParams.get("sortBy") === "vector_similarity";
+  const isSuitable = searchParams.get("sortBy") === "relevance";
 
   useEffect(() => {
     setJobs(initialJobs);
@@ -112,6 +118,20 @@ export default function JobsComponent({
     isProfilesPage,
   ]);
 
+  useEffect(() => {
+    const toastId = sessionStorage.getItem("ai-toast");
+
+    if (typeof window !== "undefined" && toastId) {
+      toast.success(
+        `Found suitable ${isProfilesPage ? "Profiles" : "Jobs"} for you`,
+        {
+          id: toastId,
+        }
+      );
+      sessionStorage.removeItem("ai-toast");
+    }
+  }, [isProfilesPage]);
+
   // This effect sets up the IntersectionObserver
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -158,7 +178,7 @@ export default function JobsComponent({
     const sortBy = params.get("sortBy");
     const jobPost = params.get("job_post");
 
-    if (sortBy === "vector_similarity") {
+    if (sortBy === "relevance") {
       params.delete("sortBy");
     }
     if (jobPost) {
@@ -205,23 +225,53 @@ export default function JobsComponent({
           />
 
           <div className="flex items-center gap-3">
-            {user && !isCompanyUser && !isProfilesPage && (
-              <FindSuitableJobs
-                user={user}
-                setPage={setPage}
-                isProfilesPage={isProfilesPage}
-                companyId={companyId}
-              />
+            {user &&
+              isOnboardingComplete &&
+              !isCompanyUser &&
+              !isProfilesPage &&
+              isAllJobsTab && (
+                <FindSuitableJobs
+                  user={user}
+                  setPage={setPage}
+                  isProfilesPage={isProfilesPage}
+                  companyId={companyId}
+                />
+              )}
+            {user &&
+              isOnboardingComplete &&
+              isCompanyUser &&
+              isProfilesPage &&
+              isAllJobsTab && (
+                <FindSuitableJobs
+                  user={user}
+                  setPage={setPage}
+                  isProfilesPage={isProfilesPage}
+                  companyId={companyId}
+                />
+              )}
+
+            {!isOnboardingComplete && (
+              <Tooltip delayDuration={100}>
+                <TooltipTrigger className="cursor-default" asChild>
+                  <Link
+                    href={
+                      isCompanyUser
+                        ? "/get-started?company=true&edit=true"
+                        : "/get-started?edit=true"
+                    }
+                  >
+                    <Button className="rounded-full text-sm">
+                      Complete Onboarding
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Complete Onboarding to use AI Smart Search
+                </TooltipContent>
+              </Tooltip>
             )}
-            {user && isCompanyUser && isProfilesPage && (
-              <FindSuitableJobs
-                user={user}
-                setPage={setPage}
-                isProfilesPage={isProfilesPage}
-                companyId={companyId}
-              />
-            )}
-            {searchParams.get("sortBy") !== "vector_similarity" && (
+
+            {searchParams.get("sortBy") !== "relevance" && (
               <Select
                 value={selectValue}
                 onValueChange={(value) => handleSorting(value)}

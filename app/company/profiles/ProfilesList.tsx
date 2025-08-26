@@ -18,6 +18,7 @@ export default function ProfilesList({
   uniqueWorkStylePreferences,
   uniqueSkills,
   companyData,
+  isAllJobsTab = false,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
   uniqueLocations: { location: string }[];
@@ -28,16 +29,28 @@ export default function ProfilesList({
   uniqueWorkStylePreferences: { work_style_preference: string }[];
   uniqueSkills: { skill: string }[];
   companyData: ICompanyInfo;
+  isAllJobsTab?: boolean;
 }) {
   const supabase = createClient();
   const [dataState, setData] = useState<IFormData[] | never[] | null>();
   const [countState, setCount] = useState<number | null>();
   const searchParameters = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
 
   useEffect(() => {
     const fetchProfilesAndRerank = async () => {
       setLoading(true);
+
+      const { data } = await supabase
+        .from("company_info")
+        .select("filled")
+        .eq("user_id", user?.id)
+        .single();
+
+      if (data) {
+        setIsOnboardingComplete(data.filled);
+      }
 
       const params = new URLSearchParams(searchParameters.toString());
       params.set("page", (1).toString()); // Ensure page is reset for initial fetch
@@ -60,9 +73,10 @@ export default function ProfilesList({
 
       // --- AI Re-ranking Logic ---
       if (
-        params.get("sortBy") === "vector_similarity" &&
+        params.get("sortBy") === "relevance" &&
         params.get("job_post") &&
         user &&
+        isOnboardingComplete &&
         fetchedProfiles &&
         fetchedProfiles.length > 0 &&
         companyData.ai_search_uses <= 3
@@ -168,6 +182,8 @@ export default function ProfilesList({
         isCompanyUser={true}
         isProfilesPage={true}
         companyId={companyData.id}
+        isOnboardingComplete={isOnboardingComplete}
+        isAllJobsTab={isAllJobsTab}
       />
     );
   }

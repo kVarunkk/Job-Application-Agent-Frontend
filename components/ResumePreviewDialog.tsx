@@ -18,7 +18,7 @@ export default function ResumePreviewDialog({
           className="inline-flex items-center gap-1 text-blue-600 hover:underline"
         >
           <FileText className="w-4 h-4" />
-          View Resume
+          View
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] h-[90vh] p-0">

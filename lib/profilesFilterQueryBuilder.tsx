@@ -87,7 +87,7 @@ export async function buildProfileQuery({
     }
 
     // --- NEW: VECTOR SEARCH LOGIC ---
-    if (sortKey === "vector_similarity" && jobEmbedding) {
+    if (sortKey === "relevance" && jobEmbedding) {
       // Re-build the query to include the similarity score and order by it
       const { data: searchData, error: searchError } = await supabase.rpc(
         "match_user_profiles",
