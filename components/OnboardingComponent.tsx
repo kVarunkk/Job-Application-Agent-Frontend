@@ -83,7 +83,7 @@ const Step1JobRole = ({ formData, setFormData, errors }: StepProps) => {
             name="desired_roles"
             label="Desired Job Titles / Roles" // Using the new label prop
             placeholder="Type or select from dropdown"
-            initialKeywords={formData.desired_roles}
+            initialKeywords={formData.desired_roles ?? []}
             onChange={(name, keywords) =>
               setFormData((prev) => ({ ...prev, [name]: keywords }))
             }
@@ -103,7 +103,7 @@ const Step1JobRole = ({ formData, setFormData, errors }: StepProps) => {
         <MultiKeywordSelect
           name={"job_type"}
           placeholder="e.g., Fulltime, Intern"
-          initialKeywords={formData.job_type}
+          initialKeywords={formData.job_type ?? []}
           onChange={(name, keywords) => {
             setFormData({
               ...formData,
@@ -135,7 +135,7 @@ const Step2LocationSalary: React.FC<StepProps> = ({
         <MultiKeywordSelectInput
           name="preferred_locations"
           placeholder="Type or select from dropdown"
-          initialKeywords={formData.preferred_locations}
+          initialKeywords={formData.preferred_locations ?? []}
           onChange={(name, keywords) =>
             setFormData((prev) => ({ ...prev, [name]: keywords }))
           }
@@ -283,7 +283,7 @@ const Step3SkillsExperience: React.FC<StepProps> = ({
         <MultiKeywordSelectInput
           name="top_skills"
           placeholder="Type or select from dropdown"
-          initialKeywords={formData.top_skills}
+          initialKeywords={formData.top_skills ?? []}
           onChange={(name, keywords) =>
             setFormData((prev) => ({ ...prev, [name]: keywords }))
           }
@@ -337,7 +337,7 @@ const Step4VisaWorkStyle: React.FC<StepProps> = ({
         <MultiKeywordSelectInput
           name="industry_preferences"
           placeholder="Type or select from dropdown"
-          initialKeywords={formData.industry_preferences}
+          initialKeywords={formData.industry_preferences ?? []}
           onChange={(name, keywords) =>
             setFormData((prev) => ({ ...prev, [name]: keywords }))
           }
@@ -362,7 +362,7 @@ const Step4VisaWorkStyle: React.FC<StepProps> = ({
         <MultiKeywordSelectInput
           name="work_style_preferences"
           placeholder="Type or select from dropdown"
-          initialKeywords={formData.work_style_preferences}
+          initialKeywords={formData.work_style_preferences ?? []}
           onChange={(name, keywords) =>
             setFormData((prev) => ({ ...prev, [name]: keywords }))
           }
@@ -843,6 +843,7 @@ export const OnboardingForm: React.FC = () => {
 
     currentStepFields.forEach((field) => {
       const value = formData[field as keyof IFormData];
+      console.log(value);
 
       switch (field) {
         case "full_name":

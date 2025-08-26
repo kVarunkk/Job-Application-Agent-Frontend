@@ -12,7 +12,7 @@ import React, {
 import { v4 as uuidv4 } from "uuid";
 import { X, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FixedSizeList as List, VariableSizeList } from "react-window";
+import { VariableSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -199,6 +199,7 @@ const Row = React.memo(
       onResize: (index: number, size: number) => void;
     };
   }): ReactElement => {
+    Row.displayName = "Row";
     const { filteredAvailableItems, initialKeywords, addKeyword, onResize } =
       data;
     const itemData = filteredAvailableItems[index];
@@ -301,7 +302,7 @@ function ItemsList({
         }}
       />
     ),
-    [filteredAvailableItems, initialKeywords, addKeyword, handleResize]
+    [filteredAvailableItems, initialKeywords, addKeyword, handleResize, Row]
   );
 
   const getItemSize = useCallback(
