@@ -16,7 +16,11 @@ export default async function ProfilesPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const searchParameters = await searchParams;
 
+  const isAISearch = searchParameters
+    ? searchParameters["sortBy"] === "relevance"
+    : false;
   const { data: companyDataData } = await supabase
     .from("company_info")
     .select("*")
@@ -59,10 +63,12 @@ export default async function ProfilesPage({
         </div>
         <div className="w-full md:w-2/3 ">
           <Tabs defaultValue="all_profiles">
-            <TabsList>
-              <TabsTrigger value="all_profiles">All Profiles</TabsTrigger>
-              <TabsTrigger value="saved_profiles">Saved Profiles</TabsTrigger>
-            </TabsList>
+            {user && !isAISearch && (
+              <TabsList>
+                <TabsTrigger value="all_profiles">All Profiles</TabsTrigger>
+                <TabsTrigger value="saved_profiles">Saved Profiles</TabsTrigger>
+              </TabsList>
+            )}
 
             <Suspense
               fallback={
@@ -85,21 +91,24 @@ export default async function ProfilesPage({
                   uniqueSkills={uniqueSkills}
                   user={user}
                   companyData={companyData}
+                  isAllJobsTab={true}
                 />
               </TabsContent>
-              <TabsContent value="saved_profiles">
-                <ProfilesList
-                  searchParams={searchParams}
-                  isFavoriteTabActive={true}
-                  uniqueLocations={uniqueLocations}
-                  uniqueJobRoles={uniqueJobRoles}
-                  uniqueIndustryPreferences={uniqueIndustryPreferences}
-                  uniqueWorkStylePreferences={uniqueWorkStylePreferences}
-                  uniqueSkills={uniqueSkills}
-                  user={user}
-                  companyData={companyData}
-                />
-              </TabsContent>
+              {user && !isAISearch && (
+                <TabsContent value="saved_profiles">
+                  <ProfilesList
+                    searchParams={searchParams}
+                    isFavoriteTabActive={true}
+                    uniqueLocations={uniqueLocations}
+                    uniqueJobRoles={uniqueJobRoles}
+                    uniqueIndustryPreferences={uniqueIndustryPreferences}
+                    uniqueWorkStylePreferences={uniqueWorkStylePreferences}
+                    uniqueSkills={uniqueSkills}
+                    user={user}
+                    companyData={companyData}
+                  />
+                </TabsContent>
+              )}
             </Suspense>
           </Tabs>
         </div>

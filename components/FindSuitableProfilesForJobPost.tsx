@@ -19,7 +19,7 @@ export default function FindSuitableProfilesForJobPost({
 
     try {
       const params = new URLSearchParams();
-      params.set("sortBy", "vector_similarity");
+      params.set("sortBy", "relevance");
       if (value) {
         params.set("job_post", value);
       }

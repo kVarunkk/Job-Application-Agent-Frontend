@@ -4,15 +4,9 @@ import Hero from "@/components/landing-page/Hero";
 import { HowWeHelp } from "@/components/landing-page/HowWeHelp";
 import TheGetHiredAdvantageSection from "@/components/landing-page/TheGetHiredAdvantageSection";
 import NavbarParent, { INavItem } from "@/components/NavbarParent";
-import { createClient } from "@/lib/supabase/server";
 import { v4 as uuidv4 } from "uuid";
 
 export default async function Home() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const navItems: INavItem[] = [
     {
       id: uuidv4(),
@@ -42,7 +36,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center">
       <div className="flex-1 w-full flex flex-col gap-20 items-center">
-        <NavbarParent user={user} navItems={navItems} />
+        <NavbarParent navItems={navItems} />
         <div className="flex-1 flex flex-col gap-32  w-full">
           <Hero />
           <HowWeHelp />

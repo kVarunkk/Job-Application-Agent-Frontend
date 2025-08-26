@@ -16,6 +16,7 @@ export default function JobsList({
   uniqueCompanies,
   user,
   isCompanyUser,
+  isAllJobsTab = false,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
   uniqueLocations: { location: string }[];
@@ -24,6 +25,7 @@ export default function JobsList({
   isAppliedJobsTabActive?: boolean;
   user: User | null;
   isCompanyUser: boolean;
+  isAllJobsTab?: boolean;
 }) {
   const supabase = createClient();
   const [dataState, setData] = useState<IJob[] | never[] | null>();
@@ -42,7 +44,7 @@ export default function JobsList({
         isCompanyUser
           ? await supabase
               .from("company_info")
-              .select("filled")
+              .select("ai_search_uses, filled")
               .eq("user_id", user?.id)
               .single()
           : await supabase
@@ -78,16 +80,15 @@ export default function JobsList({
 
       // --- AI Re-ranking Logic ---
       if (
-        params.get("sortBy") === "vector_similarity" &&
+        params.get("sortBy") === "relevance" &&
         user &&
         fetchedJobs &&
         fetchedJobs.length > 0 &&
         data &&
-        data.ai_search_uses &&
         data.ai_search_uses <= 3
       ) {
         try {
-          const aiRerankRes = await fetch("/api/jobs/ai-search", {
+          const aiRerankRes = await fetch("/api/ai-search/jobs", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -170,6 +171,7 @@ export default function JobsList({
         uniqueCompanies={uniqueCompanies}
         isCompanyUser={isCompanyUser}
         isOnboardingComplete={isOnboardingComplete}
+        isAllJobsTab={isAllJobsTab}
       />
     );
   }

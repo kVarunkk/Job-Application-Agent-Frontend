@@ -1,10 +1,9 @@
 "use client";
 
-import { User } from "@supabase/supabase-js";
 import { AuthButton } from "./auth-button";
 import ProfileDropdown from "./ProfileDropdown";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -16,14 +15,25 @@ import { Menu } from "lucide-react";
 import Brand from "./Brand";
 import { cn } from "@/lib/utils";
 import { INavItemWithActive } from "./NavbarParent";
+import { createClient } from "@/lib/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 export default function NavbarComponent({
-  user,
   items,
 }: {
-  user: User | null;
   items: INavItemWithActive[];
 }) {
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    (async () => {
+      const supabase = createClient();
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    })();
+  }, []);
   return (
     <div className="w-full flex items-center justify-between px-4 py-3 lg:px-20 xl:px-40 2xl:px-80 border-b">
       <div className="flex items-center gap-4">

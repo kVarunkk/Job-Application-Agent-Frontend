@@ -102,14 +102,14 @@ export const buildQuery = async ({
     }
 
     // --- NEW: VECTOR SEARCH LOGIC ---
-    if (sortBy === "vector_similarity" && userEmbedding) {
+    if (sortBy === "relevance" && userEmbedding) {
       // Re-build the query to include the similarity score and order by it
       const { data: searchData, error: searchError } = await supabase.rpc(
         "match_all_jobs",
         {
           embedding: userEmbedding,
           match_threshold: 0.5, // You can adjust this threshold
-          match_count: 50, // Fetch a larger set to then apply filters
+          match_count: 20, // Fetch a larger set to then apply filters
         }
       );
 
@@ -179,7 +179,7 @@ export const buildQuery = async ({
     }
 
     // Apply sorting conditionally
-    if (sortBy && sortBy !== "vector_similarity") {
+    if (sortBy && sortBy !== "relevance") {
       query = query.order(sortBy, { ascending: sortOrder === "asc" });
     }
 

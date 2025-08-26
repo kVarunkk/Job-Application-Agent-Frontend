@@ -1,5 +1,4 @@
 import NavbarParent, { INavItem } from "@/components/NavbarParent";
-import { createClient } from "@/lib/supabase/server";
 import { ReactNode } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -8,10 +7,6 @@ export default async function AuthLayout({
 }: {
   children: ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   const navItems: INavItem[] = [
     {
       id: uuidv4(),
@@ -46,7 +41,7 @@ export default async function AuthLayout({
   ];
   return (
     <>
-      <NavbarParent user={user} navItems={navItems} />
+      <NavbarParent navItems={navItems} />
       {children}
     </>
   );

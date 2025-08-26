@@ -153,7 +153,7 @@ const Step2LocationSalary: React.FC<StepProps> = ({
 
     <div>
       <Label htmlFor="min_salary" className="mt-4">
-        Minimum Salary (USD/year)
+        Minimum Salary per annum
       </Label>
       <div className="flex items-center gap-2">
         <Select
@@ -198,7 +198,7 @@ const Step2LocationSalary: React.FC<StepProps> = ({
 
     <div>
       <Label htmlFor="max_salary" className="mt-4">
-        Maximum Salary (Optional)
+        Maximum Salary per annum (Optional)
       </Label>
       <div className="flex items-center gap-2">
         <Select
@@ -393,7 +393,7 @@ const Step5CareerGoals: React.FC<StepProps> = ({
       <Textarea
         id="career_goals_short_term"
         placeholder="e.g., Land a senior software engineering role focusing on AI."
-        value={formData.career_goals_short_term}
+        value={formData.career_goals_short_term ?? ""}
         onChange={(e) =>
           setFormData({ ...formData, career_goals_short_term: e.target.value })
         }
@@ -776,7 +776,11 @@ export const OnboardingForm: React.FC = () => {
       {
         name: "Career Goals",
         component: Step5CareerGoals,
-        fields: ["career_goals_short_term", "company_size_preference"],
+        fields: [
+          "career_goals_short_term",
+          "career_goals_long_term",
+          "company_size_preference",
+        ],
       },
       {
         name: "Resume Upload",
@@ -843,7 +847,6 @@ export const OnboardingForm: React.FC = () => {
 
     currentStepFields.forEach((field) => {
       const value = formData[field as keyof IFormData];
-      console.log(value);
 
       switch (field) {
         case "full_name":
@@ -852,29 +855,39 @@ export const OnboardingForm: React.FC = () => {
             isValid = false;
           }
           break;
+        case "desired_roles":
+          if (((value as string[]) ?? []).length === 0) {
+            newErrors[field] = "Please select atleast one role.";
+            isValid = false;
+          }
+          break;
+        case "job_type":
+          if (((value as string[]) ?? []).length === 0) {
+            newErrors[field] = "Please select atleast one type.";
+            isValid = false;
+          }
+          break;
         case "salary_currency":
           if (!value) {
             newErrors[field] = "Please select a salary currency.";
             isValid = false;
           }
-        case "desired_roles":
-          if ((value as string[]).length === 0) {
-            newErrors[field] = "Please select atleast one role.";
-            isValid = false;
-          }
+          break;
         case "preferred_locations":
-          if ((value as string[]).length === 0) {
+          if (((value as string[]) ?? []).length === 0) {
             newErrors[field] = "Please select atleast one location.";
             isValid = false;
           }
+          break;
         case "top_skills":
-          if ((value as string[]).length === 0) {
+          if (((value as string[]) ?? []).length === 0) {
             newErrors[field] = "Please select atleast one skill.";
             isValid = false;
           }
+          break;
         case "industry_preferences":
         case "work_style_preferences":
-          if ((value as string[]).length === 0) {
+          if (((value as string[]) ?? []).length === 0) {
             newErrors[field] = "This field is required.";
             isValid = false;
           }
@@ -916,8 +929,8 @@ export const OnboardingForm: React.FC = () => {
           if (
             currentStep ===
               steps.findIndex((s) => s.name === "Resume Upload") &&
-            !formData.resume_url &&
-            !formData.resume_file
+            !formData.resume_name &&
+            !formData.resume_path
           ) {
             newErrors[field] = "Please upload your resume.";
             isValid = false;

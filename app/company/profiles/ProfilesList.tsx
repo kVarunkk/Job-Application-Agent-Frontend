@@ -18,6 +18,7 @@ export default function ProfilesList({
   uniqueWorkStylePreferences,
   uniqueSkills,
   companyData,
+  isAllJobsTab = false,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
   uniqueLocations: { location: string }[];
@@ -28,6 +29,7 @@ export default function ProfilesList({
   uniqueWorkStylePreferences: { work_style_preference: string }[];
   uniqueSkills: { skill: string }[];
   companyData: ICompanyInfo;
+  isAllJobsTab?: boolean;
 }) {
   const supabase = createClient();
   const [dataState, setData] = useState<IFormData[] | never[] | null>();
@@ -71,7 +73,7 @@ export default function ProfilesList({
 
       // --- AI Re-ranking Logic ---
       if (
-        params.get("sortBy") === "vector_similarity" &&
+        params.get("sortBy") === "relevance" &&
         params.get("job_post") &&
         user &&
         isOnboardingComplete &&
@@ -181,6 +183,7 @@ export default function ProfilesList({
         isProfilesPage={true}
         companyId={companyData.id}
         isOnboardingComplete={isOnboardingComplete}
+        isAllJobsTab={isAllJobsTab}
       />
     );
   }

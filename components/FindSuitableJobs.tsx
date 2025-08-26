@@ -64,20 +64,6 @@ export default function FindSuitableJobs({
     })();
   }, [findCompanyUsersJobPostings]);
 
-  useEffect(() => {
-    const toastId = sessionStorage.getItem("ai-toast");
-
-    if (typeof window !== "undefined" && toastId) {
-      toast.success(
-        `Found suitable ${isProfilesPage ? "Profiles" : "Jobs"} for you`,
-        {
-          id: toastId,
-        }
-      );
-      sessionStorage.removeItem("ai-toast");
-    }
-  }, [isProfilesPage]);
-
   const handleFindSuitableJobs = async () => {
     const toastId = toast.loading("Finding suitable jobs..."); // Show loading toast
 
@@ -111,7 +97,7 @@ export default function FindSuitableJobs({
       // Preserve current sort order if it exists
       const currentSortBy = searchParams.get("sortBy");
       const currentSortOrder = searchParams.get("sortOrder");
-      if (currentSortBy && currentSortBy !== "vector_similarity")
+      if (currentSortBy && currentSortBy !== "relevance")
         params.set("sortBy", currentSortBy);
       if (currentSortOrder) params.set("sortOrder", currentSortOrder);
 
@@ -164,7 +150,7 @@ export default function FindSuitableJobs({
 
     try {
       const params = new URLSearchParams();
-      params.set("sortBy", "vector_similarity");
+      params.set("sortBy", "relevance");
       if (value) {
         params.set("job_post", value);
       }
@@ -175,7 +161,8 @@ export default function FindSuitableJobs({
       router.push(
         `/${isProfilesPage ? "company/profile" : "job"}s?${params.toString()}`
       );
-    } catch {
+    } catch (e) {
+      console.log(e);
       toast.error("Some error occured with AI Smart Search, Please try again", {
         id: toastId,
       });

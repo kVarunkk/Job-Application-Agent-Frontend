@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (sortBy === "vector_similarity" && user) {
+    if (sortBy === "relevance" && user) {
       const { data: userData, error } = await supabase
         .from("user_info")
         .select("embedding")
