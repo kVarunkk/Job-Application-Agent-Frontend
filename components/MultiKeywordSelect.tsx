@@ -1,16 +1,18 @@
 "use client";
 
-import {
+import React, {
   useState,
   useCallback,
   useMemo,
   CSSProperties,
   ReactElement,
+  useRef,
+  useEffect,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { X, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FixedSizeList as List } from "react-window";
+import { FixedSizeList as List, VariableSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -44,6 +46,7 @@ interface MultiKeywordSelectProps {
   label?: string;
   availableItems?: string[];
   isVirtualized?: boolean;
+  showKeywords?: boolean;
 }
 
 export default function MultiKeywordSelect({
@@ -54,6 +57,7 @@ export default function MultiKeywordSelect({
   className = "",
   availableItems = [],
   isVirtualized = false,
+  showKeywords = true,
 }: MultiKeywordSelectProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -97,27 +101,6 @@ export default function MultiKeywordSelect({
     },
     [name, onChange, initialKeywords]
   );
-
-  const Row = ({
-    index,
-    style,
-  }: {
-    index: number;
-    style: CSSProperties;
-  }): ReactElement => {
-    const itemData = filteredAvailableItems[index];
-    return (
-      <div style={style}>
-        <CommandItem
-          value={itemData}
-          onSelect={() => addKeyword(itemData)}
-          className="cursor-pointer"
-        >
-          {itemData}
-        </CommandItem>
-      </div>
-    );
-  };
 
   return (
     <div className={cn("flex flex-col gap-2 ", className)}>
@@ -178,7 +161,7 @@ export default function MultiKeywordSelect({
         </Drawer>
       )}
 
-      {displayedKeywords.length > 0 && (
+      {displayedKeywords.length > 0 && showKeywords && (
         <div className="flex flex-wrap gap-2">
           {displayedKeywords.map(({ content, id }) => (
             <span
@@ -201,6 +184,59 @@ export default function MultiKeywordSelect({
   );
 }
 
+const Row = React.memo(
+  ({
+    index,
+    style,
+    data,
+  }: {
+    index: number;
+    style: CSSProperties;
+    data: {
+      filteredAvailableItems: string[];
+      initialKeywords: string[];
+      addKeyword: (keyword: string) => void;
+      onResize: (index: number, size: number) => void;
+    };
+  }): ReactElement => {
+    const { filteredAvailableItems, initialKeywords, addKeyword, onResize } =
+      data;
+    const itemData = filteredAvailableItems[index];
+    const rowRef = useRef<HTMLDivElement>(null);
+
+    // useEffect hook to measure the height after render
+    useEffect(() => {
+      if (rowRef.current) {
+        // Use scrollHeight to get the full height of the content, including padding
+        const height = rowRef.current.scrollHeight;
+        // Report the measured height back to the parent list
+        onResize(index, height);
+      }
+    }, [index, onResize, itemData]); // Re-run effect if item content or index changes
+
+    return (
+      <div style={style}>
+        <div ref={rowRef} className="py-2">
+          {/* Use a wrapper div with a ref for measurement */}
+          <CommandItem
+            value={itemData}
+            onSelect={() => addKeyword(itemData)}
+            className="cursor-pointer"
+          >
+            <Check
+              className={cn(
+                "mr-2 h-4 w-4",
+                initialKeywords.includes(itemData) ? "opacity-100" : "opacity-0"
+              )}
+            />
+            {itemData}
+          </CommandItem>
+        </div>
+      </div>
+    );
+  }
+);
+
 function ItemsList({
   searchTerm,
   setSearchTerm,
@@ -214,16 +250,67 @@ function ItemsList({
   setSearchTerm: (value: string) => void;
   isVirtualized: boolean;
   filteredAvailableItems: string[];
-  Row: ({
-    index,
-    style,
-  }: {
-    index: number;
-    style: CSSProperties;
-  }) => ReactElement;
+  Row: React.MemoExoticComponent<
+    ({
+      index,
+      style,
+      data,
+    }: {
+      index: number;
+      style: CSSProperties;
+      data: {
+        filteredAvailableItems: string[];
+        initialKeywords: string[];
+        addKeyword: (keyword: string) => void;
+        onResize: (index: number, size: number) => void;
+      };
+    }) => ReactElement
+  >;
   initialKeywords: string[];
   addKeyword: (keyword: string) => void;
 }) {
+  const [rowHeights, setRowHeights] = useState<Record<string, number>>({});
+  const listRef = useRef<VariableSizeList | null>(null);
+
+  const handleResize = useCallback(
+    (index: number, size: number) => {
+      // This function would be called by your custom row component
+      // after it has measured its own height.
+      if (rowHeights[index] !== size) {
+        setRowHeights((prev) => ({ ...prev, [index]: size }));
+        // This forces the list to re-render with the new size.
+        if (listRef.current) {
+          listRef.current.resetAfterIndex(index);
+        }
+      }
+    },
+    [rowHeights]
+  );
+
+  // Pass this function to your Row component so it can report its height back
+  const RowWithDynamicHeight = useCallback(
+    ({ index, style }: { index: number; style: CSSProperties }) => (
+      <Row
+        index={index}
+        style={style}
+        data={{
+          filteredAvailableItems,
+          initialKeywords,
+          addKeyword,
+          onResize: handleResize,
+        }}
+      />
+    ),
+    [filteredAvailableItems, initialKeywords, addKeyword, handleResize]
+  );
+
+  const getItemSize = useCallback(
+    (index: number) => {
+      return rowHeights[index] || 40;
+    },
+    [rowHeights]
+  );
+
   return (
     <Command shouldFilter={false}>
       <CommandInput
@@ -239,14 +326,15 @@ function ItemsList({
                 <div className="h-60 w-full">
                   <AutoSizer>
                     {({ height, width }) => (
-                      <List
+                      <VariableSizeList
+                        ref={listRef}
                         height={height}
                         itemCount={filteredAvailableItems.length}
-                        itemSize={40}
+                        itemSize={getItemSize}
                         width={width}
                       >
-                        {Row}
-                      </List>
+                        {RowWithDynamicHeight}
+                      </VariableSizeList>
                     )}
                   </AutoSizer>
                 </div>

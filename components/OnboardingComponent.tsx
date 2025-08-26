@@ -39,7 +39,7 @@ import MultiKeywordSelectInput from "./MultiKeywordSelectInput";
 import MultiKeywordSelect from "./MultiKeywordSelect";
 import { User } from "@supabase/supabase-js";
 import ResumePreviewDialog from "./ResumePreviewDialog";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 
 // --- Step Components ---
 
@@ -476,6 +476,7 @@ const Step6ResumeUpload: React.FC<StepProps> = ({
   // State for the signed URL to display
   const [signedDisplayUrl, setSignedDisplayUrl] = useState<string | null>(null);
   const [signedUrlError, setSignedUrlError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // State for the local file preview URL (for newly selected files before upload)
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
@@ -520,11 +521,13 @@ const Step6ResumeUpload: React.FC<StepProps> = ({
             }`
           );
         } finally {
+          setLoading(false);
         }
       } else {
         // If formData.resume_url is null, clear any previous signed URL
         setSignedDisplayUrl(null);
         setSignedUrlError(null);
+        setLoading(false);
       }
     };
 
@@ -589,13 +592,15 @@ const Step6ResumeUpload: React.FC<StepProps> = ({
         </div>
       )}
 
+      {loading && <Loader2 className="animate-spin h-4 w-4 mt-2" />}
+
       {formData.resume_path && signedDisplayUrl && !signedUrlError && (
         <p className="text-sm text-muted-foreground mt-2 flex items-center gap-1">
           <ResumePreviewDialog
             displayUrl={signedDisplayUrl}
             isPdf={signedDisplayUrl.endsWith(".pdf")}
           />
-          for your currently stored Resume
+          your currently stored Resume
         </p>
       )}
 
