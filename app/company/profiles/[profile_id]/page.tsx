@@ -45,7 +45,7 @@ export default async function ProfilePage({
         company_favorites (
           company_id
         ),
-        applications!inner (
+        applications (
           id,
           status,
           created_at,
@@ -58,7 +58,7 @@ export default async function ProfilePage({
       `
       )
       .eq("user_id", profile_id)
-      .eq("applications.job_postings.company_id", companyData.id) // Filter applications by the user's company ID
+      .eq("applications.job_postings.company_id", companyData.id)
       .single();
 
     if (error || !applicantProfileData) {

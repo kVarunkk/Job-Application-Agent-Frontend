@@ -39,9 +39,7 @@ export default function ProfileItem({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsTouchDevice(
-        "ontouchstart" in window || navigator.maxTouchPoints > 0
-      );
+      setIsTouchDevice("ontouchstart" in window);
     }
   }, []);
 
@@ -95,7 +93,7 @@ export default function ProfileItem({
             </h3>
             <Dot />
             <p className="text-muted-foreground text-wrap">
-              {profile.desired_roles[0] || ""}
+              {profile?.desired_roles?.[0] || ""}
             </p>
 
             <ProfileFavoriteStar profile={profile} companyInfo={companyInfo} />
