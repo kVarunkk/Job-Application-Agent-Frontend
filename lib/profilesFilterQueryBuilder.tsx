@@ -76,14 +76,18 @@ export async function buildProfileQuery({
       query = supabase
         .from("user_info")
         .select(selectString, { count: "exact" })
-        .eq("company_favorites.company_id", companyId);
+        .eq("company_favorites.company_id", companyId)
+        .eq("filled", true);
     } else {
-      query = supabase.from("user_info").select(
-        `
+      query = supabase
+        .from("user_info")
+        .select(
+          `
           *, company_favorites(*)
         `,
-        { count: "exact" }
-      );
+          { count: "exact" }
+        )
+        .eq("filled", true);
     }
 
     // --- NEW: VECTOR SEARCH LOGIC ---

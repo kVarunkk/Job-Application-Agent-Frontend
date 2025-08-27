@@ -43,9 +43,7 @@ export default function JobItem({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsTouchDevice(
-        "ontouchstart" in window || navigator.maxTouchPoints > 0
-      );
+      setIsTouchDevice("ontouchstart" in window);
     }
   }, []);
 
