@@ -21,6 +21,7 @@ import { ArrowLeft } from "lucide-react";
 import ProfileItem from "./ProfileItem";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import toast from "react-hot-toast";
+import ScrollToTopButton from "./ScrollToTopButton";
 
 export default function JobsComponent({
   initialJobs,
@@ -339,6 +340,8 @@ export default function JobsComponent({
           <AppLoader size="md" />
         </div>
       )}
+
+      <ScrollToTopButton />
     </div>
   );
 }
