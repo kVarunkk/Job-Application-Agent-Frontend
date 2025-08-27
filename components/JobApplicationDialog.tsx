@@ -35,6 +35,7 @@ import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { User } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 // Define a dynamic schema for the questions array
 const createFormSchema = (questions: string[]) => {
@@ -188,12 +189,32 @@ export default function JobApplicationDialog({
         }
       }}
     >
-      <DialogTrigger asChild>
-        <Button className="capitalize" disabled={applicationStatus !== null}>
-          {applicationStatus ?? "Apply Now"}{" "}
-          {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
-        </Button>
-      </DialogTrigger>
+      {applicationStatus ? (
+        <Tooltip delayDuration={100}>
+          <TooltipTrigger className="cursor-default" asChild>
+            <div>
+              <Button
+                className="capitalize"
+                disabled={applicationStatus !== null}
+              >
+                {applicationStatus ?? "Apply Now"}{" "}
+                {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
+              </Button>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            Your current application status is <b>{applicationStatus}</b>.
+            You'll be notified via email if the status changes.
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <DialogTrigger asChild>
+          <Button className="capitalize" disabled={applicationStatus !== null}>
+            {applicationStatus ?? "Apply Now"}{" "}
+            {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0 overflow-hidden">
         <div className="flex flex-col md:flex-row h-full">
           {/* Left Panel: Company Info */}
