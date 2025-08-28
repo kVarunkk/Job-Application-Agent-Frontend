@@ -260,7 +260,7 @@ function JobStatusDialog({
   const updateJobApplicationStatus = async () => {
     try {
       const supabase = createClient();
-      const { data, error } = await supabase.from("applications").insert({
+      const { error } = await supabase.from("applications").insert({
         applicant_user_id: userId,
         status: "submitted",
         all_jobs_id: job.id,
