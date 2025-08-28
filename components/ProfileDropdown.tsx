@@ -80,6 +80,7 @@ export default function ProfileDropdown({
               user={user}
               open={open}
               isAgentSidebar={isAgentSidebar}
+              isCompanyUser={isCompanyUser}
             />
 
             {open && <span>Account</span>}
@@ -90,6 +91,7 @@ export default function ProfileDropdown({
               user={user}
               open={open}
               isAgentSidebar={isAgentSidebar}
+              isCompanyUser={isCompanyUser}
             />
           </button>
         )}
@@ -197,17 +199,20 @@ function AvatarComponent({
   user,
   open,
   isAgentSidebar,
+  isCompanyUser,
 }: {
   user: User | null;
   open?: boolean;
   isAgentSidebar: boolean;
+  isCompanyUser: boolean;
 }) {
   return (
     <Avatar
       className={cn(
         "bg-muted",
         open && "-ml-1",
-        isAgentSidebar ? "h-6 w-6" : ""
+        isAgentSidebar ? "h-6 w-6" : "",
+        isCompanyUser ? "rounded-sm" : ""
       )}
     >
       <AvatarImage

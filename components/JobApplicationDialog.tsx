@@ -54,10 +54,12 @@ export default function JobApplicationDialog({
   jobPost,
   dialogStateCallback,
   user,
+  isAppliedJobsTabActive,
 }: {
   jobPost: IJob;
   dialogStateCallback?: (state: boolean) => void;
   user: User | null;
+  isAppliedJobsTabActive: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -82,15 +84,19 @@ export default function JobApplicationDialog({
 
   useEffect(() => {
     (async () => {
-      if (jobPost.job_postings && jobPost.job_postings.length > 0) {
-        jobPost.job_postings[0]?.applications
-          ?.filter((each) => each.applicant_user_id === user?.id)
-          .forEach((each) => {
-            setApplicationStatus(each.status);
-          });
+      if (isAppliedJobsTabActive) {
+        setApplicationStatus(jobPost?.applications?.[0].status ?? null);
+      } else {
+        if (jobPost.job_postings && jobPost.job_postings.length > 0) {
+          jobPost.job_postings[0]?.applications
+            ?.filter((each) => each.applicant_user_id === user?.id)
+            .forEach((each) => {
+              setApplicationStatus(each.status);
+            });
+        }
       }
     })();
-  }, [jobPost, setApplicationStatus, user?.id]);
+  }, [jobPost, setApplicationStatus, user?.id, isAppliedJobsTabActive]);
 
   const onSubmit = async (values: Record<string, string>) => {
     setLoading(true);
@@ -155,6 +161,7 @@ export default function JobApplicationDialog({
 
       const { error } = await supabase.from("applications").insert({
         job_post_id: jobPost.job_postings![0].id,
+        all_jobs_id: jobPost.id,
         applicant_user_id: userData.user_id,
         answers: answers,
         resume_url: newResumeUrl, // Store the private path
@@ -202,7 +209,7 @@ export default function JobApplicationDialog({
               </Button>
             </div>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent className="max-w-[200px]">
             Your current application status is <b>{applicationStatus}</b>.
             You&apos;ll be notified via email if the status changes.
           </TooltipContent>

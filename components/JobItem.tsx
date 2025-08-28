@@ -16,6 +16,16 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import JobApplicationDialog from "./JobApplicationDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import toast from "react-hot-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export default function JobItem({
   job,
@@ -24,6 +34,7 @@ export default function JobItem({
   isCompanyUser,
   activeCardID,
   setActiveCardID,
+  isAppliedJobsTabActive,
 }: {
   job: IJob;
   user: User | null;
@@ -31,6 +42,7 @@ export default function JobItem({
   isCompanyUser: boolean;
   activeCardID?: string;
   setActiveCardID: Dispatch<SetStateAction<string | undefined>>;
+  isAppliedJobsTabActive: boolean;
 }) {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [isDialogOpenState, setIsDialogOpenState] = useState(false);
@@ -38,7 +50,7 @@ export default function JobItem({
   const [isFavorite, setIsFavorite] = useState(
     job.user_favorites?.filter((each) => each.user_id === user?.id).length > 0
   );
-
+  const [showReturnDialog, setShowReturnDialog] = useState(false);
   const isActive = activeCardID === job.id;
 
   useEffect(() => {
@@ -91,6 +103,18 @@ export default function JobItem({
     [setIsDialogOpenState]
   );
 
+  useEffect(() => {
+    console.log(isDialogOpenState);
+  }, [isDialogOpenState]);
+
+  const handleJobApplicationStatus = () => {
+    setShowReturnDialog(true);
+  };
+
+  const handleCloseDialog = useCallback(() => {
+    setShowReturnDialog(false);
+  }, []);
+
   return (
     <div
       className={cn(
@@ -98,13 +122,16 @@ export default function JobItem({
         isActive ? "bg-secondary" : ""
       )}
       onMouseEnter={() => {
-        if (!isDialogOpenState || !isTouchDevice) setActiveCardID(job.id);
+        if (!isDialogOpenState || !isTouchDevice || !showReturnDialog)
+          setActiveCardID(job.id);
       }}
       onMouseLeave={() => {
-        if (!isDialogOpenState || !isTouchDevice) setActiveCardID(undefined);
+        if (!isDialogOpenState || !isTouchDevice || !showReturnDialog)
+          setActiveCardID(undefined);
       }}
       onClick={() => {
-        if (!isDialogOpenState) handleToggleDescription();
+        if ((!isDialogOpenState || !showReturnDialog) && isTouchDevice)
+          handleToggleDescription();
       }}
       tabIndex={0} // Makes div focusable for accessibility
       role="button"
@@ -149,16 +176,42 @@ export default function JobItem({
           ""
         ) : user ? (
           job.job_url ? (
-            <Link href={job.job_url} target="_blank" rel="noopener noreferrer">
-              <Button>
-                Apply Now <ArrowRight />
-              </Button>
-            </Link>
+            job.applications && job.applications.length > 0 ? (
+              <Tooltip delayDuration={100}>
+                <TooltipTrigger className="cursor-default" asChild>
+                  <div>
+                    <Button className="capitalize" disabled>
+                      {job.applications[0].status}
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[200px]">
+                  Your current application status is{" "}
+                  <b>{job.applications[0].status}</b>. You&apos;ll have to
+                  manually track your application status via the{" "}
+                  <Link className="underline text-blue-600" href={job.job_url}>
+                    Job Posting
+                  </Link>
+                  .
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Link
+                href={job.job_url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button onClick={handleJobApplicationStatus}>
+                  Apply Now <ArrowRight />
+                </Button>
+              </Link>
+            )
           ) : (
             <JobApplicationDialog
               dialogStateCallback={dialogStateCallback}
               jobPost={job}
               user={user}
+              isAppliedJobsTabActive={isAppliedJobsTabActive}
             />
           )
         ) : (
@@ -174,7 +227,7 @@ export default function JobItem({
           isActive ? "max-h-96 opacity-100 py-2" : "max-h-0 opacity-0"
         }`}
       >
-        <div>
+        <div className="whitespace-pre-wrap">
           {job.description && job.description}...{" "}
           {job.job_url && (
             <Link href={job.job_url} target="_blank" className="underline">
@@ -183,7 +236,65 @@ export default function JobItem({
           )}
         </div>
       </div>
+      <JobStatusDialog
+        job={job}
+        showDialog={showReturnDialog}
+        onClose={handleCloseDialog}
+        userId={user?.id}
+      />
     </div>
+  );
+}
+
+function JobStatusDialog({
+  job,
+  showDialog,
+  onClose,
+  userId,
+}: {
+  job: IJob;
+  showDialog: boolean;
+  onClose: () => void;
+  userId?: string;
+}) {
+  const updateJobApplicationStatus = async () => {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.from("applications").insert({
+        applicant_user_id: userId,
+        status: "submitted",
+        all_jobs_id: job.id,
+      });
+      if (error) throw error;
+
+      onClose();
+    } catch (e) {
+      console.error(e);
+      toast.error(
+        "Some error occured while updating the application status. Please try again."
+      );
+    }
+  };
+
+  return (
+    <Dialog open={showDialog} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            Did you apply for the role of {job.job_name} at {job.company_name}?
+          </DialogTitle>
+          <DialogDescription>
+            This helps us track your application status.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant={"secondary"} onClick={onClose}>
+            No
+          </Button>
+          <Button onClick={updateJobApplicationStatus}>Yes</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

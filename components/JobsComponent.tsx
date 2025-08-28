@@ -7,13 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import AppLoader from "./AppLoader";
 import { User } from "@supabase/supabase-js";
 import JobItem from "./JobItem";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+
 import FindSuitableJobs from "./FindSuitableJobs";
 import FilterComponentSheet from "./FilterComponentSheet";
 import { Button } from "./ui/button";
@@ -22,6 +16,7 @@ import ProfileItem from "./ProfileItem";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import toast from "react-hot-toast";
 import ScrollToTopButton from "./ScrollToTopButton";
+import SortingComponent from "./SortingComponent";
 
 export default function JobsComponent({
   initialJobs,
@@ -38,6 +33,7 @@ export default function JobsComponent({
   companyId,
   isOnboardingComplete,
   isAllJobsTab,
+  isAppliedJobsTabActive,
 }: {
   initialJobs: IJob[] | IFormData[];
   totalJobs: number;
@@ -53,6 +49,7 @@ export default function JobsComponent({
   companyId?: string;
   isOnboardingComplete: boolean;
   isAllJobsTab: boolean;
+  isAppliedJobsTabActive: boolean;
 }) {
   const [jobs, setJobs] = useState<IJob[] | IFormData[]>(initialJobs ?? []);
   const [page, setPage] = useState(1);
@@ -61,13 +58,6 @@ export default function JobsComponent({
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
   const [activeCardID, setActiveCardID] = useState<string>();
-
-  const selectValue =
-    searchParams.get("sortBy") &&
-    searchParams.get("sortOrder") &&
-    searchParams.get("sortBy") !== "relevance"
-      ? searchParams.get("sortBy") + "-" + searchParams.get("sortOrder")
-      : "";
 
   const isSuitable = searchParams.get("sortBy") === "relevance";
 
@@ -159,21 +149,6 @@ export default function JobsComponent({
     };
   }, [isLoading, jobs, loadMoreJobs]); // Re-run effect if loading state or jobs change
 
-  const handleSorting = async (value: string) => {
-    const [column, order] = value.split("-");
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("sortBy", column);
-    params.set("sortOrder", order);
-
-    setPage(() => 1);
-
-    router.push(
-      `/${
-        isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
-      }?${params.toString()}`
-    );
-  };
-
   const navigateBack = async () => {
     const params = new URLSearchParams(searchParams.toString());
     const sortBy = params.get("sortBy");
@@ -251,7 +226,7 @@ export default function JobsComponent({
                 />
               )}
 
-            {!isOnboardingComplete && (
+            {!isOnboardingComplete && user && (
               <Tooltip delayDuration={100}>
                 <TooltipTrigger className="cursor-default" asChild>
                   <Link
@@ -273,24 +248,11 @@ export default function JobsComponent({
             )}
 
             {searchParams.get("sortBy") !== "relevance" && (
-              <Select
-                value={selectValue}
-                onValueChange={(value) => handleSorting(value)}
-              >
-                <SelectTrigger className="max-w-[120px] sm:max-w-full bg-input">
-                  <SelectValue placeholder="Sort By" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="created_at-desc">Newest First</SelectItem>
-                  <SelectItem value="created_at-asc">Oldest First</SelectItem>
-                  <SelectItem value="company_name-asc">
-                    {isCompanyUser ? "Profile" : "Company"} Name (A-Z)
-                  </SelectItem>
-                  <SelectItem value="company_name-desc">
-                    {isCompanyUser ? "Profile" : "Company"} Name (Z-A)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <SortingComponent
+                isCompanyUser={isCompanyUser}
+                isProfilesPage={isProfilesPage}
+                setPage={setPage}
+              />
             )}
           </div>
         </div>
@@ -318,6 +280,7 @@ export default function JobsComponent({
               isSuitable={isSuitable}
               activeCardID={activeCardID}
               setActiveCardID={setActiveCardID}
+              isAppliedJobsTabActive={isAppliedJobsTabActive}
             />
           ))
         )
