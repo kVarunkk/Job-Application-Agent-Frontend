@@ -54,7 +54,8 @@ export default async function ApplicantPage({
           questions,
           description,
           job_type,
-          location
+          location,
+          company_info(name)
         )
       `
       )

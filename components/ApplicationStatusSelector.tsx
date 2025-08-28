@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IApplication, TApplicationStatus } from "@/lib/types";
+import { sendStatusUpdateEmail } from "@/app/actions/send-email";
 
 // Define the available application statuses
 const applicationStatuses = Object.values(TApplicationStatus);
@@ -35,6 +36,19 @@ export default function ApplicationStatusSelect({
           .eq("id", application.id);
 
         if (error) throw error;
+
+        if (
+          application.user_info &&
+          application.job_postings &&
+          application.job_postings.company_info
+        ) {
+          sendStatusUpdateEmail(
+            application.user_info.email,
+            newStatus,
+            application.job_postings?.title,
+            application.job_postings?.company_info?.name
+          );
+        }
 
         setCurrentStatus(newStatus);
         // toast.success("Application status updated successfully!");
