@@ -204,7 +204,7 @@ export default function JobApplicationDialog({
           </TooltipTrigger>
           <TooltipContent>
             Your current application status is <b>{applicationStatus}</b>.
-            You'll be notified via email if the status changes.
+            You&apos;ll be notified via email if the status changes.
           </TooltipContent>
         </Tooltip>
       ) : (
