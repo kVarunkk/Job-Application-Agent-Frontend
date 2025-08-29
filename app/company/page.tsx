@@ -7,7 +7,6 @@ import CreateJobPostingDialog from "@/components/CreateJobPostingDialog";
 import { Button } from "@/components/ui/button";
 import { IApplication, IJobPosting } from "@/lib/types";
 import CompanyJobPostingCard from "@/components/CompanyJobPostingCard";
-import { Badge } from "@/components/ui/badge";
 import ApplicationStatusBadge from "@/components/ApplicationStatusBadge";
 
 export default async function CompanyPage() {

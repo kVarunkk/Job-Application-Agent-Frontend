@@ -2,7 +2,6 @@
 
 import { IApplication } from "@/lib/types";
 import Link from "next/link";
-import { Badge } from "./ui/badge";
 import { format } from "date-fns";
 import { Button } from "./ui/button";
 import ApplicationStatusBadge from "./ApplicationStatusBadge";

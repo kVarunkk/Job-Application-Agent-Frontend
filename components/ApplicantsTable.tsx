@@ -21,7 +21,6 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import { IApplication } from "@/lib/types";
 import { ChevronRight, ArrowUpDown, XCircle } from "lucide-react";
 import {
