@@ -281,6 +281,7 @@ export default function JobsComponent({
               activeCardID={activeCardID}
               setActiveCardID={setActiveCardID}
               isAppliedJobsTabActive={isAppliedJobsTabActive}
+              isOnboardingComplete={isOnboardingComplete}
             />
           ))
         )

@@ -36,6 +36,7 @@ export default function JobItem({
   activeCardID,
   setActiveCardID,
   isAppliedJobsTabActive,
+  isOnboardingComplete,
 }: {
   job: IJob;
   user: User | null;
@@ -44,6 +45,7 @@ export default function JobItem({
   activeCardID?: string;
   setActiveCardID: Dispatch<SetStateAction<string | undefined>>;
   isAppliedJobsTabActive: boolean;
+  isOnboardingComplete: boolean;
 }) {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [isDialogOpenState, setIsDialogOpenState] = useState(false);
@@ -103,10 +105,6 @@ export default function JobItem({
     },
     [setIsDialogOpenState]
   );
-
-  useEffect(() => {
-    console.log(isDialogOpenState);
-  }, [isDialogOpenState]);
 
   const handleJobApplicationStatus = () => {
     setShowReturnDialog(true);
@@ -207,13 +205,17 @@ export default function JobItem({
                 </Button>
               </Link>
             )
-          ) : (
+          ) : isOnboardingComplete ? (
             <JobApplicationDialog
               dialogStateCallback={dialogStateCallback}
               jobPost={job}
               user={user}
               isAppliedJobsTabActive={isAppliedJobsTabActive}
             />
+          ) : (
+            <Link href={"/get-started?edit=true"}>
+              <Button>Complete Onboarding to Apply</Button>
+            </Link>
           )
         ) : (
           <Link href={"/auth/sign-up"} rel="noopener noreferrer">
