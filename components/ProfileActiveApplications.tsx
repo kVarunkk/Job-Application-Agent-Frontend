@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Badge } from "./ui/badge";
 import { format } from "date-fns";
 import { Button } from "./ui/button";
+import ApplicationStatusBadge from "./ApplicationStatusBadge";
 
 export default function ProfileActiveApplication({
   app,
@@ -23,9 +24,8 @@ export default function ProfileActiveApplication({
         <div className="text-sm text-muted-foreground">
           Applied on {format(new Date(app.created_at), "PPP")}
         </div>
-        <Badge variant={"secondary"} className="w-fit">
-          {app.status}
-        </Badge>
+
+        <ApplicationStatusBadge status={app.status} />
       </div>
       <Link href={`/company/applicants/${app.id}`}>
         <Button variant={"outline"}>View Application</Button>

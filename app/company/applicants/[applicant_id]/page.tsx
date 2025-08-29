@@ -15,6 +15,7 @@ import Link from "next/link";
 import ApplicationStatusSelect from "@/components/ApplicationStatusSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IApplication } from "@/lib/types";
+import ApplicationStatusBadge from "@/components/ApplicationStatusBadge";
 
 export default async function ApplicantPage({
   params,
@@ -110,9 +111,8 @@ export default async function ApplicantPage({
                 <p className="text-sm text-muted-foreground">
                   Applied on {format(new Date(application.created_at), "PPP")}
                 </p>
-                <Badge variant="secondary" className="capitalize w-fit">
-                  {application.status}
-                </Badge>
+                <ApplicationStatusBadge status={application.status} />
+
                 {/* </div> */}
               </CardHeader>
               <CardContent>

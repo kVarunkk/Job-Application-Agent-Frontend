@@ -118,6 +118,7 @@ export interface IJob {
   }[];
   job_postings?: IJobPosting[];
   applications?: IApplication[];
+  status: "active" | "inactive";
 }
 
 export interface IJobPosting {

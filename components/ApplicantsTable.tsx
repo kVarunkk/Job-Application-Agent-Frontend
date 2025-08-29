@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import ApplicationStatusBadge from "./ApplicationStatusBadge";
 
 interface ApplicantsTableProps {
   data: IApplication[];
@@ -136,9 +137,7 @@ export default function ApplicantsTable({ data }: ApplicantsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <Badge variant="secondary" className="capitalize">
-            {row.original.status}
-          </Badge>
+          <ApplicationStatusBadge status={row.original.status} />
         ),
         filterFn: "equals",
       },
