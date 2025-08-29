@@ -17,13 +17,13 @@ export default async function Home() {
     {
       id: uuidv4(),
       label: "Features",
-      href: "/#howwehelp",
+      href: "#howwehelp",
       type: "includes",
     },
     {
       id: uuidv4(),
       label: "FAQs",
-      href: "/#faq",
+      href: "#faq",
       type: "includes",
     },
     {

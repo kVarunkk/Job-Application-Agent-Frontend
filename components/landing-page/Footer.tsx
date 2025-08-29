@@ -10,8 +10,8 @@ export default function Footer() {
     <footer className=" px-4 py-20 lg:px-20 xl:px-40 2xl:px-80 mt-auto">
       <div className="container mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
         {/* Brand / About */}
-        <div>
-          <Link href={"/"}>
+        <div className="flex flex-col items-center md:items-start gap-5">
+          <Link href={"/"} className="w-fit ">
             <Brand type="long" />
           </Link>
           <p className="text-sm text-muted-foreground">
@@ -24,22 +24,6 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-bold mb-3">Quick Links</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            {/* <li>
-              <Link
-                href="/about"
-                className="hover:underline  hover:opacity-100 transition-opacity"
-              >
-                About Us
-              </Link>
-            </li> */}
-            {/* <li>
-              <Link
-                href="/contact"
-                className="hover:underline  hover:opacity-100 transition-opacity"
-              >
-                Contact
-              </Link>
-            </li> */}
             <li>
               <Link
                 href="/privacy-policy"
@@ -71,22 +55,6 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-bold mb-3">Connect With Us</h3>
           <div className="flex justify-center md:justify-start space-x-4 mb-4 text-muted-foreground">
-            {/* <Link
-              href="https://linkedin.com/yourprofile"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-accent-foreground transition-colors"
-            >
-              <LinkedInLogoIcon />
-            </Link>
-            <Link
-              href="https://x.com/yourprofile"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-accent-foreground transition-colors"
-            >
-              <TwitterLogoIcon />
-            </Link> */}
             <Link href={"mailto:varun@devhub.co.in"}>
               <BriefcaseBusiness size={16} />
             </Link>
