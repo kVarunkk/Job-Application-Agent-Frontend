@@ -9,7 +9,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import Brand from "./Brand";
@@ -36,7 +35,7 @@ export default function NavbarComponent({
   }, []);
   return (
     <div className="w-full flex items-center justify-between px-4 py-3 lg:px-20 xl:px-40 2xl:px-80 border-b">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-1">
         {items ? <NavbarSheet items={items} /> : ""}
         <Link href={"/"}>
           <Brand type="long" />
@@ -78,9 +77,10 @@ const NavbarSheet = ({ items }: { items: INavItemWithActive[] }) => {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger className="md:hidden ">
+      {/* Using button instead of SheetTrigger to prevent the auto scrolling to the top of the page on closing the sheet */}
+      <button onClick={() => setOpen(true)} className="md:hidden p-2">
         <Menu />
-      </SheetTrigger>
+      </button>
       <SheetContent
         side={"left"}
         className="overflow-y-auto flex flex-col gap-4 items-start"
