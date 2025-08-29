@@ -68,8 +68,8 @@ export const buildQuery = async ({
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
-        .eq("user_favorites.user_id", user.id)
-        .eq("status", "active");
+        .eq("user_favorites.user_id", user.id);
+      // .eq("status", "active");
     } else if (isAppliedJobsTabActive) {
       if (!user) {
         return {

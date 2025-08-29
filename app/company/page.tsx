@@ -7,7 +7,7 @@ import CreateJobPostingDialog from "@/components/CreateJobPostingDialog";
 import { Button } from "@/components/ui/button";
 import { IApplication, IJobPosting } from "@/lib/types";
 import CompanyJobPostingCard from "@/components/CompanyJobPostingCard";
-import { Badge } from "@/components/ui/badge";
+import ApplicationStatusBadge from "@/components/ApplicationStatusBadge";
 
 export default async function CompanyPage() {
   try {
@@ -187,9 +187,7 @@ export default async function CompanyPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0 flex flex-col gap-2">
-                    <Badge variant="secondary" className="capitalize w-fit">
-                      {applicant.status}
-                    </Badge>
+                    <ApplicationStatusBadge status={applicant.status} />
                     <div className="flex items-center justify-between w-full">
                       <div className="text-muted-foreground text-sm">
                         Applied for{" "}

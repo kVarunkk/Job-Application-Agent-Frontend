@@ -42,7 +42,7 @@ export default function FilterComponentSheet({
 
   if (searchParams.size > 0) {
     searchParams.forEach((value, key) => {
-      if (key !== "sortOrder" && key !== "sortBy") {
+      if (key !== "sortOrder" && key !== "sortBy" && key !== "job_post") {
         filtersApplied.push({
           id: uuidv4(),
           name: key,
@@ -56,7 +56,9 @@ export default function FilterComponentSheet({
     <Sheet open={openSheet} onOpenChange={setOpenSheet}>
       <SheetTrigger className="md:hidden underline underline-offset-2 text-primary">
         {filtersApplied.length > 0
-          ? `${filtersApplied.length} Filters Applied`
+          ? `${filtersApplied.length} Filter${
+              filtersApplied.length > 1 ? "s" : ""
+            } Applied`
           : "Apply Filters"}
       </SheetTrigger>
       <SheetContent side={"left"} className="overflow-y-auto">

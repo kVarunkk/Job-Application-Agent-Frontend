@@ -21,7 +21,6 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import { IApplication } from "@/lib/types";
 import { ChevronRight, ArrowUpDown, XCircle } from "lucide-react";
 import {
@@ -32,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import ApplicationStatusBadge from "./ApplicationStatusBadge";
 
 interface ApplicantsTableProps {
   data: IApplication[];
@@ -136,9 +136,7 @@ export default function ApplicantsTable({ data }: ApplicantsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <Badge variant="secondary" className="capitalize">
-            {row.original.status}
-          </Badge>
+          <ApplicationStatusBadge status={row.original.status} />
         ),
         filterFn: "equals",
       },

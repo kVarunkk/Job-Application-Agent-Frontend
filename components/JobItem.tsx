@@ -26,6 +26,7 @@ import {
 } from "./ui/dialog";
 import toast from "react-hot-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
 
 export default function JobItem({
   job,
@@ -222,6 +223,12 @@ export default function JobItem({
           </Link>
         )}
       </div>
+      {job.status === "inactive" && (
+        <div className="flex items-center gap-1 text-muted-foreground text-xs">
+          <InfoCircledIcon />
+          This Job Posting has been deactivated by {job.company_name}
+        </div>
+      )}
       <div
         className={`transition-all duration-300 ease-in-out overflow-y-auto ${
           isActive ? "max-h-96 opacity-100 py-2" : "max-h-0 opacity-0"
