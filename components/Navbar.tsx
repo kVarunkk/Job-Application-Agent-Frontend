@@ -9,7 +9,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import Brand from "./Brand";
@@ -78,6 +77,7 @@ const NavbarSheet = ({ items }: { items: INavItemWithActive[] }) => {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
+      {/* Using button instead of SheetTrigger to prevent the auto scrolling to the top of the page on closing the sheet */}
       <button onClick={() => setOpen(true)} className="md:hidden p-2">
         <Menu />
       </button>
