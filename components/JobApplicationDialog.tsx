@@ -35,6 +35,7 @@ import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { User } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 // Define a dynamic schema for the questions array
 const createFormSchema = (questions: string[]) => {
@@ -53,10 +54,12 @@ export default function JobApplicationDialog({
   jobPost,
   dialogStateCallback,
   user,
+  isAppliedJobsTabActive,
 }: {
   jobPost: IJob;
   dialogStateCallback?: (state: boolean) => void;
   user: User | null;
+  isAppliedJobsTabActive: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -81,15 +84,19 @@ export default function JobApplicationDialog({
 
   useEffect(() => {
     (async () => {
-      if (jobPost.job_postings && jobPost.job_postings.length > 0) {
-        jobPost.job_postings[0]?.applications
-          ?.filter((each) => each.applicant_user_id === user?.id)
-          .forEach((each) => {
-            setApplicationStatus(each.status);
-          });
+      if (isAppliedJobsTabActive) {
+        setApplicationStatus(jobPost?.applications?.[0].status ?? null);
+      } else {
+        if (jobPost.job_postings && jobPost.job_postings.length > 0) {
+          jobPost.job_postings[0]?.applications
+            ?.filter((each) => each.applicant_user_id === user?.id)
+            .forEach((each) => {
+              setApplicationStatus(each.status);
+            });
+        }
       }
     })();
-  }, [jobPost, setApplicationStatus, user?.id]);
+  }, [jobPost, setApplicationStatus, user?.id, isAppliedJobsTabActive]);
 
   const onSubmit = async (values: Record<string, string>) => {
     setLoading(true);
@@ -154,6 +161,7 @@ export default function JobApplicationDialog({
 
       const { error } = await supabase.from("applications").insert({
         job_post_id: jobPost.job_postings![0].id,
+        all_jobs_id: jobPost.id,
         applicant_user_id: userData.user_id,
         answers: answers,
         resume_url: newResumeUrl, // Store the private path
@@ -188,12 +196,32 @@ export default function JobApplicationDialog({
         }
       }}
     >
-      <DialogTrigger asChild>
-        <Button className="capitalize" disabled={applicationStatus !== null}>
-          {applicationStatus ?? "Apply Now"}{" "}
-          {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
-        </Button>
-      </DialogTrigger>
+      {applicationStatus ? (
+        <Tooltip delayDuration={100}>
+          <TooltipTrigger className="cursor-default" asChild>
+            <div>
+              <Button
+                className="capitalize"
+                disabled={applicationStatus !== null}
+              >
+                {applicationStatus ?? "Apply Now"}{" "}
+                {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
+              </Button>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-[200px]">
+            Your current application status is <b>{applicationStatus}</b>.
+            You&apos;ll be notified via email if the status changes.
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <DialogTrigger asChild>
+          <Button className="capitalize" disabled={applicationStatus !== null}>
+            {applicationStatus ?? "Apply Now"}{" "}
+            {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0 overflow-hidden">
         <div className="flex flex-col md:flex-row h-full">
           {/* Left Panel: Company Info */}

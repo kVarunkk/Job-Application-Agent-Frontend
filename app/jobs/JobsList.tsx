@@ -172,6 +172,7 @@ export default function JobsList({
         isCompanyUser={isCompanyUser}
         isOnboardingComplete={isOnboardingComplete}
         isAllJobsTab={isAllJobsTab}
+        isAppliedJobsTabActive={isAppliedJobsTabActive ?? false}
       />
     );
   }

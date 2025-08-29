@@ -74,8 +74,10 @@ export default function NavbarComponent({
 }
 
 const NavbarSheet = ({ items }: { items: INavItemWithActive[] }) => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger className="md:hidden ">
         <Menu />
       </SheetTrigger>
@@ -101,6 +103,7 @@ const NavbarSheet = ({ items }: { items: INavItemWithActive[] }) => {
                   "hover:underline underline-offset-2",
                   item.active && "underline underline-offset-2"
                 )}
+                onClick={() => setOpen(false)}
               >
                 {item.label}
               </Link>

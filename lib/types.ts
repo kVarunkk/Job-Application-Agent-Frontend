@@ -117,6 +117,7 @@ export interface IJob {
     job_id: string;
   }[];
   job_postings?: IJobPosting[];
+  applications?: IApplication[];
 }
 
 export interface IJobPosting {

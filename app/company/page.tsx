@@ -146,7 +146,7 @@ export default async function CompanyPage() {
         {/* --- Active Job Posts Section --- */}
         <div className="mt-8">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-2xl font-medium">Your Active Job Posts</h3>
+            <h3 className="text-2xl font-medium">Your Job Posts</h3>
             <Link href={"/company/job-posts"}>
               <Button variant={"ghost"}>View all</Button>
             </Link>

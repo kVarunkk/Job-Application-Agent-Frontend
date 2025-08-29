@@ -4,7 +4,8 @@ import { Suspense } from "react";
 import JobsList from "./JobsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import NavbarParent from "@/components/NavbarParent";
+import NavbarParent, { INavItem } from "@/components/NavbarParent";
+import { v4 as uuidv4 } from "uuid";
 
 export default async function JobsPage({
   searchParams,
@@ -34,7 +35,6 @@ export default async function JobsPage({
       isCompanyUser = true;
     }
   }
-
   // --- Data Fetching ---
 
   const [locationsResult, companiesResult] = await Promise.all([
@@ -54,9 +54,51 @@ export default async function JobsPage({
   }
   const uniqueCompanies = companiesResult.data || [];
 
+  const navItems: INavItem[] = !isCompanyUser
+    ? [
+        {
+          id: uuidv4(),
+          label: "Home",
+          href: "/",
+          type: "equals",
+        },
+        {
+          id: uuidv4(),
+          label: "Find Jobs",
+          href: "/jobs",
+          type: "startswith",
+        },
+      ]
+    : [
+        {
+          id: uuidv4(),
+          label: "Home",
+          href: "/company",
+          type: "equals",
+        },
+        {
+          id: uuidv4(),
+          label: "Job Posts",
+          href: "/company/job-posts",
+          type: "equals",
+        },
+        {
+          id: uuidv4(),
+          label: "Applicants",
+          href: "/company/applicants",
+          type: "equals",
+        },
+        {
+          id: uuidv4(),
+          label: "Profiles",
+          href: "/company/profiles",
+          type: "equals",
+        },
+      ];
+
   return (
     <div>
-      <NavbarParent />
+      <NavbarParent navItems={navItems} />
       <div className="flex items-start px-4 lg:px-20 xl:px-40 2xl:px-80 py-5 h-full gap-5">
         <div className="hidden md:block w-1/3 px-2 h-screen overflow-y-auto sticky top-0 z-10">
           <FilterComponent

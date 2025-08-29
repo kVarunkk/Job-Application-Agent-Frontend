@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link"; // For internal links
 import { BriefcaseBusiness } from "lucide-react";
+import Brand from "../Brand";
 
 export default function Footer() {
   return (
@@ -10,8 +11,8 @@ export default function Footer() {
       <div className="container mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
         {/* Brand / About */}
         <div>
-          <Link href={"/"} className="text-lg font-bold mb-3">
-            GetHired
+          <Link href={"/"}>
+            <Brand type="long" />
           </Link>
           <p className="text-sm text-muted-foreground">
             Your smartest path to the perfect job. Revolutionizing recruitment
@@ -23,22 +24,22 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-bold mb-3">Quick Links</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>
+            {/* <li>
               <Link
                 href="/about"
                 className="hover:underline  hover:opacity-100 transition-opacity"
               >
                 About Us
               </Link>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <Link
                 href="/contact"
                 className="hover:underline  hover:opacity-100 transition-opacity"
               >
                 Contact
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link
                 href="/privacy-policy"

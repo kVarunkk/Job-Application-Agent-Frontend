@@ -64,7 +64,7 @@ export const buildQuery = async ({
           count: 0,
         };
       }
-      selectString = `*, user_favorites!inner(user_id), job_postings(*, company_info(*), applications(*))`;
+      selectString = `*, user_favorites!inner(user_id), job_postings(*, company_info(*), applications(*)), applications(*)`;
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
@@ -80,21 +80,16 @@ export const buildQuery = async ({
       }
       selectString = `
     *,
-    job_postings!inner (
-      *,
-      company_info(*),
-      applications!inner (
-        *
-      )
-    )
+    user_favorites(user_id),
+    applications!inner(*)
   `;
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
-        .eq("job_postings.applications.applicant_user_id", user.id);
+        .eq("applications.applicant_user_id", user.id);
     } else {
       selectString =
-        "*, user_favorites(*), job_postings(*, company_info(*), applications(*))";
+        "*, user_favorites(*), job_postings(*, company_info(*), applications(*)), applications(*)";
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
@@ -165,10 +160,7 @@ export const buildQuery = async ({
 
     const applicationStatusArray = parseMultiSelectParam(applicationStatus);
     if (applicationStatusArray.length > 0) {
-      query = query.in(
-        "job_postings.applications.status",
-        applicationStatusArray
-      );
+      query = query.in("applications.status", applicationStatusArray);
     }
 
     if (minSalary) {

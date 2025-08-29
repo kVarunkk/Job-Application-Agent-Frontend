@@ -184,6 +184,7 @@ export default function ProfilesList({
         companyId={companyData.id}
         isOnboardingComplete={isOnboardingComplete}
         isAllJobsTab={isAllJobsTab}
+        isAppliedJobsTabActive={false}
       />
     );
   }
