@@ -226,7 +226,7 @@ export default function JobsComponent({
                 />
               )}
 
-            {!isOnboardingComplete && user && (
+            {!isOnboardingComplete && user && !isCompanyUser && (
               <Tooltip delayDuration={100}>
                 <TooltipTrigger className="cursor-default" asChild>
                   <Link
