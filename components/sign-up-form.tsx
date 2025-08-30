@@ -92,7 +92,9 @@ export function SignUpForm({
         email: values.email,
         password: values.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/jobs`,
+          emailRedirectTo: `${window.location.origin}/${
+            isCompany ? "get-started?company=true" : "jobs"
+          }`,
         },
       });
       if (error) throw error;
