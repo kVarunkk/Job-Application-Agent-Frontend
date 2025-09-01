@@ -1052,16 +1052,42 @@ export const OnboardingForm: React.FC = () => {
         filled: true,
       };
       const supabase = createClient();
+
+      const res = await fetch("/api/update-embedding/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.id,
+          desired_roles: formData.desired_roles,
+          preferred_locations: formData.preferred_locations,
+          min_salary: formData.min_salary || 0,
+          max_salary: formData.max_salary || 0,
+          experience_years: formData.experience_years || 0,
+          industry_preferences: formData.industry_preferences,
+          visa_sponsorship_required: formData.visa_sponsorship_required,
+          top_skills: formData.top_skills,
+          work_style_preferences: formData.work_style_preferences,
+          career_goals_short_term: formData.career_goals_short_term,
+          career_goals_long_term: formData.career_goals_long_term,
+          company_size_preference: formData.company_size_preference,
+          resume_path: formData.resume_path,
+          job_type: formData.job_type,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData);
+      }
+
       const { error: dbError } = await supabase
         .from("user_info")
-        .upsert(dataToSave, { onConflict: "user_id" }); // Upsert based on user_id
+        .upsert(dataToSave, { onConflict: "user_id" });
 
       if (dbError) {
         setError(`Failed to save data: ${dbError.message}`);
       } else {
         toast.success("Your profile has been saved successfully!");
-        // setSuccessMessage("Your profile has been saved successfully!");
-        // Optionally, redirect user or show a success screen
         router.push("/jobs");
       }
     } catch (submitException: unknown) {
@@ -1079,7 +1105,6 @@ export const OnboardingForm: React.FC = () => {
 
   const CurrentStepComponent = steps[currentStep].component;
 
-  // Render nothing if user is not loaded yet or there's a critical error
   if (error && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen ">
@@ -1115,7 +1140,7 @@ export const OnboardingForm: React.FC = () => {
           errors={formErrors}
           setErrors={setFormErrors}
         />
-        {error && toast.error(error)}
+        {error ? toast.error(error) : ""}
 
         <CardFooter className="flex items-center justify-between !p-0 mt-5">
           <Button
@@ -1137,8 +1162,6 @@ export const OnboardingForm: React.FC = () => {
           No need to panic, you can always update this information.
         </p>
       </Card>
-
-      {/* {successMessage ? toast.success(successMessage) : ""} */}
     </div>
   );
 };
