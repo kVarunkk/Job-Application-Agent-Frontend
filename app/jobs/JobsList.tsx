@@ -30,6 +30,7 @@ export default function JobsList({
   const supabase = createClient();
   const [dataState, setData] = useState<IJob[] | never[] | null>();
   const [countState, setCount] = useState<number | null>();
+  const [totalCount, setTotalCount] = useState<number>();
   const searchParameters = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
@@ -77,6 +78,8 @@ export default function JobsList({
       }
 
       const { data: fetchedJobs, count: fetchedCount } = result;
+
+      setTotalCount(fetchedCount);
 
       // --- AI Re-ranking Logic ---
       if (
@@ -173,6 +176,7 @@ export default function JobsList({
         isOnboardingComplete={isOnboardingComplete}
         isAllJobsTab={isAllJobsTab}
         isAppliedJobsTabActive={isAppliedJobsTabActive ?? false}
+        totalCount={totalCount}
       />
     );
   }

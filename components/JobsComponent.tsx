@@ -34,6 +34,7 @@ export default function JobsComponent({
   isOnboardingComplete,
   isAllJobsTab,
   isAppliedJobsTabActive,
+  totalCount,
 }: {
   initialJobs: IJob[] | IFormData[];
   totalJobs: number;
@@ -50,6 +51,7 @@ export default function JobsComponent({
   isOnboardingComplete: boolean;
   isAllJobsTab: boolean;
   isAppliedJobsTabActive: boolean;
+  totalCount?: number;
 }) {
   const [jobs, setJobs] = useState<IJob[] | IFormData[]>(initialJobs ?? []);
   const [page, setPage] = useState(1);
@@ -183,9 +185,9 @@ export default function JobsComponent({
               </Button>
             )}
             <p className="text-sm text-muted-foreground">
-              Showing {jobs.length} {isSuitable ? "suitable" : ""}{" "}
-              {isProfilesPage && isCompanyUser ? "profile" : "job"}
-              {jobs.length > 1 ? `s` : ``}
+              Showing {jobs.length} {isSuitable ? "suitable" : ""}
+              {totalCount ? ` of ${totalCount}` : ""}{" "}
+              {isProfilesPage && isCompanyUser ? "profiles" : "jobs"}
             </p>
           </div>
 
