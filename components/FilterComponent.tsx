@@ -232,6 +232,7 @@ export default function FilterComponent({
               { value: "remoteok", label: "Remote Ok" },
               { value: "uplers", label: "Uplers" },
               { value: "ycombinator", label: "YCombinator" },
+              { value: "wellfound", label: "Wellfound" },
               { value: "gethired", label: "GetHired" },
             ],
           },

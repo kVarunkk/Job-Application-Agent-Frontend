@@ -50,7 +50,7 @@ const jobFormSchema = z
       message:
         "Please select at least one location or select the remote option.",
     }),
-    job_type: z.enum(["Fulltime", "Parttime", "Contract"], {
+    job_type: z.enum(["Fulltime", "Intern", "Contract"], {
       required_error: "Please select a job type.",
     }),
     salary_currency: z.string(),
@@ -291,7 +291,7 @@ export default function CreateJobPostingDialog({
   const currentQuestions = form.watch("questions");
   const canAddQuestion = currentQuestions ? currentQuestions.length < 3 : false;
 
-  const jobTypes = ["Fulltime", "Parttime", "Contract"];
+  const jobTypes = ["Fulltime", "Intern", "Contract"];
   const salaryCurrencies = ["₹", "$", "€", "£", "C$", "A$"];
   const visaOptions = ["Will Sponsor", "Not Required", "Required"];
 

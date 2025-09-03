@@ -125,7 +125,7 @@ export interface IJobPosting {
   id: string;
   title: string;
   description: string;
-  job_type: "Fulltime" | "Parttime" | "Contract";
+  job_type: "Fulltime" | "Intern" | "Contract";
   salary_currency: string;
   min_salary: number;
   max_salary: number;
@@ -206,7 +206,7 @@ export interface ICreateJobPostingFormData {
   id?: string;
   title: string;
   description: string;
-  job_type: "Fulltime" | "Parttime" | "Contract";
+  job_type: "Fulltime" | "Intern" | "Contract";
   salary_currency: string;
   min_salary: number;
   max_salary: number;
