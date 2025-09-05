@@ -8,7 +8,7 @@ import NavbarParent, { INavItem } from "@/components/NavbarParent";
 import { v4 as uuidv4 } from "uuid";
 import { IJob } from "@/lib/types";
 import { headers } from "next/headers";
-import Link from "next/link";
+import { Link } from "react-transition-progress/next";
 
 export default async function JobsPage({
   searchParams,

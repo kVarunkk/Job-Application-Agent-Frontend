@@ -3,11 +3,10 @@
 import { IFormData, IJob } from "@/lib/types";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import AppLoader from "./AppLoader";
 import { User } from "@supabase/supabase-js";
 import JobItem from "./JobItem";
-
 import FindSuitableJobs from "./FindSuitableJobs";
 import FilterComponentSheet from "./FilterComponentSheet";
 import { Button } from "./ui/button";
@@ -61,7 +60,7 @@ export default function JobsComponent({
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
   const isSuitable = searchParams.get("sortBy") === "relevance";
-
+  const pathname = usePathname();
   useEffect(() => {
     setJobs(initialJobs);
     setPage(1);
@@ -126,7 +125,7 @@ export default function JobsComponent({
       );
       sessionStorage.removeItem("ai-toast");
     }
-  }, [isProfilesPage]);
+  }, [isProfilesPage, pathname]);
 
   // This effect sets up the IntersectionObserver
   useEffect(() => {
