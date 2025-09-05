@@ -1,5 +1,7 @@
 import { createClient } from "./supabase/server";
 
+const userInfoSelectString = `user_id, desired_roles, preferred_locations, min_salary, max_salary, experience_years, industry_preferences, visa_sponsorship_required, top_skills, work_style_preferences, career_goals_short_term, career_goals_long_term, company_size_preference, resume_url, created_at, updated_at, resume_name, job_type, resume_path, ai_search_uses, filled, full_name, email, salary_currency`;
+
 export async function buildProfileQuery({
   searchQuery,
   jobRoles,
@@ -72,7 +74,7 @@ export async function buildProfileQuery({
 
       const companyId = companyData.id;
 
-      selectString = `*, company_favorites!inner(company_id)`;
+      selectString = `${userInfoSelectString}, company_favorites!inner(company_id)`;
       query = supabase
         .from("user_info")
         .select(selectString, { count: "exact" })
@@ -83,7 +85,7 @@ export async function buildProfileQuery({
         .from("user_info")
         .select(
           `
-          *, company_favorites(*)
+          ${userInfoSelectString}, company_favorites(*)
         `,
           { count: "exact" }
         )

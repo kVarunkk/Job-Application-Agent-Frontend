@@ -51,16 +51,15 @@ export default function JobsComponent({
   isOnboardingComplete: boolean;
   isAllJobsTab: boolean;
   isAppliedJobsTabActive: boolean;
-  totalCount?: number;
+  totalCount: number;
 }) {
   const [jobs, setJobs] = useState<IJob[] | IFormData[]>(initialJobs ?? []);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeCardID, setActiveCardID] = useState<string>();
   const router = useRouter();
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
-  const [activeCardID, setActiveCardID] = useState<string>();
-
   const isSuitable = searchParams.get("sortBy") === "relevance";
 
   useEffect(() => {
@@ -70,7 +69,7 @@ export default function JobsComponent({
 
   const loadMoreJobs = useCallback(async () => {
     // Prevent multiple simultaneous loads
-    if (isLoading || jobs.length >= totalJobs) return;
+    if (isLoading || jobs.length >= totalCount) return;
     setIsLoading(true);
 
     const nextPage = page + 1;
@@ -78,6 +77,10 @@ export default function JobsComponent({
     // Construct the query string from the current URL search params
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", nextPage.toString());
+    params.set(
+      "tab",
+      isAllJobsTab ? "all" : isAppliedJobsTabActive ? "applied" : "saved"
+    );
 
     try {
       const res = await fetch(
@@ -301,7 +304,7 @@ export default function JobsComponent({
       )}
 
       {/* Loading Spinner and Trigger */}
-      {jobs.length < totalJobs && (
+      {jobs.length < totalCount && jobs.length !== 0 && (
         <div ref={loaderRef} className="flex justify-center items-center p-4">
           <AppLoader size="md" />
         </div>

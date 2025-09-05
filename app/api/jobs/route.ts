@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
   const sortBy = searchParams.get("sortBy");
   const sortOrder = searchParams.get("sortOrder");
   const jobTitleKeywords = searchParams.get("jobTitleKeywords");
-  const isFavoriteTabActive = searchParams.get("isFavoriteTabActive");
-  const isAppliedJobsTabActive = searchParams.get("isAppliedJobsTabActive");
+  const isFavoriteTabActive = searchParams.get("tab") === "saved";
+  const isAppliedJobsTabActive = searchParams.get("tab") === "applied";
   const applicationStatus = searchParams.get("applicationStatus");
 
   const startIndex = (page - 1) * JOBS_PER_PAGE;
@@ -61,8 +61,8 @@ export async function GET(request: NextRequest) {
       sortBy: sortBy ?? undefined,
       sortOrder: sortOrder as "asc" | "desc",
       jobTitleKeywords,
-      isFavoriteTabActive: isFavoriteTabActive === "true",
-      isAppliedJobsTabActive: isAppliedJobsTabActive === "true",
+      isFavoriteTabActive: isFavoriteTabActive,
+      isAppliedJobsTabActive: isAppliedJobsTabActive,
       userEmbedding,
       applicationStatus,
     });

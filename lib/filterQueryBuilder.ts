@@ -1,4 +1,5 @@
 import { createClient } from "./supabase/server";
+const allJobsSelectString = `id, created_at, updated_at, job_name, job_type, platform, locations, description, salary_range, visa_requirement, salary_min, salary_max, company_name, company_url, experience, experience_min, experience_max, equity_range, equity_min, equity_max, job_url, status`;
 
 export const buildQuery = async ({
   jobType,
@@ -64,12 +65,17 @@ export const buildQuery = async ({
           count: 0,
         };
       }
-      selectString = `*, user_favorites!inner(user_id), job_postings(*, company_info(*), applications(*)), applications(*)`;
+      // Explicitly select columns and exclude 'embedding'
+      selectString = `
+        ${allJobsSelectString},
+        user_favorites!inner(user_id),
+        job_postings(*, company_info(*), applications(*)),
+        applications(*)
+    `;
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
         .eq("user_favorites.user_id", user.id);
-      // .eq("status", "active");
     } else if (isAppliedJobsTabActive) {
       if (!user) {
         return {
@@ -78,23 +84,92 @@ export const buildQuery = async ({
           count: 0,
         };
       }
+      // Explicitly select columns and exclude 'embedding'
       selectString = `
-    *,
-    user_favorites(user_id),
-    applications!inner(*)
-  `;
+       ${allJobsSelectString},
+        user_favorites(user_id),
+        applications!inner(*)
+    `;
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
         .eq("applications.applicant_user_id", user.id);
     } else {
-      selectString =
-        "*, user_favorites(*), job_postings(*, company_info(*), applications(*)), applications(*)";
+      // Explicitly select columns and exclude 'embedding'
+      selectString = `
+       ${allJobsSelectString},
+        user_favorites(*),
+        job_postings(*, company_info(*), applications(*)),
+        applications(*)
+    `;
       query = supabase
         .from("all_jobs")
         .select(selectString, { count: "exact" })
         .eq("status", "active");
     }
+
+    //   if (isFavoriteTabActive) {
+    //     if (!user) {
+    //       return {
+    //         data: [],
+
+    //         error: "User not authenticated to view favorite jobs.",
+
+    //         count: 0,
+    //       };
+    //     }
+
+    //     selectString = `*, user_favorites!inner(user_id), job_postings(*, company_info(*), applications(*)), applications(*)`;
+
+    //     query = supabase
+
+    //       .from("all_jobs")
+
+    //       .select(selectString, { count: "exact" })
+
+    //       .eq("user_favorites.user_id", user.id);
+
+    //     // .eq("status", "active");
+    //   } else if (isAppliedJobsTabActive) {
+    //     if (!user) {
+    //       return {
+    //         data: [],
+
+    //         error: "User not authenticated to view applied jobs.",
+
+    //         count: 0,
+    //       };
+    //     }
+
+    //     selectString = `
+
+    //   *,
+
+    //   user_favorites(user_id),
+
+    //   applications!inner(*)
+
+    // `;
+
+    //     query = supabase
+
+    //       .from("all_jobs")
+
+    //       .select(selectString, { count: "exact" })
+
+    //       .eq("applications.applicant_user_id", user.id);
+    //   } else {
+    //     selectString =
+    //       "*, user_favorites(*), job_postings(*, company_info(*), applications(*)), applications(*)";
+
+    //     query = supabase
+
+    //       .from("all_jobs")
+
+    //       .select(selectString, { count: "exact" })
+
+    //       .eq("status", "active");
+    //   }
 
     // --- NEW: VECTOR SEARCH LOGIC ---
     if (sortBy === "relevance" && userEmbedding) {

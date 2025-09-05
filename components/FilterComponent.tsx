@@ -273,6 +273,7 @@ export default function FilterComponent({
 
   const sortBy = searchParams.get("sortBy");
   const sortOrder = searchParams.get("sortOrder");
+  const tab = searchParams.get("tab");
 
   // Initialize state from URL search params or default to empty arrays/strings
   const getInitialState = useCallback((): FiltersState => {
@@ -360,6 +361,9 @@ export default function FilterComponent({
     if (sortOrder) {
       params.set("sortOrder", sortOrder);
     }
+    if (tab) {
+      params.set("tab", tab);
+    }
     // Reset page to 1 whenever filters are applied
     // params.set("page", "1");
 
@@ -445,6 +449,7 @@ export default function FilterComponent({
               const params = new URLSearchParams();
               if (sortBy) params.set("sortBy", sortBy);
               if (sortOrder) params.set("sortOrder", sortOrder);
+              if (tab) params.set("tab", tab);
               if (setOpenSheet) setOpenSheet(false);
               startTransition(() => {
                 router.push(
