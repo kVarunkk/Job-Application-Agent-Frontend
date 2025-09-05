@@ -26,7 +26,6 @@ export default async function ProfilesPage({
     searchParameters && searchParameters["tab"]
       ? searchParameters["tab"]
       : "all";
-  let onboarding_complete;
   const { data: companyDataData }: { data: ICompanyInfo | null } =
     await supabase
       .from("company_info")
@@ -37,7 +36,7 @@ export default async function ProfilesPage({
   if (!companyDataData) {
     redirect("/get-started?company=true");
   }
-  onboarding_complete = companyDataData.filled;
+  const onboarding_complete = companyDataData.filled;
   const companyData: ICompanyInfo = companyDataData;
 
   // --- Data Fetching ---
