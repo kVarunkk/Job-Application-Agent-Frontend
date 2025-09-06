@@ -39,7 +39,7 @@ export default function RootLayout({
         >
           <TooltipProvider>
             <ProgressBarProvider>
-              <ProgressBar className="fixed h-[2px] shadow-lg shadow-sky-500/20 bg-primary top-0" />
+              <ProgressBar className="fixed h-1 rounded-r-md shadow-lg shadow-sky-500/20 bg-primary top-0" />
               {children}
             </ProgressBarProvider>
             <Toaster />

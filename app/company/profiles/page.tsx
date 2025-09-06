@@ -7,7 +7,7 @@ import ProfilesList from "./ProfilesList";
 import FilterComponent from "@/components/FilterComponent";
 import { ICompanyInfo, IFormData } from "@/lib/types";
 import { headers } from "next/headers";
-import Link from "next/link";
+import { Link } from "react-transition-progress/next";
 
 export default async function ProfilesPage({
   searchParams,
