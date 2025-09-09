@@ -48,8 +48,6 @@ export default async function JobsPage({
 
     if (companyData) {
       isCompanyUser = true;
-      // onboardingComplete = companyData.filled;
-      // ai_search_uses = companyData.ai_search_uses;
     }
 
     if (jobSeekerData) {
@@ -79,12 +77,6 @@ export default async function JobsPage({
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.message);
-    // if (res.ok) {
-    //   initialJobs = result.data || [];
-    //   totalCount = result.count || 0;
-    // } else {
-    //   console.error("Error fetching initial jobs:", result.message);
-    // }
 
     // --- AI Re-ranking Logic ---
 
@@ -209,6 +201,7 @@ export default async function JobsPage({
           <FilterComponent
             uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}
+            onboardingComplete={onboardingComplete}
           />
         </div>
         <div className="w-full md:w-2/3 ">
@@ -222,7 +215,7 @@ export default async function JobsPage({
               </div>
             }
           >
-            <Tabs defaultValue={activeTab}>
+            <Tabs value={activeTab}>
               {user && !isCompanyUser && !isAISearch && (
                 <TabsList>
                   {!applicationStatusFilter && (

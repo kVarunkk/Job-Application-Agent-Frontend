@@ -2,8 +2,14 @@
 
 import { IFormData, IJob } from "@/lib/types";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppLoader from "./AppLoader";
 import { User } from "@supabase/supabase-js";
 import JobItem from "./JobItem";
@@ -13,9 +19,9 @@ import { Button } from "./ui/button";
 import { ArrowLeft } from "lucide-react";
 import ProfileItem from "./ProfileItem";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import toast from "react-hot-toast";
 import ScrollToTopButton from "./ScrollToTopButton";
 import SortingComponent from "./SortingComponent";
+import { useProgress } from "react-transition-progress";
 
 export default function JobsComponent({
   initialJobs,
@@ -60,7 +66,7 @@ export default function JobsComponent({
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
   const isSuitable = searchParams.get("sortBy") === "relevance";
-  const pathname = usePathname();
+  const startProgress = useProgress();
   useEffect(() => {
     setJobs(initialJobs);
     setPage(1);
@@ -111,21 +117,8 @@ export default function JobsComponent({
     searchParams,
     isCompanyUser,
     isProfilesPage,
+    isAllJobsTab,
   ]);
-
-  useEffect(() => {
-    const toastId = sessionStorage.getItem("ai-toast");
-
-    if (typeof window !== "undefined" && toastId) {
-      toast.success(
-        `Found suitable ${isProfilesPage ? "Profiles" : "Jobs"} for you`,
-        {
-          id: toastId,
-        }
-      );
-      sessionStorage.removeItem("ai-toast");
-    }
-  }, [isProfilesPage, pathname]);
 
   // This effect sets up the IntersectionObserver
   useEffect(() => {
@@ -165,11 +158,14 @@ export default function JobsComponent({
       params.delete("job_post");
     }
 
-    router.push(
-      `/${
-        isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
-      }?${params.toString()}`
-    );
+    startTransition(() => {
+      startProgress();
+      router.push(
+        `/${
+          isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
+        }?${params.toString()}`
+      );
+    });
   };
 
   return (
@@ -192,7 +188,6 @@ export default function JobsComponent({
               {isProfilesPage && isCompanyUser ? "profiles" : "jobs"}
             </p>
           </div>
-
           <FilterComponentSheet
             uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies ?? []}
@@ -202,6 +197,7 @@ export default function JobsComponent({
             uniqueSkills={uniqueSkills ?? []}
             isCompanyUser={isCompanyUser}
             isProfilesPage={isProfilesPage}
+            onboardingComplete={isOnboardingComplete}
           />
 
           <div className="flex items-center gap-3">
@@ -282,8 +278,8 @@ export default function JobsComponent({
               job={job}
               user={user}
               isSuitable={isSuitable}
-              activeCardID={activeCardID}
-              setActiveCardID={setActiveCardID}
+              // activeCardID={activeCardID}
+              // setActiveCardID={setActiveCardID}
               isAppliedJobsTabActive={isAppliedJobsTabActive}
               isOnboardingComplete={isOnboardingComplete}
             />

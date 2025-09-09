@@ -160,6 +160,7 @@ export default async function ProfilesPage({
             uniqueWorkStylePreferences={uniqueWorkStylePreferences}
             uniqueSkills={uniqueSkills}
             isProfilesPage={true}
+            onboardingComplete={onboarding_complete}
           />
         </div>
         <div className="w-full md:w-2/3 ">

@@ -97,11 +97,10 @@ export default memo(function MultiKeywordSelectInput({
   // Filter available items for the dropdown to exclude those already selected,
   // memoized for efficiency.
   const filteredAvailableItems = useMemo(() => {
-    return availableItems.filter(
-      (item) =>
-        !initialKeywords.some((k) => k.toLowerCase() === item.toLowerCase())
+    return availableItems.filter((item) =>
+      item.toLowerCase().includes(input.toLowerCase())
     );
-  }, [availableItems, initialKeywords]); // Dependencies: `availableItems` (prop) and current `initialKeywords` prop
+  }, [availableItems]); // Dependencies: `availableItems` (prop) and current `initialKeywords` prop
 
   // Focus handlers for the overall container, memoized
   const handleFocus = useCallback(() => setIsFocused(true), []);

@@ -27,6 +27,7 @@ type FilterConfig = {
   placeholder?: string;
   options?: { value: string; label: string }[]; // Options for multi-select (for availableItems prop)
   isVirtualized?: boolean;
+  hidden?: boolean;
 };
 
 // Define the type for the component's state
@@ -56,6 +57,7 @@ export default function FilterComponent({
   uniqueWorkStylePreferences,
   uniqueSkills,
   isProfilesPage = false,
+  onboardingComplete,
 }: {
   uniqueLocations: { location: string }[];
   uniqueCompanies?: { company_name: string }[];
@@ -65,6 +67,7 @@ export default function FilterComponent({
   uniqueWorkStylePreferences?: { work_style_preference: string }[];
   uniqueSkills?: { skill: string }[];
   isProfilesPage?: boolean;
+  onboardingComplete: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -246,6 +249,7 @@ export default function FilterComponent({
               value:
                 TApplicationStatus[each as keyof typeof TApplicationStatus],
             })),
+            hidden: !onboardingComplete,
           },
 
           {
@@ -269,6 +273,7 @@ export default function FilterComponent({
     uniqueWorkStylePreferences,
     uniqueSkills,
     isProfilesPage,
+    onboardingComplete,
   ]);
 
   const sortBy = searchParams.get("sortBy");
@@ -337,6 +342,9 @@ export default function FilterComponent({
     // Iterate over the state object to build query params
     for (const [key, value] of Object.entries(filters)) {
       const filterConfig = FILTER_CONFIG.find((config) => config.name === key);
+
+      if (key === "applicationStatus" && value && value.length > 0)
+        params.set("tab", "applied");
 
       if (
         filterConfig?.type === "multi-select" ||
@@ -430,7 +438,7 @@ export default function FilterComponent({
   return (
     <div className="flex flex-col items-start py-4 ">
       <form className="w-full" onSubmit={handleSubmit}>
-        {FILTER_CONFIG.map((config) => (
+        {FILTER_CONFIG.filter((each) => !each.hidden).map((config) => (
           <label
             key={config.name}
             htmlFor={String(config.name)}

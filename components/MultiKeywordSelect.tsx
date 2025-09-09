@@ -68,13 +68,10 @@ export default function MultiKeywordSelect({
   }, [initialKeywords]);
 
   const filteredAvailableItems = useMemo(() => {
-    return availableItems
-      .filter(
-        (item) =>
-          !initialKeywords.some((k) => k.toLowerCase() === item.toLowerCase())
-      )
-      .filter((item) => item.toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [availableItems, initialKeywords, searchTerm]);
+    return availableItems.filter((item) =>
+      item.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [availableItems, searchTerm]);
 
   const addKeyword = useCallback(
     (contentToAdd: string) => {
