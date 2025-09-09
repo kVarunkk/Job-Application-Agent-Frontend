@@ -40,7 +40,7 @@ export default function JobItem({
               <div className="flex items-center flex-wrap">
                 <ModifiedLink
                   href={`/jobs/${job.id}`}
-                  className="underline sm:no-underline hover:underline"
+                  className=" hover:underline"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <h3 className="text-lg sm:text-xl font-semibold">

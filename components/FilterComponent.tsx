@@ -19,6 +19,7 @@ import MultiKeywordSelect, { GenericFormData } from "./MultiKeywordSelect";
 import MultiKeywordSelectInput from "./MultiKeywordSelectInput";
 import InputFilter from "./InputFilterComponent";
 import { TApplicationStatus } from "@/lib/types";
+import { useProgress } from "react-transition-progress";
 
 type FilterConfig = {
   name: keyof FiltersState;
@@ -71,6 +72,7 @@ export default function FilterComponent({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const startProgress = useProgress();
   const [isPending, startTransition] = useTransition();
   // Define FILTER_CONFIG with 'multi-select' types for all relevant fields
   const FILTER_CONFIG: FilterConfig[] = useMemo(() => {
@@ -378,6 +380,7 @@ export default function FilterComponent({
     if (setOpenSheet) setOpenSheet(false);
 
     startTransition(() => {
+      startProgress();
       router.push(
         `/${isProfilesPage ? "company/profiles" : "jobs"}?${params.toString()}`
       );
