@@ -44,6 +44,7 @@ export async function updateSession(request: NextRequest) {
     "/",
     "/jobs",
     "/api/jobs",
+    "/api/jobs/filters",
     "/privacy-policy",
     "/terms-of-service",
   ];
