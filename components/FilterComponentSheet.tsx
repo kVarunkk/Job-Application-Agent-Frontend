@@ -63,7 +63,7 @@ export default function FilterComponentSheet({
             } Applied`
           : "Apply Filters"}
       </SheetTrigger>
-      <SheetContent side={"left"} className="overflow-y-auto">
+      <SheetContent side={"left"} className="h-full">
         <SheetHeader>
           <SheetTitle>
             {isCompanyUser ? "Profile" : "Job"} Search Filters
