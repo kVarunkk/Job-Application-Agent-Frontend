@@ -112,9 +112,7 @@ export default async function CompanyPage() {
               <CardTitle className="text-4xl font-extrabold">
                 {metrics.total_jobs || 0}
               </CardTitle>
-              <p className="text-muted-foreground font-medium">
-                Active Job Posts
-              </p>
+              <p className="text-muted-foreground font-medium">Job Posts</p>
             </CardContent>
           </Card>
 

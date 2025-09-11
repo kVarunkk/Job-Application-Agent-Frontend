@@ -61,7 +61,6 @@ export default function JobsComponent({
   const [jobs, setJobs] = useState<IJob[] | IFormData[]>(initialJobs ?? []);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeCardID, setActiveCardID] = useState<string>();
   const router = useRouter();
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
@@ -73,13 +72,11 @@ export default function JobsComponent({
   }, [initialJobs]);
 
   const loadMoreJobs = useCallback(async () => {
-    // Prevent multiple simultaneous loads
     if (isLoading || jobs.length >= totalCount) return;
     setIsLoading(true);
 
     const nextPage = page + 1;
 
-    // Construct the query string from the current URL search params
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", nextPage.toString());
     params.set(
@@ -93,7 +90,6 @@ export default function JobsComponent({
           isProfilesPage && isCompanyUser ? "profiles" : "jobs"
         }?${params.toString()}`
       );
-      // const newJobs = await res.json();
       if (!res.ok) throw new Error("Some error occured");
 
       const result = await res.json();
@@ -120,17 +116,15 @@ export default function JobsComponent({
     isAllJobsTab,
   ]);
 
-  // This effect sets up the IntersectionObserver
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const firstEntry = entries[0];
-        // If the loader is intersecting (visible) and we are not already loading
         if (firstEntry.isIntersecting && !isLoading) {
           loadMoreJobs();
         }
       },
-      { threshold: 1.0 } // Trigger when 100% of the loader is visible
+      { threshold: 1.0 }
     );
 
     const currentLoader = loaderRef.current;
@@ -138,7 +132,6 @@ export default function JobsComponent({
       observer.observe(currentLoader);
     }
 
-    // Cleanup function to disconnect the observer
     return () => {
       if (currentLoader) {
         observer.unobserve(currentLoader);
@@ -264,10 +257,8 @@ export default function JobsComponent({
             <ProfileItem
               key={job.user_id}
               profile={job}
-              user={user}
               isSuitable={isSuitable}
-              activeCardID={activeCardID}
-              setActiveCardID={setActiveCardID}
+              companyId={companyId}
             />
           ))
         ) : (
@@ -278,8 +269,6 @@ export default function JobsComponent({
               job={job}
               user={user}
               isSuitable={isSuitable}
-              // activeCardID={activeCardID}
-              // setActiveCardID={setActiveCardID}
               isAppliedJobsTabActive={isAppliedJobsTabActive}
               isOnboardingComplete={isOnboardingComplete}
             />
@@ -298,7 +287,6 @@ export default function JobsComponent({
         </p>
       )}
 
-      {/* Loading Spinner and Trigger */}
       {jobs.length < totalCount && jobs.length !== 0 && (
         <div ref={loaderRef} className="flex justify-center items-center p-4">
           <AppLoader size="md" />
