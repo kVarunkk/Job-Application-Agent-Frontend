@@ -83,6 +83,9 @@ export default async function JobsPage({
     const resFilters = await fetch(`${url}/api/jobs/filters`, {
       cache: "force-cache",
       next: { revalidate: 3600 },
+      headers: {
+        Cookie: headersList.get("Cookie") || "",
+      },
     });
 
     const filterData = await resFilters.json();
