@@ -63,6 +63,8 @@ export default async function JobsPage({
   const url = `${protocol}://${host}`;
 
   let initialJobs: IJob[] = [];
+  let uniqueLocations: { location: string }[] = [];
+  let uniqueCompanies: { company_name: string }[] = [];
   let totalCount: number = 0;
   const params = new URLSearchParams(
     searchParameters as Record<string, string>
@@ -77,6 +79,18 @@ export default async function JobsPage({
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.message);
+
+    const resFilters = await fetch(`${url}/api/jobs/filters`, {
+      cache: "force-cache",
+      next: { revalidate: 3600 },
+    });
+
+    const filterData = await resFilters.json();
+
+    if (!resFilters.ok) throw new Error(filterData.message);
+
+    uniqueLocations = filterData.locations;
+    uniqueCompanies = filterData.companies;
 
     // --- AI Re-ranking Logic ---
 
@@ -133,23 +147,6 @@ export default async function JobsPage({
   } catch (error) {
     console.error("Failed to fetch jobs:", error);
   }
-
-  const [locationsResult, companiesResult] = await Promise.all([
-    supabase.rpc("get_unique_locations"),
-    supabase.rpc("get_unique_companies"),
-  ]);
-
-  if (locationsResult.error) {
-    console.error("Error fetching unique locations:", locationsResult.error);
-  }
-  const uniqueLocations: {
-    location: string;
-  }[] = locationsResult.data || [];
-
-  if (companiesResult.error) {
-    console.error("Error fetching unique companies:", companiesResult.error);
-  }
-  const uniqueCompanies = companiesResult.data || [];
 
   const navItems: INavItem[] = !isCompanyUser
     ? [

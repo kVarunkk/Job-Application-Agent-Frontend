@@ -1,0 +1,30 @@
+import { createClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  try {
+    const supabase = await createClient();
+
+    const [locationsResult, companiesResult] = await Promise.all([
+      supabase.rpc("get_unique_locations"),
+      supabase.rpc("get_unique_companies"),
+    ]);
+
+    if (locationsResult.error) {
+      throw locationsResult.error;
+    }
+    if (companiesResult.error) {
+      throw companiesResult.error;
+    }
+    const locations = locationsResult.data || [];
+    const companies = companiesResult.data || [];
+
+    return NextResponse.json({ locations, companies }, { status: 200 });
+  } catch (e) {
+    console.error("Error fetching filters:", e);
+    return NextResponse.json(
+      { error: "Failed to fetch filters" },
+      { status: 500 }
+    );
+  }
+}
