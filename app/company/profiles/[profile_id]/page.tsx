@@ -95,7 +95,7 @@ export default async function ProfilePage({
               </h1>
               <ProfileFavoriteStar
                 profile={applicantProfile}
-                companyInfo={companyData}
+                companyId={companyData.id}
               />
             </div>
             <p className="text-muted-foreground">{applicantProfile.email}</p>

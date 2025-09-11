@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
   const visaRequired = searchParams.get("visaRequired") === "true";
   const sortBy = searchParams.get("sortBy");
   const sortOrder = searchParams.get("sortOrder");
-  const isFavoriteTabActive = searchParams.get("isFavoriteTabActive");
+  const isFavoriteTabActive = searchParams.get("tab") === "saved";
   const job_post_id = searchParams.get("job_post");
 
   const startIndex = (page - 1) * PROFILES_PER_PAGE;
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       sortOrder: sortOrder as "asc" | "desc",
       start_index: startIndex,
       end_index: endIndex,
-      isFavoriteTabActive: isFavoriteTabActive === "true",
+      isFavoriteTabActive: isFavoriteTabActive,
       jobEmbedding,
     });
 

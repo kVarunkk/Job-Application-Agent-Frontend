@@ -74,10 +74,13 @@ export async function updateSession(request: NextRequest) {
     searchParams.get("company") === "true" &&
     !(searchParams.get("edit") === "true");
 
+  const isJobPage =
+    pathname.startsWith("/jobs/") && pathname.length > "/jobs/".length;
+
   // --- 1. Handle Unauthenticated Users ---
   if (!user) {
     // If an unauthenticated user tries to access a protected page, redirect them to login.
-    if (!isAuthPath && !publicPaths.includes(pathname)) {
+    if (!isAuthPath && !publicPaths.includes(pathname) && !isJobPage) {
       const url = request.nextUrl.clone();
 
       url.searchParams.forEach((value, key) => {
@@ -148,7 +151,8 @@ export async function updateSession(request: NextRequest) {
       !isApplicant &&
       !isCompany &&
       !isApplicantOnboardingPath &&
-      !publicPaths
+      !publicPaths &&
+      !isJobPage
     ) {
       const url = request.nextUrl.clone();
       url.pathname = "/get-started";

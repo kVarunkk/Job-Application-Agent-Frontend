@@ -56,15 +56,17 @@ export default function Brand({ type }: BrandProps) {
     return null;
   }
 
-  return (
-    <Image
-      src={src}
-      alt={`${type} brand logo (${currentTheme} mode)`}
-      // You'll need to define appropriate width and height for your logos
-      // These are example values, adjust them based on your image dimensions
-      width={type === "long" ? 150 : 50} // Example: 200px for long, 50px for short
-      height={type === "long" ? 100 : 50} // Example: 50px for both
-      priority // Consider using priority for logos that are above the fold
-    />
-  );
+  if (type) {
+    return (
+      <Image
+        src={src}
+        alt={`${type} brand logo (${currentTheme} mode)`}
+        // You'll need to define appropriate width and height for your logos
+        // These are example values, adjust them based on your image dimensions
+        width={type === "long" ? 150 : 50} // Example: 200px for long, 50px for short
+        height={type === "long" ? 100 : 50} // Example: 50px for both
+        priority // Consider using priority for logos that are above the fold
+      />
+    );
+  } else return null;
 }

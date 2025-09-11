@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
+import { startTransition } from "react";
+import { useProgress } from "react-transition-progress";
 
 export default function FindSuitableProfilesForJobPost({
   job_post_id,
@@ -11,12 +13,9 @@ export default function FindSuitableProfilesForJobPost({
   job_post_id: string;
 }) {
   const router = useRouter();
+  const startProgress = useProgress();
 
   const handleAiSearch = async (value?: string) => {
-    const toastId = toast.loading(
-      `AI Smart Search is finding suitable ${"profile"}s according to your ${`Job Posting`}...`
-    );
-
     try {
       const params = new URLSearchParams();
       params.set("sortBy", "relevance");
@@ -24,13 +23,12 @@ export default function FindSuitableProfilesForJobPost({
         params.set("job_post", value);
       }
 
-      sessionStorage.setItem("ai-toast", toastId);
-
-      router.push(`/${"company/profile"}s?${params.toString()}`);
-    } catch {
-      toast.error("Some error occured with AI Smart Search, Please try again", {
-        id: toastId,
+      startTransition(() => {
+        startProgress();
+        router.push(`/${"company/profile"}s?${params.toString()}`);
       });
+    } catch {
+      toast.error("Some error occured with AI Smart Search, Please try again");
     }
   };
 

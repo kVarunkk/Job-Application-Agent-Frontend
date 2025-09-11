@@ -3,10 +3,10 @@
 import {
   Dispatch,
   SetStateAction,
-  startTransition,
   useCallback,
   useEffect,
   useState,
+  useTransition,
 } from "react";
 import {
   Select,
@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { PlusCircle, Search, Sparkle } from "lucide-react";
+import { Loader2, PlusCircle, Search, Sparkle } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -25,6 +25,7 @@ import { createClient } from "@/lib/supabase/client";
 import { IJobPost } from "./JobPostingsTable";
 import { SelectGroup } from "@radix-ui/react-select";
 import Link from "next/link";
+import { useProgress } from "react-transition-progress";
 
 export default function FindSuitableJobs({
   user,
@@ -42,6 +43,8 @@ export default function FindSuitableJobs({
   const router = useRouter();
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+  const startProgress = useProgress();
 
   const findCompanyUsersJobPostings = useCallback(async (): Promise<
     IJobPost[]
@@ -65,7 +68,7 @@ export default function FindSuitableJobs({
   }, [findCompanyUsersJobPostings]);
 
   const handleFindSuitableJobs = async () => {
-    const toastId = toast.loading("Finding suitable jobs..."); // Show loading toast
+    // const toastId = toast.loading("Finding suitable jobs..."); // Show loading toast
 
     try {
       if (!user) throw new Error("User not found");
@@ -79,14 +82,12 @@ export default function FindSuitableJobs({
       if (userInfoError && userInfoError.code !== "PGRST116") {
         // PGRST116 means no rows found
         console.error("Error fetching user info:", userInfoError);
-        toast.error("Failed to load your profile. Please try again.", {
-          id: toastId,
-        });
+        toast.error("Failed to load your profile. Please try again.");
         return;
       }
 
       if (!userInfo) {
-        toast.error("Please complete your profile first.", { id: toastId });
+        toast.error("Please complete your profile first.");
         router.push("/get-started"); // Redirect to onboarding
         return;
       }
@@ -125,29 +126,24 @@ export default function FindSuitableJobs({
       }
 
       startTransition(() => {
+        startProgress();
         router.push(`/jobs?${params.toString()}`);
-        toast.success("Filters applied based on your profile!", {
-          id: toastId,
-        });
+        // toast.success("Filters applied based on your profile!", {
+        //   id: toastId,
+        // });
       });
     } catch (error: unknown) {
       console.error("Error in handleFindSuitableJobs:", error);
       toast.error(
         `An unexpected error occurred: ${
           error instanceof Error ? error.message : "Please try again."
-        }`,
-        { id: toastId }
+        }`
+        // { id: toastId }
       );
     }
   };
 
   const handleAiSearch = async (value?: string) => {
-    const toastId = toast.loading(
-      `AI Smart Search is finding suitable ${
-        isProfilesPage ? "profile" : "job"
-      }s according to your ${isProfilesPage ? `Job Posting` : "profile"}...`
-    );
-
     try {
       const params = new URLSearchParams();
       params.set("sortBy", "relevance");
@@ -156,16 +152,15 @@ export default function FindSuitableJobs({
       }
       setPage(() => 1);
 
-      sessionStorage.setItem("ai-toast", toastId);
-
-      router.push(
-        `/${isProfilesPage ? "company/profile" : "job"}s?${params.toString()}`
-      );
+      startTransition(() => {
+        startProgress();
+        router.push(
+          `/${isProfilesPage ? "company/profile" : "job"}s?${params.toString()}`
+        );
+      });
     } catch (e) {
       console.log(e);
-      toast.error("Some error occured with AI Smart Search, Please try again", {
-        id: toastId,
-      });
+      toast.error("Some error occured with AI Smart Search, Please try again");
     }
   };
 
@@ -228,7 +223,11 @@ export default function FindSuitableJobs({
         setTimeout(() => setSuitableJobsSelectValue(""), 100);
       }}
     >
-      <SelectTrigger className="rounded-full bg-primary shadow-lg w-[180px]">
+      <SelectTrigger
+        disabled={isPending}
+        className="rounded-full bg-primary shadow-lg w-[180px]"
+      >
+        {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         <SelectValue
           placeholder={
             <p className="flex items-center gap-2 text-primary-foreground">

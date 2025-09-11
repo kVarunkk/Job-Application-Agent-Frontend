@@ -8,8 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useTransition } from "react";
 import { Loader2 } from "lucide-react";
+import { useProgress } from "react-transition-progress";
 
 export default function SortingComponent({
   isCompanyUser,
@@ -20,7 +21,8 @@ export default function SortingComponent({
   isProfilesPage: boolean;
   setPage: Dispatch<SetStateAction<number>>;
 }) {
-  const [loading, setLoading] = useState(false);
+  const startProgress = useProgress();
+  const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -32,7 +34,6 @@ export default function SortingComponent({
       : "";
 
   const handleSorting = async (value: string) => {
-    setLoading(true);
     const [column, order] = value.split("-");
     const params = new URLSearchParams(searchParams.toString());
     params.set("sortBy", column);
@@ -40,20 +41,24 @@ export default function SortingComponent({
 
     setPage(() => 1);
 
-    router.push(
-      `/${
-        isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
-      }?${params.toString()}`
-    );
+    startTransition(() => {
+      startProgress();
+
+      router.push(
+        `/${
+          isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
+        }?${params.toString()}`
+      );
+    });
   };
 
   return (
     <Select value={selectValue} onValueChange={(value) => handleSorting(value)}>
       <SelectTrigger
-        disabled={loading}
+        disabled={isPending}
         className="max-w-[120px] sm:max-w-full bg-input"
       >
-        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         <SelectValue placeholder="Sort By" />
       </SelectTrigger>
       <SelectContent>

@@ -21,6 +21,7 @@ export default function FilterComponentSheet({
   uniqueSkills,
   isCompanyUser,
   isProfilesPage = false,
+  onboardingComplete,
 }: {
   uniqueLocations: { location: string }[];
   uniqueCompanies: { company_name: string }[];
@@ -30,6 +31,7 @@ export default function FilterComponentSheet({
   uniqueSkills: { skill: string }[];
   isCompanyUser: boolean;
   isProfilesPage?: boolean;
+  onboardingComplete: boolean;
 }) {
   const [openSheet, setOpenSheet] = useState(false);
   const searchParams = useSearchParams();
@@ -61,7 +63,7 @@ export default function FilterComponentSheet({
             } Applied`
           : "Apply Filters"}
       </SheetTrigger>
-      <SheetContent side={"left"} className="overflow-y-auto">
+      <SheetContent side={"left"} className="h-full">
         <SheetHeader>
           <SheetTitle>
             {isCompanyUser ? "Profile" : "Job"} Search Filters
@@ -76,12 +78,14 @@ export default function FilterComponentSheet({
             uniqueSkills={uniqueSkills}
             isProfilesPage={isProfilesPage}
             setOpenSheet={setOpenSheet}
+            onboardingComplete={onboardingComplete}
           />
         ) : (
           <FilterComponent
             uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}
             setOpenSheet={setOpenSheet}
+            onboardingComplete={onboardingComplete}
           />
         )}
       </SheetContent>

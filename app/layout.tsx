@@ -4,7 +4,7 @@ import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "react-hot-toast";
-
+import { ProgressBar, ProgressBarProvider } from "react-transition-progress";
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
@@ -38,7 +38,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
-            {children}
+            <ProgressBarProvider>
+              <ProgressBar className="fixed h-1 rounded-r-md shadow-lg shadow-sky-500/20 bg-primary top-0" />
+              {children}
+            </ProgressBarProvider>
             <Toaster />
           </TooltipProvider>
         </ThemeProvider>

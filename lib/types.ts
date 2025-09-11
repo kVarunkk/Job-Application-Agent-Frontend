@@ -194,6 +194,7 @@ export interface ICompanyInfo {
   created_at: string;
   updated_at: string;
   ai_search_uses: number;
+  filled: boolean;
 }
 
 export interface ICountry {

@@ -52,12 +52,12 @@ const createFormSchema = (questions: string[]) => {
 
 export default function JobApplicationDialog({
   jobPost,
-  dialogStateCallback,
+  // dialogStateCallback,
   user,
   isAppliedJobsTabActive,
 }: {
   jobPost: IJob;
-  dialogStateCallback?: (state: boolean) => void;
+  // dialogStateCallback?: (state: boolean) => void;
   user: User | null;
   isAppliedJobsTabActive: boolean;
 }) {
@@ -191,9 +191,9 @@ export default function JobApplicationDialog({
       open={isDialogOpen}
       onOpenChange={(open) => {
         setIsDialogOpen(open);
-        if (dialogStateCallback) {
-          dialogStateCallback(open);
-        }
+        // if (dialogStateCallback) {
+        //   dialogStateCallback(open);
+        // }
       }}
     >
       {applicationStatus ? (
@@ -201,6 +201,7 @@ export default function JobApplicationDialog({
           <TooltipTrigger className="cursor-default" asChild>
             <div>
               <Button
+                onClick={(e) => e.stopPropagation()}
                 className="capitalize"
                 disabled={applicationStatus !== null}
               >
@@ -216,7 +217,11 @@ export default function JobApplicationDialog({
         </Tooltip>
       ) : (
         <DialogTrigger asChild>
-          <Button className="capitalize" disabled={applicationStatus !== null}>
+          <Button
+            onClick={(e) => e.stopPropagation()}
+            className="capitalize"
+            disabled={applicationStatus !== null}
+          >
             {applicationStatus ?? "Apply Now"}{" "}
             {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
           </Button>

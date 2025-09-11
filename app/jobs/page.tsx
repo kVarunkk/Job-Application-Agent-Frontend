@@ -6,6 +6,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NavbarParent, { INavItem } from "@/components/NavbarParent";
 import { v4 as uuidv4 } from "uuid";
+import { IJob } from "@/lib/types";
+import { headers } from "next/headers";
+import { Link } from "react-transition-progress/next";
 
 export default async function JobsPage({
   searchParams,
@@ -19,36 +22,130 @@ export default async function JobsPage({
   const isAISearch = searchParameters
     ? searchParameters["sortBy"] === "relevance"
     : false;
+  const activeTab =
+    searchParameters && searchParameters["tab"]
+      ? searchParameters["tab"]
+      : "all";
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   let isCompanyUser = false;
+  let onboardingComplete = false;
+  let ai_search_uses = 0;
   if (user) {
+    const { data: jobSeekerData } = await supabase
+      .from("user_info")
+      .select("ai_search_uses, filled")
+      .eq("user_id", user?.id)
+      .single();
     const { data: companyData } = await supabase
       .from("company_info")
-      .select("id")
+      .select("id, ai_search_uses, filled")
       .eq("user_id", user?.id)
       .single();
 
     if (companyData) {
       isCompanyUser = true;
     }
+
+    if (jobSeekerData) {
+      onboardingComplete = jobSeekerData.filled;
+      ai_search_uses = jobSeekerData.ai_search_uses;
+    }
   }
+
   // --- Data Fetching ---
+  const headersList = await headers();
+  const host = headersList.get("host");
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+  const url = `${protocol}://${host}`;
+
+  let initialJobs: IJob[] = [];
+  let totalCount: number = 0;
+  const params = new URLSearchParams(
+    searchParameters as Record<string, string>
+  );
+  try {
+    params.set("tab", activeTab);
+    const res = await fetch(`${url}/api/jobs?${params.toString()}`, {
+      cache: "no-store",
+      headers: {
+        Cookie: headersList.get("Cookie") || "",
+      },
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message);
+
+    // --- AI Re-ranking Logic ---
+
+    if (
+      params.get("sortBy") === "relevance" &&
+      user &&
+      result.data &&
+      result.data.length > 0 &&
+      ai_search_uses <= 3
+    ) {
+      try {
+        const aiRerankRes = await fetch(`${url}/api/ai-search/jobs`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: headersList.get("Cookie") || "",
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            jobs: result.data.map((job: IJob) => ({
+              id: job.id,
+              job_name: job.job_name,
+              description: job.description,
+              visa_requirement: job.visa_requirement,
+              salary_range: job.salary_range,
+              locations: job.locations,
+              experience: job.experience,
+            })),
+          }),
+        });
+
+        const aiRerankResult = await aiRerankRes.json();
+
+        if (aiRerankRes.ok && aiRerankResult.rerankedJobs) {
+          const rerankedIds = aiRerankResult.rerankedJobs;
+          const filteredOutIds = aiRerankResult.filteredOutJobs || [];
+          const jobMap = new Map(result.data.map((job: IJob) => [job.id, job]));
+          const reorderedJobs = rerankedIds
+            .map((id: string) => jobMap.get(id))
+            .filter(
+              (job: IJob) =>
+                job !== undefined && !filteredOutIds.includes(job.id)
+            );
+          initialJobs = reorderedJobs || [];
+          totalCount = reorderedJobs.length || 0;
+        }
+      } catch (e) {
+        throw e;
+      }
+    } else {
+      initialJobs = result.data || [];
+      totalCount = result.count || 0;
+    }
+  } catch (error) {
+    console.error("Failed to fetch jobs:", error);
+  }
 
   const [locationsResult, companiesResult] = await Promise.all([
     supabase.rpc("get_unique_locations"),
-    supabase.rpc("get_unique_companies"), // <-- Call the new function
+    supabase.rpc("get_unique_companies"),
   ]);
 
-  // Handle locations
   if (locationsResult.error) {
     console.error("Error fetching unique locations:", locationsResult.error);
   }
-  const uniqueLocations = locationsResult.data || [];
+  const uniqueLocations: {
+    location: string;
+  }[] = locationsResult.data || [];
 
-  // Handle companies
   if (companiesResult.error) {
     console.error("Error fetching unique companies:", companiesResult.error);
   }
@@ -104,12 +201,12 @@ export default async function JobsPage({
           <FilterComponent
             uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}
+            onboardingComplete={onboardingComplete}
           />
         </div>
         <div className="w-full md:w-2/3 ">
           <Suspense
             fallback={
-              // This fallback is shown while JobList fetches data
               <div className="flex flex-col gap-4">
                 <JobCardSkeleton />
                 <JobCardSkeleton />
@@ -118,33 +215,61 @@ export default async function JobsPage({
               </div>
             }
           >
-            <Tabs
-              defaultValue={
-                applicationStatusFilter ? "applied_jobs" : "all_jobs"
-              }
-              className=""
-            >
+            <Tabs value={activeTab}>
               {user && !isCompanyUser && !isAISearch && (
                 <TabsList>
                   {!applicationStatusFilter && (
-                    <TabsTrigger value="all_jobs">All Jobs</TabsTrigger>
+                    <TabsTrigger value="all" className="p-0">
+                      <Link
+                        className="py-1 px-2"
+                        href={`/jobs?${new URLSearchParams(
+                          Object.fromEntries(
+                            Object.entries(
+                              searchParameters as Record<string, string>
+                            ).filter(([key]) => key !== "tab")
+                          )
+                        ).toString()}`}
+                      >
+                        All Jobs
+                      </Link>
+                    </TabsTrigger>
                   )}
                   {!applicationStatusFilter && (
-                    <TabsTrigger value="saved_jobs">Saved Jobs</TabsTrigger>
+                    <TabsTrigger value="saved" className="p-0">
+                      <Link
+                        className="py-1 px-2"
+                        href={`/jobs?${new URLSearchParams({
+                          ...(searchParameters as Record<string, string>),
+                          tab: "saved",
+                        }).toString()}`}
+                      >
+                        Saved Jobs
+                      </Link>
+                    </TabsTrigger>
                   )}
-                  <TabsTrigger value="applied_jobs">Applied Jobs</TabsTrigger>
+                  <TabsTrigger value="applied" className="p-0">
+                    <Link
+                      className="py-1 px-2"
+                      href={`/jobs?${new URLSearchParams({
+                        ...(searchParameters as Record<string, string>),
+                        tab: "applied",
+                      }).toString()}`}
+                    >
+                      Applied Jobs
+                    </Link>
+                  </TabsTrigger>
                 </TabsList>
               )}
               {!applicationStatusFilter && (
-                <TabsContent value="all_jobs">
+                <TabsContent value="all">
                   <JobsList
                     isCompanyUser={isCompanyUser}
                     user={user}
-                    searchParams={searchParams}
-                    isFavoriteTabActive={false}
                     uniqueLocations={uniqueLocations}
                     uniqueCompanies={uniqueCompanies}
-                    isAllJobsTab={true}
+                    onboardingComplete={onboardingComplete}
+                    initialJobs={initialJobs}
+                    totalCount={totalCount}
                   />
                 </TabsContent>
               )}
@@ -152,27 +277,28 @@ export default async function JobsPage({
                 !isCompanyUser &&
                 !applicationStatusFilter &&
                 !isAISearch && (
-                  <TabsContent value="saved_jobs">
+                  <TabsContent value="saved">
                     <JobsList
                       isCompanyUser={isCompanyUser}
                       user={user}
-                      searchParams={searchParams}
-                      isFavoriteTabActive={true}
                       uniqueLocations={uniqueLocations}
                       uniqueCompanies={uniqueCompanies}
+                      onboardingComplete={onboardingComplete}
+                      initialJobs={initialJobs}
+                      totalCount={totalCount}
                     />
                   </TabsContent>
                 )}
               {user && !isCompanyUser && !isAISearch && (
-                <TabsContent value="applied_jobs">
+                <TabsContent value="applied">
                   <JobsList
                     isCompanyUser={isCompanyUser}
                     user={user}
-                    searchParams={searchParams}
-                    isFavoriteTabActive={false}
-                    isAppliedJobsTabActive={true}
                     uniqueLocations={uniqueLocations}
+                    onboardingComplete={onboardingComplete}
                     uniqueCompanies={uniqueCompanies}
+                    initialJobs={initialJobs}
+                    totalCount={totalCount}
                   />
                 </TabsContent>
               )}

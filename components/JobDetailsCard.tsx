@@ -4,9 +4,13 @@ import { useState } from "react";
 import { ArrowDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { IJobPosting } from "@/lib/types";
+import { IJob, IJobPosting } from "@/lib/types";
 
-export default function JobDescriptionCard({ job }: { job: IJobPosting }) {
+export default function JobDescriptionCard({
+  job,
+}: {
+  job: IJobPosting | IJob;
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleDescription = () => {
@@ -33,7 +37,7 @@ export default function JobDescriptionCard({ job }: { job: IJobPosting }) {
         >
           <button
             onClick={toggleDescription}
-            className="flex items-center justify-center gap-1 text-primary hover:underline font-semibold w-full"
+            className="flex items-center justify-center gap-1 text-primary hover:underline font-semibold w-full mb-5"
           >
             <ArrowDown className="h-4 w-4" />
             Show more

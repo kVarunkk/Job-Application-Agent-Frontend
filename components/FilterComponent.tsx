@@ -12,13 +12,12 @@ import {
   useCallback,
   useMemo,
 } from "react";
-import { Button } from "./ui/button";
-import AppLoader from "./AppLoader";
-
 import MultiKeywordSelect, { GenericFormData } from "./MultiKeywordSelect";
 import MultiKeywordSelectInput from "./MultiKeywordSelectInput";
 import InputFilter from "./InputFilterComponent";
 import { TApplicationStatus } from "@/lib/types";
+import { useProgress } from "react-transition-progress";
+import FilterActions from "./FilterActions";
 
 type FilterConfig = {
   name: keyof FiltersState;
@@ -27,6 +26,7 @@ type FilterConfig = {
   placeholder?: string;
   options?: { value: string; label: string }[]; // Options for multi-select (for availableItems prop)
   isVirtualized?: boolean;
+  hidden?: boolean;
 };
 
 // Define the type for the component's state
@@ -56,6 +56,7 @@ export default function FilterComponent({
   uniqueWorkStylePreferences,
   uniqueSkills,
   isProfilesPage = false,
+  onboardingComplete,
 }: {
   uniqueLocations: { location: string }[];
   uniqueCompanies?: { company_name: string }[];
@@ -65,11 +66,12 @@ export default function FilterComponent({
   uniqueWorkStylePreferences?: { work_style_preference: string }[];
   uniqueSkills?: { skill: string }[];
   isProfilesPage?: boolean;
+  onboardingComplete: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const startProgress = useProgress();
   const [isPending, startTransition] = useTransition();
-  // Define FILTER_CONFIG with 'multi-select' types for all relevant fields
   const FILTER_CONFIG: FilterConfig[] = useMemo(() => {
     return isProfilesPage
       ? [
@@ -246,6 +248,7 @@ export default function FilterComponent({
               value:
                 TApplicationStatus[each as keyof typeof TApplicationStatus],
             })),
+            hidden: !onboardingComplete,
           },
 
           {
@@ -269,12 +272,13 @@ export default function FilterComponent({
     uniqueWorkStylePreferences,
     uniqueSkills,
     isProfilesPage,
+    onboardingComplete,
   ]);
 
   const sortBy = searchParams.get("sortBy");
   const sortOrder = searchParams.get("sortOrder");
+  const tab = searchParams.get("tab");
 
-  // Initialize state from URL search params or default to empty arrays/strings
   const getInitialState = useCallback((): FiltersState => {
     const initialState: Partial<FiltersState> = {};
     FILTER_CONFIG.forEach((filter) => {
@@ -283,15 +287,13 @@ export default function FilterComponent({
         filter.type === "multi-select" ||
         filter.type === "multi-select-input"
       ) {
-        // For multi-select, parse comma-separated string into an array
         (initialState[filter.name] as string[]) = paramValue
           ? paramValue
               .split(",")
               .map((s) => s.trim())
               .filter(Boolean)
-          : []; // Default to empty array if no param or param is empty
+          : [];
       } else {
-        // For text/number, keep as string or default to empty string
         (initialState[filter.name] as string) = paramValue || "";
       }
     });
@@ -302,13 +304,10 @@ export default function FilterComponent({
 
   useEffect(() => {
     setFilters(getInitialState());
-  }, [getInitialState]); // Depend on searchParams to re-initialize state
+  }, [getInitialState]);
 
-  // A single handler for input changes (for type="text" or "number")
   const handleChange = useCallback(
-    (
-      e: ChangeEvent<HTMLInputElement> // Only for Input elements
-    ) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
       setFilters((prevFilters) => ({
         ...prevFilters,
@@ -318,7 +317,6 @@ export default function FilterComponent({
     [setFilters]
   );
 
-  // Handler for MultiKeywordInput changes (it will pass name and string[])
   const handleMultiKeywordSelectChange = useCallback(
     (name: keyof GenericFormData, keywords: string[]) => {
       setFilters((prevFilters) => ({
@@ -333,39 +331,40 @@ export default function FilterComponent({
     e.preventDefault();
     const params = new URLSearchParams();
 
-    // Iterate over the state object to build query params
     for (const [key, value] of Object.entries(filters)) {
       const filterConfig = FILTER_CONFIG.find((config) => config.name === key);
+
+      if (key === "applicationStatus" && value && value.length > 0)
+        params.set("tab", "applied");
 
       if (
         filterConfig?.type === "multi-select" ||
         filterConfig?.type === "multi-select-input"
       ) {
-        // For multi-selects, join the array with commas if not empty
         if (Array.isArray(value) && value.length > 0) {
           params.set(key, value.join(","));
         }
       } else {
-        // For text/number inputs, set if value is not empty
         if (value && value !== "") {
           params.set(key, value as string);
         }
       }
     }
 
-    // Always include sortBy and sortOrder if they exist in the URL
     if (sortBy) {
       params.set("sortBy", sortBy);
     }
     if (sortOrder) {
       params.set("sortOrder", sortOrder);
     }
-    // Reset page to 1 whenever filters are applied
-    // params.set("page", "1");
+    if (tab) {
+      params.set("tab", tab);
+    }
 
     if (setOpenSheet) setOpenSheet(false);
 
     startTransition(() => {
+      startProgress();
       router.push(
         `/${isProfilesPage ? "company/profiles" : "jobs"}?${params.toString()}`
       );
@@ -424,9 +423,12 @@ export default function FilterComponent({
   };
 
   return (
-    <div className="flex flex-col items-start py-4 ">
-      <form className="w-full" onSubmit={handleSubmit}>
-        {FILTER_CONFIG.map((config) => (
+    <form
+      className="flex flex-col h-full items-start py-4 "
+      onSubmit={handleSubmit}
+    >
+      <div className="w-full flex-1 md:flex-none overflow-y-auto md:overflow-hidden">
+        {FILTER_CONFIG.filter((each) => !each.hidden).map((config) => (
           <label
             key={config.name}
             htmlFor={String(config.name)}
@@ -436,34 +438,14 @@ export default function FilterComponent({
             {renderInput(config)}
           </label>
         ))}
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            className="underline"
-            onClick={() => {
-              // Clear all filters, but preserve sort if it exists
-              const params = new URLSearchParams();
-              if (sortBy) params.set("sortBy", sortBy);
-              if (sortOrder) params.set("sortOrder", sortOrder);
-              if (setOpenSheet) setOpenSheet(false);
-              startTransition(() => {
-                router.push(
-                  `/${
-                    isProfilesPage ? "company/profiles" : "jobs"
-                  }?${params.toString()}`
-                );
-              });
-            }}
-          >
-            Clear Filters
-          </button>
-
-          <Button type="submit" disabled={isPending}>
-            Apply Filters
-            {isPending && <AppLoader size="sm" color="secondary" />}
-          </Button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div className="w-full !pt-4">
+        <FilterActions
+          isProfilesPage={isProfilesPage}
+          setOpenSheet={setOpenSheet}
+          isApplyFiltersLoading={isPending}
+        />
+      </div>
+    </form>
   );
 }

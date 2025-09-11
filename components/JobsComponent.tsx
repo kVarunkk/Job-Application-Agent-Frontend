@@ -2,21 +2,26 @@
 
 import { IFormData, IJob } from "@/lib/types";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppLoader from "./AppLoader";
 import { User } from "@supabase/supabase-js";
 import JobItem from "./JobItem";
-
 import FindSuitableJobs from "./FindSuitableJobs";
 import FilterComponentSheet from "./FilterComponentSheet";
 import { Button } from "./ui/button";
 import { ArrowLeft } from "lucide-react";
 import ProfileItem from "./ProfileItem";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import toast from "react-hot-toast";
 import ScrollToTopButton from "./ScrollToTopButton";
 import SortingComponent from "./SortingComponent";
+import { useProgress } from "react-transition-progress";
 
 export default function JobsComponent({
   initialJobs,
@@ -51,7 +56,7 @@ export default function JobsComponent({
   isOnboardingComplete: boolean;
   isAllJobsTab: boolean;
   isAppliedJobsTabActive: boolean;
-  totalCount?: number;
+  totalCount: number;
 }) {
   const [jobs, setJobs] = useState<IJob[] | IFormData[]>(initialJobs ?? []);
   const [page, setPage] = useState(1);
@@ -59,25 +64,25 @@ export default function JobsComponent({
   const router = useRouter();
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
-  const [activeCardID, setActiveCardID] = useState<string>();
-
   const isSuitable = searchParams.get("sortBy") === "relevance";
-
+  const startProgress = useProgress();
   useEffect(() => {
     setJobs(initialJobs);
     setPage(1);
   }, [initialJobs]);
 
   const loadMoreJobs = useCallback(async () => {
-    // Prevent multiple simultaneous loads
-    if (isLoading || jobs.length >= totalJobs) return;
+    if (isLoading || jobs.length >= totalCount) return;
     setIsLoading(true);
 
     const nextPage = page + 1;
 
-    // Construct the query string from the current URL search params
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", nextPage.toString());
+    params.set(
+      "tab",
+      isAllJobsTab ? "all" : isAppliedJobsTabActive ? "applied" : "saved"
+    );
 
     try {
       const res = await fetch(
@@ -85,7 +90,6 @@ export default function JobsComponent({
           isProfilesPage && isCompanyUser ? "profiles" : "jobs"
         }?${params.toString()}`
       );
-      // const newJobs = await res.json();
       if (!res.ok) throw new Error("Some error occured");
 
       const result = await res.json();
@@ -109,33 +113,18 @@ export default function JobsComponent({
     searchParams,
     isCompanyUser,
     isProfilesPage,
+    isAllJobsTab,
   ]);
 
-  useEffect(() => {
-    const toastId = sessionStorage.getItem("ai-toast");
-
-    if (typeof window !== "undefined" && toastId) {
-      toast.success(
-        `Found suitable ${isProfilesPage ? "Profiles" : "Jobs"} for you`,
-        {
-          id: toastId,
-        }
-      );
-      sessionStorage.removeItem("ai-toast");
-    }
-  }, [isProfilesPage]);
-
-  // This effect sets up the IntersectionObserver
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const firstEntry = entries[0];
-        // If the loader is intersecting (visible) and we are not already loading
         if (firstEntry.isIntersecting && !isLoading) {
           loadMoreJobs();
         }
       },
-      { threshold: 1.0 } // Trigger when 100% of the loader is visible
+      { threshold: 1.0 }
     );
 
     const currentLoader = loaderRef.current;
@@ -143,7 +132,6 @@ export default function JobsComponent({
       observer.observe(currentLoader);
     }
 
-    // Cleanup function to disconnect the observer
     return () => {
       if (currentLoader) {
         observer.unobserve(currentLoader);
@@ -163,11 +151,14 @@ export default function JobsComponent({
       params.delete("job_post");
     }
 
-    router.push(
-      `/${
-        isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
-      }?${params.toString()}`
-    );
+    startTransition(() => {
+      startProgress();
+      router.push(
+        `/${
+          isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
+        }?${params.toString()}`
+      );
+    });
   };
 
   return (
@@ -190,7 +181,6 @@ export default function JobsComponent({
               {isProfilesPage && isCompanyUser ? "profiles" : "jobs"}
             </p>
           </div>
-
           <FilterComponentSheet
             uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies ?? []}
@@ -200,6 +190,7 @@ export default function JobsComponent({
             uniqueSkills={uniqueSkills ?? []}
             isCompanyUser={isCompanyUser}
             isProfilesPage={isProfilesPage}
+            onboardingComplete={isOnboardingComplete}
           />
 
           <div className="flex items-center gap-3">
@@ -266,10 +257,8 @@ export default function JobsComponent({
             <ProfileItem
               key={job.user_id}
               profile={job}
-              user={user}
               isSuitable={isSuitable}
-              activeCardID={activeCardID}
-              setActiveCardID={setActiveCardID}
+              companyId={companyId}
             />
           ))
         ) : (
@@ -280,8 +269,6 @@ export default function JobsComponent({
               job={job}
               user={user}
               isSuitable={isSuitable}
-              activeCardID={activeCardID}
-              setActiveCardID={setActiveCardID}
               isAppliedJobsTabActive={isAppliedJobsTabActive}
               isOnboardingComplete={isOnboardingComplete}
             />
@@ -300,8 +287,7 @@ export default function JobsComponent({
         </p>
       )}
 
-      {/* Loading Spinner and Trigger */}
-      {jobs.length < totalJobs && (
+      {jobs.length < totalCount && jobs.length !== 0 && (
         <div ref={loaderRef} className="flex justify-center items-center p-4">
           <AppLoader size="md" />
         </div>
