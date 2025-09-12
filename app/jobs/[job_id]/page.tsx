@@ -48,6 +48,7 @@ export async function generateMetadata({
       ],
     };
   } catch (err) {
+    console.error("Error generating metadata:", err);
     return {
       title: "Job Details",
       description: "Detailed view of the job posting.",
