@@ -5,14 +5,18 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "react-hot-toast";
 import { ProgressBar, ProgressBarProvider } from "react-transition-progress";
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(defaultUrl),
-  title: "GetHired",
-  description: "Your smartest path to the perfect job. ",
+  title: {
+    default: "GetHired - Your smartest path to the perfect job",
+    template: "%s | GetHired",
+  },
+  description: "Your smartest path to the perfect job.",
+  metadataBase: new URL("https://gethired.devhub.co.in"),
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 const geistSans = Geist({

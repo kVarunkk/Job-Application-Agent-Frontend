@@ -126,6 +126,7 @@ export default function MultiKeywordSelect({
               Row={Row}
               initialKeywords={initialKeywords}
               addKeyword={addKeyword}
+              removeKeyword={removeKeyword}
             />
           </PopoverContent>
         </Popover>
@@ -158,6 +159,7 @@ export default function MultiKeywordSelect({
                 Row={Row}
                 initialKeywords={initialKeywords}
                 addKeyword={addKeyword}
+                removeKeyword={removeKeyword}
               />
             </div>
           </DrawerContent>
@@ -199,12 +201,18 @@ const Row = React.memo(
       filteredAvailableItems: string[];
       initialKeywords: string[];
       addKeyword: (keyword: string) => void;
+      removeKeyword: (keyword: string) => void;
       onResize: (index: number, size: number) => void;
     };
   }): ReactElement => {
     Row.displayName = "Row";
-    const { filteredAvailableItems, initialKeywords, addKeyword, onResize } =
-      data;
+    const {
+      filteredAvailableItems,
+      initialKeywords,
+      addKeyword,
+      removeKeyword,
+      onResize,
+    } = data;
     const itemData = filteredAvailableItems[index];
     const rowRef = useRef<HTMLDivElement>(null);
 
@@ -224,7 +232,15 @@ const Row = React.memo(
           {/* Use a wrapper div with a ref for measurement */}
           <CommandItem
             value={itemData}
-            onSelect={() => addKeyword(itemData)}
+            onSelect={() => {
+              if (initialKeywords.includes(itemData)) {
+                // If selected, call the function to remove it
+                removeKeyword(itemData);
+              } else {
+                // If not selected, call the function to add it
+                addKeyword(itemData);
+              }
+            }}
             className="cursor-pointer"
           >
             <Check
@@ -249,6 +265,7 @@ function ItemsList({
   Row,
   initialKeywords,
   addKeyword,
+  removeKeyword,
 }: {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
@@ -266,12 +283,14 @@ function ItemsList({
         filteredAvailableItems: string[];
         initialKeywords: string[];
         addKeyword: (keyword: string) => void;
+        removeKeyword: (keyword: string) => void;
         onResize: (index: number, size: number) => void;
       };
     }) => ReactElement
   >;
   initialKeywords: string[];
   addKeyword: (keyword: string) => void;
+  removeKeyword: (keyword: string) => void;
 }) {
   const [rowHeights, setRowHeights] = useState<Record<string, number>>({});
   const listRef = useRef<VariableSizeList | null>(null);
@@ -301,11 +320,19 @@ function ItemsList({
           filteredAvailableItems,
           initialKeywords,
           addKeyword,
+          removeKeyword,
           onResize: handleResize,
         }}
       />
     ),
-    [filteredAvailableItems, initialKeywords, addKeyword, handleResize, Row]
+    [
+      filteredAvailableItems,
+      initialKeywords,
+      addKeyword,
+      removeKeyword,
+      handleResize,
+      Row,
+    ]
   );
 
   const getItemSize = useCallback(
@@ -347,7 +374,15 @@ function ItemsList({
                 <CommandItem
                   key={item}
                   value={item}
-                  onSelect={() => addKeyword(item)}
+                  onSelect={() => {
+                    if (initialKeywords.includes(item)) {
+                      // If selected, call the function to remove it
+                      removeKeyword(item);
+                    } else {
+                      // If not selected, call the function to add it
+                      addKeyword(item);
+                    }
+                  }}
                 >
                   <Check
                     className={cn(

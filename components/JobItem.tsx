@@ -171,7 +171,7 @@ function JobDetailBadges({
           <Badge
             variant={"secondary"}
             className={cn(
-              "text-xs sm:text-sm font-medium hover:!text-secondary-foreground group-hover:border-secondary-foreground "
+              "text-xs sm:text-sm font-medium hover:!text-secondary-foreground group-hover:border-secondary-foreground hover:underline"
             )}
           >
             {job.platform}
