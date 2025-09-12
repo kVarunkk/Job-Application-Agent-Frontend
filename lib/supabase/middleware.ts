@@ -47,6 +47,7 @@ export async function updateSession(request: NextRequest) {
     "/api/jobs/filters",
     "/privacy-policy",
     "/terms-of-service",
+    "/sitemap.xml",
   ];
 
   const authPaths = [
