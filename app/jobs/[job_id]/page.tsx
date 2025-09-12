@@ -10,6 +10,41 @@ import { Badge } from "@/components/ui/badge";
 import JobFavoriteBtn from "@/components/JobFavoriteBtn";
 import JobApplyBtn from "@/components/JobApplyBtn";
 import { allJobsSelectString } from "@/lib/filterQueryBuilder";
+import { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ job_id: string }>;
+}): Promise<Metadata> {
+  const supabase = await createClient();
+  const { job_id } = await params;
+  const selectString = `
+           ${allJobsSelectString},
+            user_favorites(*),
+            job_postings(*, company_info(*), applications(*)),
+            applications(*)
+        `;
+
+  const { data, error } = await supabase
+    .from("all_jobs")
+    .select(selectString)
+    .eq("id", job_id)
+    .single();
+
+  return {
+    title: data?.job_name,
+    description: `Apply for the ${data?.job_name} position at ${data?.company_name}.`,
+    keywords: [
+      data?.job_name,
+      data?.company_name,
+      data?.locations.join(", "),
+      "job",
+      "career",
+      "employment",
+    ],
+  };
+}
 
 export default async function JobPage({
   params,
