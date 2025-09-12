@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: "%s | GetHired",
   },
   description: "Your smartest path to the perfect job.",
-  metadataBase: new URL("https://www.gethired.com"),
+  metadataBase: new URL("https://gethired.devhub.co.in"),
   robots: {
     index: true,
     follow: true,
