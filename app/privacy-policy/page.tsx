@@ -31,6 +31,12 @@ export default async function PrivacyPolicyPage() {
     },
     {
       id: uuidv4(),
+      label: "Blog",
+      href: "/blog",
+      type: "includes",
+    },
+    {
+      id: uuidv4(),
       label: "Hire",
       href: "/auth/login?company=true",
       type: "includes",

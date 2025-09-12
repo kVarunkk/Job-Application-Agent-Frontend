@@ -48,6 +48,10 @@ export async function updateSession(request: NextRequest) {
     "/privacy-policy",
     "/terms-of-service",
     "/sitemap.xml",
+    "/blog",
+    "/robots.txt",
+    "/opengraph-image.jpg",
+    "/twitter-image.jpg",
   ];
 
   const authPaths = [
@@ -79,10 +83,18 @@ export async function updateSession(request: NextRequest) {
   const isJobPage =
     pathname.startsWith("/jobs/") && pathname.length > "/jobs/".length;
 
+  const isBlogPage =
+    pathname.startsWith("/blog/") && pathname.length > "/blog/".length;
+
   // --- 1. Handle Unauthenticated Users ---
   if (!user) {
     // If an unauthenticated user tries to access a protected page, redirect them to login.
-    if (!isAuthPath && !publicPaths.includes(pathname) && !isJobPage) {
+    if (
+      !isAuthPath &&
+      !publicPaths.includes(pathname) &&
+      !isJobPage &&
+      !isBlogPage
+    ) {
       const url = request.nextUrl.clone();
 
       url.searchParams.forEach((value, key) => {
@@ -154,7 +166,8 @@ export async function updateSession(request: NextRequest) {
       !isCompany &&
       !isApplicantOnboardingPath &&
       !publicPaths &&
-      !isJobPage
+      !isJobPage &&
+      !isBlogPage
     ) {
       const url = request.nextUrl.clone();
       url.pathname = "/get-started";

@@ -26,6 +26,14 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>
               <Link
+                href="/blog"
+                className="hover:underline  hover:opacity-100 transition-opacity"
+              >
+                Blog
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/privacy-policy"
                 className="hover:underline  hover:opacity-100 transition-opacity"
               >
