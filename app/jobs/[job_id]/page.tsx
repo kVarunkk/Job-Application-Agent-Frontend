@@ -17,33 +17,42 @@ export async function generateMetadata({
 }: {
   params: Promise<{ job_id: string }>;
 }): Promise<Metadata> {
-  const supabase = await createClient();
-  const { job_id } = await params;
-  const selectString = `
+  try {
+    const supabase = await createClient();
+    const { job_id } = await params;
+    const selectString = `
            ${allJobsSelectString},
             user_favorites(*),
             job_postings(*, company_info(*), applications(*)),
             applications(*)
         `;
 
-  const { data, error } = await supabase
-    .from("all_jobs")
-    .select(selectString)
-    .eq("id", job_id)
-    .single();
+    const { data, error } = await supabase
+      .from("all_jobs")
+      .select(selectString)
+      .eq("id", job_id)
+      .single();
 
-  return {
-    title: data?.job_name,
-    description: `Apply for the ${data?.job_name} position at ${data?.company_name}.`,
-    keywords: [
-      data?.job_name,
-      data?.company_name,
-      data?.locations.join(", "),
-      "job",
-      "career",
-      "employment",
-    ],
-  };
+    if (error) throw error;
+
+    return {
+      title: data?.job_name,
+      description: `Apply for the ${data?.job_name} position at ${data?.company_name}.`,
+      keywords: [
+        data?.job_name,
+        data?.company_name,
+        data?.locations.join(", "),
+        "job",
+        "career",
+        "employment",
+      ],
+    };
+  } catch (err) {
+    return {
+      title: "Job Details",
+      description: "Detailed view of the job posting.",
+    };
+  }
 }
 
 export default async function JobPage({
