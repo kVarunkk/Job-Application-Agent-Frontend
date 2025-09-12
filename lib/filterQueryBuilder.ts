@@ -1,5 +1,6 @@
 import { createClient } from "./supabase/server";
 export const allJobsSelectString = `id, created_at, updated_at, job_name, job_type, platform, locations, description, salary_range, visa_requirement, salary_min, salary_max, company_name, company_url, experience, experience_min, experience_max, equity_range, equity_min, equity_max, job_url, status`;
+const jobPostingsSelectString = `id, created_at, updated_at, company_id, title, description, job_type, salary_range, status, location, min_salary, max_salary, min_experience, max_experience, visa_sponsorship, min_equity, max_equity, experience, equity_range, salary_currency, questions, job_id`;
 
 export const buildQuery = async ({
   jobType,
@@ -69,7 +70,7 @@ export const buildQuery = async ({
       selectString = `
         ${allJobsSelectString},
         user_favorites!inner(user_id),
-        job_postings(*, company_info(*), applications(*)),
+        job_postings(${jobPostingsSelectString}, company_info(*), applications(*)),
         applications(*)
     `;
       query = supabase
@@ -99,7 +100,7 @@ export const buildQuery = async ({
       selectString = `
        ${allJobsSelectString},
         user_favorites(*),
-        job_postings(*, company_info(*), applications(*)),
+        job_postings(${jobPostingsSelectString}, company_info(*), applications(*)),
         applications(*)
     `;
       query = supabase
