@@ -140,6 +140,9 @@ function JobDetailBadges({
     case "remoteok":
       platform_url = "https://remoteok.com";
       break;
+    case "wellfound":
+      platform_url = "https://wellfound.com";
+      break;
     default:
       platform_url = "";
       break;
@@ -168,7 +171,7 @@ function JobDetailBadges({
           <Badge
             variant={"secondary"}
             className={cn(
-              "text-xs sm:text-sm font-medium hover:!text-secondary-foreground group-hover:border-secondary-foreground bg-primary text-primary-foreground"
+              "text-xs sm:text-sm font-medium hover:!text-secondary-foreground group-hover:border-secondary-foreground "
             )}
           >
             {job.platform}

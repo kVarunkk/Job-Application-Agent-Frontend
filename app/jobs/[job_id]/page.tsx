@@ -7,8 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Briefcase, DollarSign, MapPin } from "lucide-react";
 import JobDescriptionCard from "@/components/JobDetailsCard";
 import { Badge } from "@/components/ui/badge";
-import NavbarParent, { INavItem } from "@/components/NavbarParent";
-import { v4 as uuidv4 } from "uuid";
 import JobFavoriteBtn from "@/components/JobFavoriteBtn";
 import JobApplyBtn from "@/components/JobApplyBtn";
 import { allJobsSelectString } from "@/lib/filterQueryBuilder";
@@ -26,7 +24,6 @@ export default async function JobPage({
     } = await supabase.auth.getUser();
     let isCompanyUser = false;
     let onboardingComplete = false;
-    // let ai_search_uses = 0;
     if (user) {
       const { data: jobSeekerData } = await supabase
         .from("user_info")
@@ -45,7 +42,6 @@ export default async function JobPage({
 
       if (jobSeekerData) {
         onboardingComplete = jobSeekerData.filled;
-        // ai_search_uses = jobSeekerData.ai_search_uses;
       }
     }
     const selectString = `
@@ -68,51 +64,8 @@ export default async function JobPage({
       return <Error />;
     }
 
-    const navItems: INavItem[] = !isCompanyUser
-      ? [
-          {
-            id: uuidv4(),
-            label: "Home",
-            href: "/",
-            type: "equals",
-          },
-          {
-            id: uuidv4(),
-            label: "Find Jobs",
-            href: "/jobs",
-            type: "startswith",
-          },
-        ]
-      : [
-          {
-            id: uuidv4(),
-            label: "Home",
-            href: "/company",
-            type: "equals",
-          },
-          {
-            id: uuidv4(),
-            label: "Job Posts",
-            href: "/company/job-posts",
-            type: "equals",
-          },
-          {
-            id: uuidv4(),
-            label: "Applicants",
-            href: "/company/applicants",
-            type: "equals",
-          },
-          {
-            id: uuidv4(),
-            label: "Profiles",
-            href: "/company/profiles",
-            type: "equals",
-          },
-        ];
-
     return (
       <>
-        <NavbarParent navItems={navItems} />
         <div className="flex flex-col gap-8 w-full px-4 py-5 lg:px-20 xl:px-40 2xl:px-80">
           <div>
             <BackButton />
@@ -145,13 +98,6 @@ export default async function JobPage({
                 job={job}
                 isOnboardingComplete={onboardingComplete}
               />
-              {/* <JobStatusSwitch job={job} /> */}
-              {/* <CreateJobPostingDialog
-                      company_id={job.company_id}
-                      existingValues={existingValues}
-                    />
-                    <DeleteJobPosting job_posting_id={job.id} is_job_posting_page />
-                    <FindSuitableProfilesForJobPost job_post_id={job_id} /> */}
             </div>
           </div>
           {/* Details Section */}
@@ -210,20 +156,6 @@ export default async function JobPage({
                   </div>
                 </CardContent>
               </Card>
-
-              {/* <Card className="shadow-sm border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Applicants
-                </CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {job.applications?.length}
-                </div>
-              </CardContent>
-            </Card> */}
             </div>
           </div>
         </div>

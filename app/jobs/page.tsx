@@ -1,11 +1,7 @@
 import FilterComponent from "@/components/FilterComponent";
 import { createClient } from "@/lib/supabase/server";
-import { Suspense } from "react";
 import JobsList from "./JobsList";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import NavbarParent, { INavItem } from "@/components/NavbarParent";
-import { v4 as uuidv4 } from "uuid";
 import { IJob } from "@/lib/types";
 import { headers } from "next/headers";
 import { Link } from "react-transition-progress/next";
@@ -72,7 +68,8 @@ export default async function JobsPage({
   try {
     params.set("tab", activeTab);
     const res = await fetch(`${url}/api/jobs?${params.toString()}`, {
-      cache: "no-store",
+      cache: "force-cache",
+      next: { revalidate: 3600 },
       headers: {
         Cookie: headersList.get("Cookie") || "",
       },
@@ -151,51 +148,8 @@ export default async function JobsPage({
     console.error("Failed to fetch jobs:", error);
   }
 
-  const navItems: INavItem[] = !isCompanyUser
-    ? [
-        {
-          id: uuidv4(),
-          label: "Home",
-          href: "/",
-          type: "equals",
-        },
-        {
-          id: uuidv4(),
-          label: "Find Jobs",
-          href: "/jobs",
-          type: "startswith",
-        },
-      ]
-    : [
-        {
-          id: uuidv4(),
-          label: "Home",
-          href: "/company",
-          type: "equals",
-        },
-        {
-          id: uuidv4(),
-          label: "Job Posts",
-          href: "/company/job-posts",
-          type: "equals",
-        },
-        {
-          id: uuidv4(),
-          label: "Applicants",
-          href: "/company/applicants",
-          type: "equals",
-        },
-        {
-          id: uuidv4(),
-          label: "Profiles",
-          href: "/company/profiles",
-          type: "equals",
-        },
-      ];
-
   return (
     <div>
-      <NavbarParent navItems={navItems} />
       <div className="flex items-start px-4 lg:px-20 xl:px-40 2xl:px-80 py-5 h-full gap-5">
         <div className="hidden md:block w-1/3 px-2 h-screen overflow-y-auto sticky top-0 z-10">
           <FilterComponent
@@ -205,122 +159,96 @@ export default async function JobsPage({
           />
         </div>
         <div className="w-full md:w-2/3 ">
-          <Suspense
-            fallback={
-              <div className="flex flex-col gap-4">
-                <JobCardSkeleton />
-                <JobCardSkeleton />
-                <JobCardSkeleton />
-                <JobCardSkeleton />
-              </div>
-            }
-          >
-            <Tabs value={activeTab}>
-              {user && !isCompanyUser && !isAISearch && (
-                <TabsList>
-                  {!applicationStatusFilter && (
-                    <TabsTrigger value="all" className="p-0">
-                      <Link
-                        className="py-1 px-2"
-                        href={`/jobs?${new URLSearchParams(
-                          Object.fromEntries(
-                            Object.entries(
-                              searchParameters as Record<string, string>
-                            ).filter(([key]) => key !== "tab")
-                          )
-                        ).toString()}`}
-                      >
-                        All Jobs
-                      </Link>
-                    </TabsTrigger>
-                  )}
-                  {!applicationStatusFilter && (
-                    <TabsTrigger value="saved" className="p-0">
-                      <Link
-                        className="py-1 px-2"
-                        href={`/jobs?${new URLSearchParams({
-                          ...(searchParameters as Record<string, string>),
-                          tab: "saved",
-                        }).toString()}`}
-                      >
-                        Saved Jobs
-                      </Link>
-                    </TabsTrigger>
-                  )}
-                  <TabsTrigger value="applied" className="p-0">
+          <Tabs value={activeTab}>
+            {user && !isCompanyUser && !isAISearch && (
+              <TabsList>
+                {!applicationStatusFilter && (
+                  <TabsTrigger value="all" className="p-0">
+                    <Link
+                      className="py-1 px-2"
+                      href={`/jobs?${new URLSearchParams(
+                        Object.fromEntries(
+                          Object.entries(
+                            searchParameters as Record<string, string>
+                          ).filter(([key]) => key !== "tab")
+                        )
+                      ).toString()}`}
+                    >
+                      All Jobs
+                    </Link>
+                  </TabsTrigger>
+                )}
+                {!applicationStatusFilter && (
+                  <TabsTrigger value="saved" className="p-0">
                     <Link
                       className="py-1 px-2"
                       href={`/jobs?${new URLSearchParams({
                         ...(searchParameters as Record<string, string>),
-                        tab: "applied",
+                        tab: "saved",
                       }).toString()}`}
                     >
-                      Applied Jobs
+                      Saved Jobs
                     </Link>
                   </TabsTrigger>
-                </TabsList>
-              )}
-              {!applicationStatusFilter && (
-                <TabsContent value="all">
-                  <JobsList
-                    isCompanyUser={isCompanyUser}
-                    user={user}
-                    uniqueLocations={uniqueLocations}
-                    uniqueCompanies={uniqueCompanies}
-                    onboardingComplete={onboardingComplete}
-                    initialJobs={initialJobs}
-                    totalCount={totalCount}
-                  />
-                </TabsContent>
-              )}
-              {user &&
-                !isCompanyUser &&
-                !applicationStatusFilter &&
-                !isAISearch && (
-                  <TabsContent value="saved">
-                    <JobsList
-                      isCompanyUser={isCompanyUser}
-                      user={user}
-                      uniqueLocations={uniqueLocations}
-                      uniqueCompanies={uniqueCompanies}
-                      onboardingComplete={onboardingComplete}
-                      initialJobs={initialJobs}
-                      totalCount={totalCount}
-                    />
-                  </TabsContent>
                 )}
-              {user && !isCompanyUser && !isAISearch && (
-                <TabsContent value="applied">
+                <TabsTrigger value="applied" className="p-0">
+                  <Link
+                    className="py-1 px-2"
+                    href={`/jobs?${new URLSearchParams({
+                      ...(searchParameters as Record<string, string>),
+                      tab: "applied",
+                    }).toString()}`}
+                  >
+                    Applied Jobs
+                  </Link>
+                </TabsTrigger>
+              </TabsList>
+            )}
+            {!applicationStatusFilter && (
+              <TabsContent value="all">
+                <JobsList
+                  isCompanyUser={isCompanyUser}
+                  user={user}
+                  uniqueLocations={uniqueLocations}
+                  uniqueCompanies={uniqueCompanies}
+                  onboardingComplete={onboardingComplete}
+                  initialJobs={initialJobs}
+                  totalCount={totalCount}
+                />
+              </TabsContent>
+            )}
+            {user &&
+              !isCompanyUser &&
+              !applicationStatusFilter &&
+              !isAISearch && (
+                <TabsContent value="saved">
                   <JobsList
                     isCompanyUser={isCompanyUser}
                     user={user}
                     uniqueLocations={uniqueLocations}
-                    onboardingComplete={onboardingComplete}
                     uniqueCompanies={uniqueCompanies}
+                    onboardingComplete={onboardingComplete}
                     initialJobs={initialJobs}
                     totalCount={totalCount}
                   />
                 </TabsContent>
               )}
-            </Tabs>
-          </Suspense>
+            {user && !isCompanyUser && !isAISearch && (
+              <TabsContent value="applied">
+                <JobsList
+                  isCompanyUser={isCompanyUser}
+                  user={user}
+                  uniqueLocations={uniqueLocations}
+                  onboardingComplete={onboardingComplete}
+                  uniqueCompanies={uniqueCompanies}
+                  initialJobs={initialJobs}
+                  totalCount={totalCount}
+                />
+              </TabsContent>
+            )}
+          </Tabs>
         </div>
       </div>
     </div>
   );
 }
-
-const JobCardSkeleton = () => (
-  <div className="flex flex-col gap-3 p-4 rounded-lg border bg-secondary/50">
-    <div className="flex items-center justify-between gap-4">
-      <div className="flex flex-col gap-3 w-full">
-        <Skeleton className="h-6 w-3/4 rounded-full" />
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-5 w-20 rounded-full" />
-          <Skeleton className="h-5 w-24 rounded-full" />
-        </div>
-      </div>
-      <Skeleton className="h-10 w-24 rounded-full" />
-    </div>
-  </div>
-);
