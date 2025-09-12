@@ -22,6 +22,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import ScrollToTopButton from "./ScrollToTopButton";
 import SortingComponent from "./SortingComponent";
 import { useProgress } from "react-transition-progress";
+import { Link as ModifiedLink } from "react-transition-progress/next";
 
 export default function JobsComponent({
   initialJobs,
@@ -278,12 +279,12 @@ export default function JobsComponent({
         <p className="text-muted-foreground mt-20 mx-auto text-center">
           No {isCompanyUser ? "profiles" : "jobs"} found for the selected
           Filter. <br />
-          <Link
+          <ModifiedLink
             href={isCompanyUser ? "/company/profiles" : "/jobs"}
             className="underline"
           >
             Clear Filters
-          </Link>
+          </ModifiedLink>
         </p>
       )}
 
