@@ -68,7 +68,7 @@ export default async function JobsLayout({
         ];
 
     return (
-      <div className="h-screen w-screen">
+      <div className="h-screen ">
         <NavbarParent navItems={navItems} />
         {children}
       </div>
