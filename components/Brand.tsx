@@ -58,15 +58,21 @@ export default function Brand({ type }: BrandProps) {
 
   if (type) {
     return (
-      <Image
-        src={src}
-        alt={`${type} brand logo (${currentTheme} mode)`}
-        // You'll need to define appropriate width and height for your logos
-        // These are example values, adjust them based on your image dimensions
-        width={type === "long" ? 150 : 50} // Example: 200px for long, 50px for short
-        height={type === "long" ? 100 : 50} // Example: 50px for both
-        priority // Consider using priority for logos that are above the fold
-      />
+      <div
+        className={
+          type === "long"
+            ? "relative w-[100px] sm:w-[150px] h-[30px] sm:h-[40px] md:h-[50px]"
+            : "relative w-[32px] sm:w-[40px] md:w-[50px] h-[32px] sm:h-[40px] md:h-[50px]"
+        }
+      >
+        <Image
+          src={src}
+          alt={`${type} brand logo (${currentTheme} mode)`}
+          fill
+          style={{ objectFit: "contain" }}
+          priority
+        />
+      </div>
     );
   } else return null;
 }
