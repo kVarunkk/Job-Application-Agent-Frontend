@@ -1,10 +1,10 @@
 import FilterComponent from "@/components/FilterComponent";
 import { createClient } from "@/lib/supabase/server";
 import JobsList from "./JobsList";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
 import { IJob } from "@/lib/types";
 import { headers } from "next/headers";
-import { Link } from "react-transition-progress/next";
+import { ClientTabs } from "@/components/ClientTabs";
 
 export default async function JobsPage({
   searchParams,
@@ -151,7 +151,7 @@ export default async function JobsPage({
   return (
     <div>
       <div className="flex items-start px-4 lg:px-20 xl:px-40 2xl:px-80 py-5 h-full gap-5">
-        <div className="hidden md:block w-1/3 px-2 h-screen overflow-y-auto sticky top-0 z-10">
+        <div className="hidden md:block w-1/3 px-2  overflow-y-auto sticky top-0 z-10">
           <FilterComponent
             uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}
@@ -159,51 +159,12 @@ export default async function JobsPage({
           />
         </div>
         <div className="w-full md:w-2/3 ">
-          <Tabs value={activeTab}>
-            {user && !isCompanyUser && !isAISearch && (
-              <TabsList>
-                {!applicationStatusFilter && (
-                  <TabsTrigger value="all" className="p-0">
-                    <Link
-                      className="py-1 px-2"
-                      href={`/jobs?${new URLSearchParams(
-                        Object.fromEntries(
-                          Object.entries(
-                            searchParameters as Record<string, string>
-                          ).filter(([key]) => key !== "tab")
-                        )
-                      ).toString()}`}
-                    >
-                      All Jobs
-                    </Link>
-                  </TabsTrigger>
-                )}
-                {!applicationStatusFilter && (
-                  <TabsTrigger value="saved" className="p-0">
-                    <Link
-                      className="py-1 px-2"
-                      href={`/jobs?${new URLSearchParams({
-                        ...(searchParameters as Record<string, string>),
-                        tab: "saved",
-                      }).toString()}`}
-                    >
-                      Saved Jobs
-                    </Link>
-                  </TabsTrigger>
-                )}
-                <TabsTrigger value="applied" className="p-0">
-                  <Link
-                    className="py-1 px-2"
-                    href={`/jobs?${new URLSearchParams({
-                      ...(searchParameters as Record<string, string>),
-                      tab: "applied",
-                    }).toString()}`}
-                  >
-                    Applied Jobs
-                  </Link>
-                </TabsTrigger>
-              </TabsList>
-            )}
+          <ClientTabs
+            user={user}
+            isCompanyUser={isCompanyUser}
+            isAISearch={isAISearch}
+            applicationStatusFilter={applicationStatusFilter}
+          >
             {!applicationStatusFilter && (
               <TabsContent value="all">
                 <JobsList
@@ -246,7 +207,7 @@ export default async function JobsPage({
                 />
               </TabsContent>
             )}
-          </Tabs>
+          </ClientTabs>
         </div>
       </div>
     </div>

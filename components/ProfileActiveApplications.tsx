@@ -12,7 +12,7 @@ export default function ProfileActiveApplication({
   app: IApplication;
 }) {
   return (
-    <div className=" w-full  rounded-lg flex items-center justify-between">
+    <div className=" w-full  rounded-lg flex items-center justify-between hover:bg-secondary transition py-2 px-3">
       <div className="flex flex-col gap-1">
         <p className=" text-sm">
           Applied for:{" "}
@@ -27,7 +27,7 @@ export default function ProfileActiveApplication({
         <ApplicationStatusBadge status={app.status} />
       </div>
       <Link href={`/company/applicants/${app.id}`}>
-        <Button variant={"outline"}>View Application</Button>
+        <Button>View Application</Button>
       </Link>
     </div>
   );

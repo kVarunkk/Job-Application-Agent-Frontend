@@ -8,6 +8,8 @@ import { IApplication, IFormData } from "@/lib/types";
 import ProfileFavoriteStar from "@/components/ProfileFavoriteStar";
 import { buildSalaryRange } from "../../applicants/[applicant_id]/page";
 import ProfileActiveApplication from "@/components/ProfileActiveApplications";
+import SelectProfile from "@/components/SelectProfile";
+import { FileUser } from "lucide-react";
 
 export default async function ProfilePage({
   params,
@@ -28,7 +30,7 @@ export default async function ProfilePage({
     // Fetch the company ID of the logged-in user
     const { data: companyData, error: companyError } = await supabase
       .from("company_info")
-      .select("*")
+      .select("*, job_postings(id, title, job_id)")
       .eq("user_id", user.id)
       .single();
 
@@ -100,11 +102,22 @@ export default async function ProfilePage({
             </div>
             <p className="text-muted-foreground">{applicantProfile.email}</p>
           </div>
-          {signedUrl && (
-            <a href={signedUrl} target="_blank" rel="noopener noreferrer">
-              <Button className="w-full">View Resume</Button>
-            </a>
-          )}
+          <div className="flex items-center gap-5">
+            <SelectProfile
+              userApplications={applicantProfile.applications}
+              jobPostings={companyData.job_postings}
+              applicantUserId={applicantProfile.user_id}
+            />
+
+            {signedUrl && (
+              <a href={signedUrl} target="_blank" rel="noopener noreferrer">
+                <Button className="w-full">
+                  <FileUser className="mr-1 h-4 w-4" />
+                  View Resume
+                </Button>
+              </a>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

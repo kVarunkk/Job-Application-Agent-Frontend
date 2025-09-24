@@ -10,7 +10,7 @@ import React, {
   useEffect,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { X, Check, ChevronsUpDown } from "lucide-react";
+import { X, Check, ChevronsUpDown, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VariableSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
@@ -32,6 +32,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
+import { Badge } from "./ui/badge";
+import PopoverInfo from "./PopoverInfo";
 
 export interface GenericFormData {
   [key: string]: string | number | string[];
@@ -104,53 +106,62 @@ export default function MultiKeywordSelect({
       {isDesktop ? (
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className={cn(
-                "w-full justify-between bg-input text-muted-foreground",
-                !showKeywords && "rounded-l-none shadow-none"
-              )}
-            >
-              <span className="truncate">{placeholder}</span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
+            {name === "profile" ? (
+              <Button
+                role="combobox"
+                aria-expanded={open}
+                className="rounded-full bg-primary shadow-lg relative"
+              >
+                <Badge className="absolute -top-2 -right-2 rounded-full bg-red-600 text-white">
+                  {initialKeywords.length}
+                </Badge>
+                <User />
+                <span className="truncate">{placeholder}</span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />{" "}
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className={cn(
+                  "w-full justify-between bg-input text-muted-foreground",
+                  !showKeywords && "rounded-l-none shadow-none"
+                )}
+              >
+                <span className="truncate">{placeholder}</span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            )}
           </PopoverTrigger>
-          <PopoverContent className="p-0 " style={{ pointerEvents: "auto" }}>
-            <ItemsList
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              isVirtualized={isVirtualized}
-              filteredAvailableItems={filteredAvailableItems}
-              Row={Row}
-              initialKeywords={initialKeywords}
-              addKeyword={addKeyword}
-              removeKeyword={removeKeyword}
-            />
-          </PopoverContent>
-        </Popover>
-      ) : (
-        <Drawer open={open} onOpenChange={setOpen}>
-          <DrawerTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className={cn(
-                "w-full justify-between bg-input text-muted-foreground",
-                !showKeywords && "rounded-l-none shadow-none"
-              )}
+          {name === "profile" ? (
+            <PopoverContent
+              className="p-0 relative"
+              style={{ pointerEvents: "auto" }}
             >
-              <span className="truncate">{placeholder}</span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle></DrawerTitle>
-            </DrawerHeader>
-            <div className=" border-t">
+              <div
+                className="max-h-[300px] overflow-y-auto"
+                style={{
+                  maskImage:
+                    "linear-gradient(to bottom, black 50%, transparent 100%)",
+                }}
+              >
+                <ItemsList
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  isVirtualized={isVirtualized}
+                  filteredAvailableItems={filteredAvailableItems}
+                  Row={Row}
+                  initialKeywords={initialKeywords}
+                  addKeyword={addKeyword}
+                  removeKeyword={removeKeyword}
+                  name={name}
+                />
+              </div>
+              <PopoverInfo />
+            </PopoverContent>
+          ) : (
+            <PopoverContent className="p-0 " style={{ pointerEvents: "auto" }}>
               <ItemsList
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
@@ -160,9 +171,84 @@ export default function MultiKeywordSelect({
                 initialKeywords={initialKeywords}
                 addKeyword={addKeyword}
                 removeKeyword={removeKeyword}
+                name={name}
               />
-            </div>
-          </DrawerContent>
+            </PopoverContent>
+          )}
+        </Popover>
+      ) : (
+        <Drawer open={open} onOpenChange={setOpen}>
+          <DrawerTrigger asChild>
+            {name === "profile" ? (
+              <Button
+                role="combobox"
+                aria-expanded={open}
+                className="rounded-full bg-primary shadow-lg"
+              >
+                <span className="truncate">{placeholder}</span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className={cn(
+                  "w-full justify-between bg-input text-muted-foreground",
+                  !showKeywords && "rounded-l-none shadow-none"
+                )}
+              >
+                <span className="truncate">{placeholder}</span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            )}
+          </DrawerTrigger>
+          {name !== "profile" ? (
+            <DrawerContent className="p-0 ">
+              <DrawerHeader>
+                <DrawerTitle></DrawerTitle>
+              </DrawerHeader>
+              <div
+                className=" border-t"
+                style={{
+                  maskImage:
+                    "linear-gradient(to bottom, black 50%, transparent 100%)",
+                }}
+              >
+                <ItemsList
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  isVirtualized={isVirtualized}
+                  filteredAvailableItems={filteredAvailableItems}
+                  Row={Row}
+                  initialKeywords={initialKeywords}
+                  addKeyword={addKeyword}
+                  removeKeyword={removeKeyword}
+                  name={name}
+                />
+              </div>
+              <PopoverInfo />
+            </DrawerContent>
+          ) : (
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle></DrawerTitle>
+              </DrawerHeader>
+              <div className=" border-t">
+                <ItemsList
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  isVirtualized={isVirtualized}
+                  filteredAvailableItems={filteredAvailableItems}
+                  Row={Row}
+                  initialKeywords={initialKeywords}
+                  addKeyword={addKeyword}
+                  removeKeyword={removeKeyword}
+                  name={name}
+                />
+              </div>
+            </DrawerContent>
+          )}
         </Drawer>
       )}
 
@@ -194,6 +280,7 @@ const Row = React.memo(
     index,
     style,
     data,
+    name,
   }: {
     index: number;
     style: CSSProperties;
@@ -204,6 +291,7 @@ const Row = React.memo(
       removeKeyword: (keyword: string) => void;
       onResize: (index: number, size: number) => void;
     };
+    name: keyof GenericFormData;
   }): ReactElement => {
     Row.displayName = "Row";
     const {
@@ -215,6 +303,8 @@ const Row = React.memo(
     } = data;
     const itemData = filteredAvailableItems[index];
     const rowRef = useRef<HTMLDivElement>(null);
+
+    const checked = initialKeywords.includes(itemData);
 
     // useEffect hook to measure the height after render
     useEffect(() => {
@@ -233,7 +323,7 @@ const Row = React.memo(
           <CommandItem
             value={itemData}
             onSelect={() => {
-              if (initialKeywords.includes(itemData)) {
+              if (checked) {
                 // If selected, call the function to remove it
                 removeKeyword(itemData);
               } else {
@@ -241,12 +331,13 @@ const Row = React.memo(
                 addKeyword(itemData);
               }
             }}
+            disabled={checked && name === "profile"}
             className="cursor-pointer"
           >
             <Check
               className={cn(
                 "mr-2 h-4 w-4",
-                initialKeywords.includes(itemData) ? "opacity-100" : "opacity-0"
+                checked ? "opacity-100" : "opacity-0"
               )}
             />
             {itemData}
@@ -266,6 +357,7 @@ function ItemsList({
   initialKeywords,
   addKeyword,
   removeKeyword,
+  name,
 }: {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
@@ -286,11 +378,13 @@ function ItemsList({
         removeKeyword: (keyword: string) => void;
         onResize: (index: number, size: number) => void;
       };
+      name: keyof GenericFormData;
     }) => ReactElement
   >;
   initialKeywords: string[];
   addKeyword: (keyword: string) => void;
   removeKeyword: (keyword: string) => void;
+  name: keyof GenericFormData;
 }) {
   const [rowHeights, setRowHeights] = useState<Record<string, number>>({});
   const listRef = useRef<VariableSizeList | null>(null);
@@ -316,6 +410,7 @@ function ItemsList({
       <Row
         index={index}
         style={style}
+        name={name}
         data={{
           filteredAvailableItems,
           initialKeywords,
@@ -350,7 +445,9 @@ function ItemsList({
         onValueChange={setSearchTerm}
       />
       <CommandList>
-        <CommandEmpty>No items available</CommandEmpty>
+        <CommandEmpty className={`${name === "profile" && "mb-10"}`}>
+          No items available
+        </CommandEmpty>
         <CommandGroup>
           {isVirtualized
             ? filteredAvailableItems.length > 0 && (
@@ -374,6 +471,9 @@ function ItemsList({
                 <CommandItem
                   key={item}
                   value={item}
+                  disabled={
+                    initialKeywords.includes(item) && name === "profile"
+                  }
                   onSelect={() => {
                     if (initialKeywords.includes(item)) {
                       // If selected, call the function to remove it
