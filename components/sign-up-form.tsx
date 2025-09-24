@@ -14,13 +14,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import InfoTooltip from "./InfoTooltip";
+import { useProgress } from "react-transition-progress";
 
 const isGenericEmail = (email: string) => {
   const genericDomains = [
@@ -69,6 +70,7 @@ export function SignUpForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const isCompany = searchParams.get("company") === "true";
+  const startProgress = useProgress();
 
   const form = useForm({
     resolver: zodResolver(signUpSchema(isCompany)),
@@ -105,10 +107,14 @@ export function SignUpForm({
           user_id: data.user?.id,
         });
       if (InfoError) throw InfoError;
-      router.push("/auth/sign-up-success");
+      form.reset();
+
+      startTransition(() => {
+        startProgress();
+
+        router.push("/auth/sign-up-success");
+      });
     } catch (error) {
-      // The error is handled by react-hook-form's FormMessage, but we can set a general error here if needed.
-      console.error(error);
       form.setError("root", {
         message: error instanceof Error ? error.message : "An error occurred",
       });

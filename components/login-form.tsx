@@ -14,12 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
+import { useProgress } from "react-transition-progress";
 
 // Helper function to check if an email is a generic public domain
 const isGenericEmail = (email: string) => {
@@ -64,6 +65,7 @@ export function LoginForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const isCompany = searchParams.get("company") === "true";
+  const startProgress = useProgress();
 
   const form = useForm({
     resolver: zodResolver(loginSchema(isCompany)),
@@ -83,13 +85,16 @@ export function LoginForm({
         password: values.password,
       });
       if (error) throw error;
-      if (isCompany) {
-        router.push("/company");
-      } else {
-        router.push("/jobs");
-      }
+      form.reset();
+      startTransition(() => {
+        startProgress();
+        if (isCompany) {
+          router.push("/company");
+        } else {
+          router.push("/jobs");
+        }
+      });
     } catch (error) {
-      console.error(error);
       form.setError("root", {
         message: error instanceof Error ? error.message : "An error occurred",
       });

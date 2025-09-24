@@ -127,7 +127,7 @@ export function HowWeHelp() {
           href: "/",
           cta: "Learn more",
           background: (
-            <div className="relative flex flex-col items-center justify-center overflow-hidden h-[250px] sm:h-[350px] w-full opacity-80 scale-125">
+            <div className="relative flex flex-col items-center justify-center overflow-hidden h-[250px] lg:h-[350px] w-full opacity-80 scale-125">
               {/* Layer 1: Slower, larger orbit, maybe less saturated logos */}
 
               {/* Layer 2: Main orbit, standard size and speed */}
@@ -215,7 +215,7 @@ export function HowWeHelp() {
               }
               width={400}
               height={400}
-              className="absolute -right-0 -top-60 opacity-30"
+              className="absolute -right-0 -top-60 opacity-30 h-[450px] w-[400px] sm:h-auto sm:w-auto"
             />
           ),
           className: "lg:col-start-1 lg:col-end-3 lg:row-start-3 lg:row-end-4",

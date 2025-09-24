@@ -34,6 +34,9 @@ export default function Hero() {
         <Link href={"/jobs"}>
           <Button>Get Hired!</Button>
         </Link>
+        <Link href={"/auth/login?company=true"}>
+          <Button variant={"secondary"}>Hire Talent</Button>
+        </Link>
       </div>
 
       {mounted && (
