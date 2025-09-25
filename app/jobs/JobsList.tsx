@@ -23,7 +23,8 @@ export default function JobsList({
   initialJobs: IJob[];
   totalCount: number;
 }) {
-  const [dataState, setData] = useState<IJob[]>(initialJobs);
+  const [dataState, setData] = useState<IJob[]>([]);
+  const [loading, setLoading] = useState(true);
   const [countState, setCount] = useState<number>(0);
   const searchParameters = useSearchParams();
 
@@ -31,21 +32,25 @@ export default function JobsList({
     (async () => {
       setCount(initialJobs.length);
       setData(initialJobs);
+      setLoading(false);
     })();
   }, [initialJobs]);
 
-  return (
-    <JobsComponent
-      initialJobs={dataState || []}
-      totalJobs={countState || 0}
-      user={user}
-      uniqueLocations={uniqueLocations}
-      uniqueCompanies={uniqueCompanies}
-      isCompanyUser={isCompanyUser}
-      isOnboardingComplete={onboardingComplete}
-      isAllJobsTab={!searchParameters.get("tab")}
-      isAppliedJobsTabActive={searchParameters.get("tab") === "applied"}
-      totalCount={totalCount}
-    />
-  );
+  if (loading) {
+    return <div>Loading...</div>;
+  } else
+    return (
+      <JobsComponent
+        initialJobs={dataState || []}
+        totalJobs={countState || 0}
+        user={user}
+        uniqueLocations={uniqueLocations}
+        uniqueCompanies={uniqueCompanies}
+        isCompanyUser={isCompanyUser}
+        isOnboardingComplete={onboardingComplete}
+        isAllJobsTab={!searchParameters.get("tab")}
+        isAppliedJobsTabActive={searchParameters.get("tab") === "applied"}
+        totalCount={totalCount}
+      />
+    );
 }
