@@ -28,12 +28,12 @@ import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
 import { Badge } from "./ui/badge";
-import PopoverInfo from "./PopoverInfo";
 
 export interface GenericFormData {
   [key: string]: string | number | string[];
@@ -86,7 +86,6 @@ export default function MultiKeywordSelect({
       }
       onChange(name, [...initialKeywords, trimmed]);
       setSearchTerm("");
-      // setOpen(false);
     },
     [name, onChange, initialKeywords]
   );
@@ -158,7 +157,6 @@ export default function MultiKeywordSelect({
                   name={name}
                 />
               </div>
-              <PopoverInfo />
             </PopoverContent>
           ) : (
             <PopoverContent className="p-0 " style={{ pointerEvents: "auto" }}>
@@ -207,14 +205,11 @@ export default function MultiKeywordSelect({
             <DrawerContent className="p-0 ">
               <DrawerHeader>
                 <DrawerTitle></DrawerTitle>
+                <DrawerDescription>
+                  {initialKeywords.length} items selected
+                </DrawerDescription>
               </DrawerHeader>
-              <div
-                className=" border-t"
-                style={{
-                  maskImage:
-                    "linear-gradient(to bottom, black 50%, transparent 100%)",
-                }}
-              >
+              <div className=" border-t">
                 <ItemsList
                   searchTerm={searchTerm}
                   setSearchTerm={setSearchTerm}
@@ -227,12 +222,14 @@ export default function MultiKeywordSelect({
                   name={name}
                 />
               </div>
-              <PopoverInfo />
             </DrawerContent>
           ) : (
             <DrawerContent>
               <DrawerHeader>
                 <DrawerTitle></DrawerTitle>
+                <DrawerDescription>
+                  {initialKeywords.length} items selected
+                </DrawerDescription>
               </DrawerHeader>
               <div className=" border-t">
                 <ItemsList
@@ -306,28 +303,22 @@ const Row = React.memo(
 
     const checked = initialKeywords.includes(itemData);
 
-    // useEffect hook to measure the height after render
     useEffect(() => {
       if (rowRef.current) {
-        // Use scrollHeight to get the full height of the content, including padding
         const height = rowRef.current.scrollHeight;
-        // Report the measured height back to the parent list
         onResize(index, height);
       }
-    }, [index, onResize, itemData]); // Re-run effect if item content or index changes
+    }, [index, onResize, itemData]);
 
     return (
       <div style={style}>
         <div ref={rowRef} className="py-2">
-          {/* Use a wrapper div with a ref for measurement */}
           <CommandItem
             value={itemData}
             onSelect={() => {
               if (checked) {
-                // If selected, call the function to remove it
                 removeKeyword(itemData);
               } else {
-                // If not selected, call the function to add it
                 addKeyword(itemData);
               }
             }}
@@ -391,11 +382,8 @@ function ItemsList({
 
   const handleResize = useCallback(
     (index: number, size: number) => {
-      // This function would be called by your custom row component
-      // after it has measured its own height.
       if (rowHeights[index] !== size) {
         setRowHeights((prev) => ({ ...prev, [index]: size }));
-        // This forces the list to re-render with the new size.
         if (listRef.current) {
           listRef.current.resetAfterIndex(index);
         }
@@ -404,7 +392,6 @@ function ItemsList({
     [rowHeights]
   );
 
-  // Pass this function to your Row component so it can report its height back
   const RowWithDynamicHeight = useCallback(
     ({ index, style }: { index: number; style: CSSProperties }) => (
       <Row
@@ -445,7 +432,11 @@ function ItemsList({
         onValueChange={setSearchTerm}
       />
       <CommandList>
-        <CommandEmpty className={`${name === "profile" && "mb-10"}`}>
+        <CommandEmpty
+          className={`${
+            name === "profile" && "py-10"
+          } text-secondary-foreground text-center py-5`}
+        >
           No items available
         </CommandEmpty>
         <CommandGroup>
@@ -476,10 +467,8 @@ function ItemsList({
                   }
                   onSelect={() => {
                     if (initialKeywords.includes(item)) {
-                      // If selected, call the function to remove it
                       removeKeyword(item);
                     } else {
-                      // If not selected, call the function to add it
                       addKeyword(item);
                     }
                   }}
