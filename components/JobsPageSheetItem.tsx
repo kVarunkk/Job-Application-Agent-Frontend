@@ -116,8 +116,8 @@ export default function JobsPageSheetItem({
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="max-w-[200px] truncate text-start">
-                  {dialogView === "edit" ? "Edit" : "Delete"} `&quot;{item.name}
-                  `&quot;
+                  {dialogView === "edit" ? "Edit" : "Delete"} &quot;{item.name}
+                  &quot;
                 </DialogTitle>
                 {dialogView === "delete" && (
                   <DialogDescription className="text-start">
@@ -137,6 +137,7 @@ export default function JobsPageSheetItem({
                       name="name"
                       defaultValue={item.name}
                       className="bg-input text-sm"
+                      required
                     />
                   </div>
                   <div className="flex flex-col gap-2">
@@ -148,6 +149,7 @@ export default function JobsPageSheetItem({
                       name="url"
                       defaultValue={item.url}
                       className="bg-input text-sm"
+                      required
                     />
                   </div>
                   <div className="flex justify-start gap-2 mt-4">
