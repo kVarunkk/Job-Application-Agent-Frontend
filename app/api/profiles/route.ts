@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (error) {
-      console.error("API Error fetching profiles:", error);
+      // console.error("API Error fetching profiles:", error);
       return NextResponse.json({ error: error }, { status: 500 });
     }
 

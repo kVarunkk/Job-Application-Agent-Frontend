@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
         .single();
 
       if (error || !userData) {
-        console.error("Error fetching user embedding:", error);
+        // console.error("Error fetching user embedding:", error);
         // You might want to handle this gracefully for users without an embedding
       } else {
         userEmbedding = userData.embedding;
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (error) {
-      console.error("API Error fetching jobs:", error);
+      // console.error("API Error fetching jobs:", error);
       return NextResponse.json({ error: error }, { status: 500 });
     }
 

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Link as ModifiedLink } from "react-transition-progress/next";
-import { Dot } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { IJob } from "@/lib/types";
 import { User } from "@supabase/supabase-js";
@@ -37,21 +36,28 @@ export default function JobItem({
         >
           <div className="flex-col sm:flex-row sm:flex items-center justify-between gap-4">
             <div className="flex flex-col gap-2 mb-6 sm:mb-0">
-              <div className="flex items-center flex-wrap">
-                <ModifiedLink
-                  href={`/jobs/${job.id}`}
-                  className=" hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h3 className="text-lg sm:text-xl font-semibold">
-                    {job.job_name}
-                  </h3>
-                </ModifiedLink>
-                <Dot />
+              <div className="flex flex-col ">
+                <div className="">
+                  <ModifiedLink
+                    href={`/jobs/${job.id}`}
+                    className="inline hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <h3 className="inline text-lg sm:text-xl font-semibold">
+                      {job.job_name}
+                    </h3>
+                  </ModifiedLink>
+                  <JobFavoriteBtn
+                    isCompanyUser={isCompanyUser}
+                    user={user}
+                    userFavorites={job.user_favorites}
+                    job_id={job.id}
+                  />
+                </div>
                 {job.company_url ? (
                   <Link
                     href={job.company_url || ""}
-                    className="text-muted-foreground hover:underline"
+                    className="text-muted-foreground hover:underline w-fit"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {job.company_name}
@@ -59,12 +65,6 @@ export default function JobItem({
                 ) : (
                   <p className="text-muted-foreground"> {job.company_name}</p>
                 )}
-                <JobFavoriteBtn
-                  isCompanyUser={isCompanyUser}
-                  user={user}
-                  userFavorites={job.user_favorites}
-                  job_id={job.id}
-                />
               </div>
               <JobDetailBadges job={job} isSuitable={isSuitable} />
             </div>
@@ -167,6 +167,7 @@ function JobDetailBadges({
           onClick={(e) => e.stopPropagation()}
           href={platform_url || ""}
           target="_blank"
+          rel="noopener noreferrer"
         >
           <Badge
             variant={"secondary"}

@@ -30,8 +30,8 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("FastAPI embedding error:", errorData);
+      // const errorData = await response.json();
+      // console.error("FastAPI embedding error:", errorData);
       return NextResponse.json(
         { error: "Failed to create embedding." },
         { status: response.status }
@@ -49,23 +49,23 @@ export async function POST(request: Request) {
       .eq("user_id", userData.user_id);
 
     if (updateError) {
-      console.error("Supabase update error:", updateError);
+      // console.error("Supabase update error:", updateError);
       return NextResponse.json(
         { error: "Failed to update user embedding in Supabase." },
         { status: 500 }
       );
     }
 
-    console.log(
-      "Successfully created and updated embedding for user:",
-      userData.user_id
-    );
+    // console.log(
+    //   "Successfully created and updated embedding for user:",
+    //   userData.user_id
+    // );
     return NextResponse.json({
       message: "Embedding successfully created and updated.",
       data: result,
     });
-  } catch (error) {
-    console.error("Error in route handler:", error);
+  } catch {
+    // console.error("Error in route handler:", error);
     return NextResponse.json(
       { error: "Internal server error." },
       { status: 500 }

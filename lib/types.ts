@@ -232,6 +232,15 @@ export interface IApplication {
   answers: string[];
 }
 
+export interface IBookmark {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  url: string;
+  name: string;
+}
+
 export enum TApplicationStatus {
   SUBMITTED = "submitted",
   REVIEWED = "reviewed",

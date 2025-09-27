@@ -12,6 +12,8 @@ import JobApplyBtn from "@/components/JobApplyBtn";
 import { allJobsSelectString } from "@/lib/filterQueryBuilder";
 import { Metadata } from "next";
 
+import JobPageDropdown from "@/components/JobPageDropdown";
+
 export async function generateMetadata({
   params,
 }: {
@@ -136,7 +138,8 @@ export default async function JobPage({
                 Posted on {format(new Date(job.created_at), "PPP")}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              <JobPageDropdown />
               <JobApplyBtn
                 isCompanyUser={isCompanyUser}
                 user={user}

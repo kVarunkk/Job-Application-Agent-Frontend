@@ -17,7 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Loader2, PlusCircle, Search, Sparkle } from "lucide-react";
+import {
+  FolderSearch,
+  Loader2,
+  PlusCircle,
+  Search,
+  Sparkle,
+} from "lucide-react";
 import { User } from "@supabase/supabase-js";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -238,7 +244,11 @@ export default function FindSuitableJobs({
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="find-suitable">
-          Find Jobs Matching My Profile
+          <div className="w-full flex items-center gap-2">
+            {" "}
+            <FolderSearch className="h-4 w-4" />
+            Find Jobs Matching My Profile
+          </div>
         </SelectItem>
         <SelectItem value="ai-job-search">
           <div className="w-full flex items-center gap-2">

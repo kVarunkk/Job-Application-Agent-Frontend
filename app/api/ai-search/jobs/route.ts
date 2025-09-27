@@ -21,9 +21,9 @@ async function getVertexClient() {
     // console.log(JSON.parse(`"${credentialsJson}"`));
     // Write the JSON string to the temporary file
     await fs.writeFile(tempFilePath, JSON.parse(`"${credentialsJson}"`));
-    console.log("Successfully wrote credentials to temporary file.");
-  } catch (error) {
-    console.error("Failed to write temporary credentials file:", error);
+    // console.log("Successfully wrote credentials to temporary file.");
+  } catch {
+    // console.error("Failed to write temporary credentials file:", error);
     throw new Error("Failed to set up credentials for Vertex AI.");
   }
 
@@ -156,8 +156,8 @@ export async function POST(request: NextRequest) {
       rerankedJobs: object.reranked_job_ids,
       filteredOutJobs: object.filtered_out_job_ids,
     });
-  } catch (e) {
-    console.error(e);
+  } catch {
+    // console.error(e);
     return NextResponse.json({
       message: "An error occurred",
     });

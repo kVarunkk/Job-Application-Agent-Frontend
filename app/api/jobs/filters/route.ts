@@ -20,8 +20,8 @@ export async function GET() {
     const companies = companiesResult.data || [];
 
     return NextResponse.json({ locations, companies }, { status: 200 });
-  } catch (e) {
-    console.error("Error fetching filters:", e);
+  } catch {
+    // console.error("Error fetching filters:", e);
     return NextResponse.json(
       { error: "Failed to fetch filters" },
       { status: 500 }
