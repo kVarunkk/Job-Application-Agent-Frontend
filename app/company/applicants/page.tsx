@@ -48,7 +48,7 @@ export default async function CompanyApplicantsPage() {
       .order("created_at", { ascending: false });
 
     if (applicantsError) {
-      console.error("Error fetching applicants:", applicantsError);
+      // console.error("Error fetching applicants:", applicantsError);
       throw applicantsError;
     }
 
@@ -65,8 +65,8 @@ export default async function CompanyApplicantsPage() {
         />
       </div>
     );
-  } catch (err) {
-    console.error("Error in CompanyApplicantsPage:", err);
+  } catch {
+    // console.error("Error in CompanyApplicantsPage:", err);
     return <ErrorComponent />;
   }
 }

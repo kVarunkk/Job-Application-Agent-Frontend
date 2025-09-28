@@ -151,7 +151,7 @@ export default async function JobsPage({
   return (
     <div>
       <div className="flex items-start px-4 lg:px-20 xl:px-40 2xl:px-80 py-5 h-full gap-5">
-        <div className="hidden md:block w-1/3 px-2  overflow-y-auto sticky top-0 z-10">
+        <div className="hidden md:block w-1/3 px-2 sticky top-0 z-10 max-h-[calc(100vh-1.5rem)] overflow-y-scroll">
           <FilterComponent
             uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}

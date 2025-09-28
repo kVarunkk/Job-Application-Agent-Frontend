@@ -37,7 +37,11 @@ export default function JobsList({
   }, [initialJobs]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center text-muted-foreground mt-36">
+        Loading...
+      </div>
+    );
   } else
     return (
       <JobsComponent

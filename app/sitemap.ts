@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Failed to fetch job IDs for sitemap:", error);
+    // console.error("Failed to fetch job IDs for sitemap:", error);
     // Return a basic sitemap if the fetch fails
     return [
       {

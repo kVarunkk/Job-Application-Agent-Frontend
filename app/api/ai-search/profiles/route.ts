@@ -21,9 +21,9 @@ async function getVertexClient() {
     // console.log(JSON.parse(`"${credentialsJson}"`));
     // Write the JSON string to the temporary file
     await fs.writeFile(tempFilePath, JSON.parse(`"${credentialsJson}"`));
-    console.log("Successfully wrote credentials to temporary file.");
-  } catch (error) {
-    console.error("Failed to write temporary credentials file:", error);
+    // console.log("Successfully wrote credentials to temporary file.");
+  } catch {
+    // console.error("Failed to write temporary credentials file:", error);
     throw new Error("Failed to set up credentials for Vertex AI.");
   }
 
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (jobError || !jobPosting) {
-      console.error("Error fetching job posting:", jobError);
+      // console.error("Error fetching job posting:", jobError);
       return NextResponse.json(
         { message: "Job posting not found." },
         { status: 404 }
@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (companyInfoError || !companyInfo) {
-      console.error("Error fetching company info:", companyInfoError);
+      // console.error("Error fetching company info:", companyInfoError);
     } else {
       await supabase
         .from("company_info")
@@ -175,8 +175,8 @@ export async function POST(request: NextRequest) {
       rerankedProfiles: object.reranked_profile_ids,
       filteredOutProfiles: object.filtered_out_profile_ids,
     });
-  } catch (e) {
-    console.error(e);
+  } catch {
+    // console.error(e);
     return NextResponse.json(
       {
         message: "An error occurred",

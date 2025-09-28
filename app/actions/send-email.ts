@@ -33,13 +33,13 @@ export async function sendStatusUpdateEmail(
     });
 
     if (error) {
-      console.error("Resend email error:", error);
+      // console.error("Resend email error:", error);
       throw new Error("Failed to send email");
     }
 
     return { success: true };
-  } catch (err) {
-    console.error("Error sending email:", err);
+  } catch {
+    // console.error("Error sending email:", err);
     return { success: false, error: "Failed to send email" };
   }
 }

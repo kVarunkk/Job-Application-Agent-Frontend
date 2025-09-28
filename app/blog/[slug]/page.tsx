@@ -92,7 +92,7 @@ export default async function Post({
   const errors = Markdoc.validate(node);
 
   if (errors.length) {
-    console.error(errors);
+    // console.error(errors);
     throw new Error("Invalid content");
   }
 

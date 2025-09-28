@@ -182,19 +182,8 @@ export default function JobsComponent({
               {isProfilesPage && isCompanyUser ? "profiles" : "jobs"}
             </p>
           </div>
-          <FilterComponentSheet
-            uniqueLocations={uniqueLocations}
-            uniqueCompanies={uniqueCompanies ?? []}
-            uniqueJobRoles={uniqueJobRoles ?? []}
-            uniqueIndustryPreferences={uniqueIndustryPreferences ?? []}
-            uniqueWorkStylePreferences={uniqueWorkStylePreferences ?? []}
-            uniqueSkills={uniqueSkills ?? []}
-            isCompanyUser={isCompanyUser}
-            isProfilesPage={isProfilesPage}
-            onboardingComplete={isOnboardingComplete}
-          />
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             {user &&
               isOnboardingComplete &&
               !isCompanyUser &&
@@ -248,6 +237,18 @@ export default function JobsComponent({
                 setPage={setPage}
               />
             )}
+
+            <FilterComponentSheet
+              uniqueLocations={uniqueLocations}
+              uniqueCompanies={uniqueCompanies ?? []}
+              uniqueJobRoles={uniqueJobRoles ?? []}
+              uniqueIndustryPreferences={uniqueIndustryPreferences ?? []}
+              uniqueWorkStylePreferences={uniqueWorkStylePreferences ?? []}
+              uniqueSkills={uniqueSkills ?? []}
+              isCompanyUser={isCompanyUser}
+              isProfilesPage={isProfilesPage}
+              onboardingComplete={isOnboardingComplete}
+            />
           </div>
         </div>
       )}

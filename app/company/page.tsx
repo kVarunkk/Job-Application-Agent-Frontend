@@ -83,9 +83,9 @@ export default async function CompanyPage() {
     const { data: applicantsData, error: applicantsError } = applicantsRes;
 
     if (metricsError || jobsError || applicantsError) {
-      console.error("Metrics Error:", metricsError);
-      console.error("Jobs Error:", jobsError);
-      console.error("Applicants Error:", applicantsError);
+      // console.error("Metrics Error:", metricsError);
+      // console.error("Jobs Error:", jobsError);
+      // console.error("Applicants Error:", applicantsError);
       throw new Error("Failed to fetch dashboard data.");
     }
 
@@ -212,8 +212,8 @@ export default async function CompanyPage() {
         </div>
       </div>
     );
-  } catch (err) {
-    console.error("Error in CompanyPage:", err);
+  } catch {
+    // console.error("Error in CompanyPage:", err);
     return <ErrorComponent />;
   }
 }

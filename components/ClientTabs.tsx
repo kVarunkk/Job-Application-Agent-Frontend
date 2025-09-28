@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useProgress } from "react-transition-progress";
 import { User } from "@supabase/supabase-js";
+import BookmarkJobSearch from "./BookmarkJobSearch";
+import JobsPageDropdown from "./JobsPageDropdown";
 
 export function ClientTabs({
   user,
@@ -42,38 +44,44 @@ export function ClientTabs({
 
   return (
     <Tabs value={activeTab}>
-      {user && !isCompanyUser && !isAISearch && (
-        <TabsList>
-          {!applicationStatusFilter && (
+      <div className="flex items-center justify-between flex-wrap">
+        {user && !isCompanyUser && !isAISearch && (
+          <TabsList className="!my-0">
+            {!applicationStatusFilter && (
+              <TabsTrigger
+                value="all"
+                className="p-0"
+                onClick={() => handleTabChange("all")}
+                disabled={isPending}
+              >
+                <span className="py-1 px-2">All Jobs</span>
+              </TabsTrigger>
+            )}
+            {!applicationStatusFilter && (
+              <TabsTrigger
+                value="saved"
+                className="p-0"
+                onClick={() => handleTabChange("saved")}
+                disabled={isPending}
+              >
+                <span className="py-1 px-2">Saved Jobs</span>
+              </TabsTrigger>
+            )}
             <TabsTrigger
-              value="all"
+              value="applied"
               className="p-0"
-              onClick={() => handleTabChange("all")}
+              onClick={() => handleTabChange("applied")}
               disabled={isPending}
             >
-              <span className="py-1 px-2">All Jobs</span>
+              <span className="py-1 px-2">Applied Jobs</span>
             </TabsTrigger>
-          )}
-          {!applicationStatusFilter && (
-            <TabsTrigger
-              value="saved"
-              className="p-0"
-              onClick={() => handleTabChange("saved")}
-              disabled={isPending}
-            >
-              <span className="py-1 px-2">Saved Jobs</span>
-            </TabsTrigger>
-          )}
-          <TabsTrigger
-            value="applied"
-            className="p-0"
-            onClick={() => handleTabChange("applied")}
-            disabled={isPending}
-          >
-            <span className="py-1 px-2">Applied Jobs</span>
-          </TabsTrigger>
-        </TabsList>
-      )}
+          </TabsList>
+        )}
+        <div className="flex items-center gap-2">
+          {user && !isCompanyUser && <BookmarkJobSearch user={user} />}
+          {user && !isCompanyUser && <JobsPageDropdown user={user} />}
+        </div>
+      </div>
 
       {children}
     </Tabs>

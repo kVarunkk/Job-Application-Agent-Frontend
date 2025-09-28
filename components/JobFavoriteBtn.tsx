@@ -59,12 +59,10 @@ export default function JobFavoriteBtn({
       const { error } = await query;
 
       if (error) throw new Error(error.details);
-    } catch (e) {
-      console.error(e);
-    }
+    } catch {}
   };
   return (
-    <div className="!ml-3">
+    <div className="!ml-3 inline-block align-middle">
       {isCompanyUser ? (
         ""
       ) : user ? (
