@@ -427,7 +427,7 @@ export default function FilterComponent({
       className="flex flex-col h-full  items-start py-4 "
       onSubmit={handleSubmit}
     >
-      <div className="w-full flex-1 md:flex-none  ">
+      <div className="w-full flex-1 md:flex-none overflow-y-auto ">
         {FILTER_CONFIG.filter((each) => !each.hidden).map((config) => (
           <label
             key={config.name}
