@@ -1,3 +1,4 @@
+import FootComponent from "@/components/FootComponent";
 import Footer from "@/components/landing-page/Footer";
 import NavbarParent, { INavItem } from "@/components/NavbarParent";
 import PrivacyPolicy from "@/components/PrivacyPolicy";
@@ -46,6 +47,9 @@ export default async function PrivacyPolicyPage() {
     <>
       <NavbarParent navItems={navItems} />
       <PrivacyPolicy />
+      <div className="px-4 lg:px-20 xl:px-40 2xl:px-80 my-20">
+        <FootComponent />
+      </div>
       <Footer />
     </>
   );

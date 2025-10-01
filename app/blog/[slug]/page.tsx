@@ -3,10 +3,11 @@ import React from "react";
 import Markdoc from "@markdoc/markdoc";
 import keystaticConfig from "../../keystatic.config";
 import { notFound } from "next/navigation";
-import BackButton from "@/components/BackButton";
 import Link from "next/link";
 import { Metadata } from "next";
 import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
+import FootComponent from "@/components/FootComponent";
 
 const reader = createReader(process.cwd(), keystaticConfig);
 type tParams = Promise<{ slug: string }>;
@@ -99,8 +100,13 @@ export default async function Post({
   const renderable = Markdoc.transform(node);
 
   return (
-    <div className="mx-auto  mb-12 max-w-3xl px-4">
-      <BackButton />
+    <div className="mx-auto   max-w-3xl px-4">
+      <Link href={"/blog"}>
+        <button className="text-muted-foreground hover:text-primary transition-colors mt-2">
+          <ArrowLeft className="h-4 w-4" />
+        </button>{" "}
+      </Link>
+
       {imageUrl && (
         <div
           className="relative w-full rounded-lg my-6"
@@ -121,14 +127,11 @@ export default async function Post({
         {post.title}
       </h1>
 
-      <div className="prose prose-xl mt-8 leading-8 text-lg !text-primary prose-headings:text-primary prose-strong:text-primary">
+      <div className="prose prose-xl mt-8 mb-20 leading-8 text-lg !text-primary prose-headings:text-primary prose-strong:text-primary">
         {Markdoc.renderers.react(renderable, React)}
       </div>
 
-      <hr className="my-8" />
-      <Link href={`/blog`} className="text-primary hover:underline">
-        Back
-      </Link>
+      <FootComponent />
     </div>
   );
 }

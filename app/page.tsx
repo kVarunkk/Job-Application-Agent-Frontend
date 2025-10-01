@@ -1,3 +1,4 @@
+import FootComponent from "@/components/FootComponent";
 import FAQSection from "@/components/landing-page/FAQSection";
 import Footer from "@/components/landing-page/Footer";
 import Hero from "@/components/landing-page/Hero";
@@ -48,6 +49,9 @@ export default async function Home() {
           <HowWeHelp />
           <TheGetHiredAdvantageSection />
           <FAQSection />
+          <div className="px-4 lg:px-20 xl:px-40 2xl:px-80">
+            <FootComponent />
+          </div>
           <Footer />
         </div>
       </div>

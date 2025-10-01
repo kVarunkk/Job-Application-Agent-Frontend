@@ -15,8 +15,7 @@ export default function Footer() {
             <Brand type="long" />
           </Link>
           <p className="text-sm text-muted-foreground">
-            Your smartest path to the perfect job. Revolutionizing recruitment
-            with AI & automation.
+            Your smartest path to the perfect job.
           </p>
         </div>
 
@@ -24,6 +23,14 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-bold mb-3">Quick Links</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>
+              <Link
+                href="/jobs"
+                className="hover:underline  hover:opacity-100 transition-opacity"
+              >
+                Jobs
+              </Link>
+            </li>
             <li>
               <Link
                 href="/blog"

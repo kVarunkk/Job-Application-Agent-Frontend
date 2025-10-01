@@ -139,13 +139,13 @@ export default async function JobPage({
               </p>
             </div>
             <div className="flex items-center gap-4">
-              <JobPageDropdown />
               <JobApplyBtn
                 isCompanyUser={isCompanyUser}
                 user={user}
                 job={job}
                 isOnboardingComplete={onboardingComplete}
               />
+              <JobPageDropdown />
             </div>
           </div>
           {/* Details Section */}

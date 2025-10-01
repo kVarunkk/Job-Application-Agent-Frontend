@@ -35,7 +35,12 @@ export default function Hero() {
           <Button>Get Hired!</Button>
         </Link>
         <Link href={"/auth/login?company=true"}>
-          <Button variant={"secondary"}>Hire Talent</Button>
+          <Button
+            variant={"outline"}
+            className="transition-colors duration-200 hover:bg-primary hover:text-primary-foreground border-primary text-primary"
+          >
+            Hire Talent
+          </Button>
         </Link>
       </div>
 
