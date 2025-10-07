@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "../supabase/client";
 import { IJobPosting } from "../types";
 import { IJobPost } from "@/components/JobPostingsTable";
+import toast from "react-hot-toast";
 
 export const useJobPostingStatus = (
   initialStatus: "active" | "inactive",
@@ -69,9 +70,15 @@ export const useJobPostingStatus = (
         if (updateAllJobsError) throw updateAllJobsError;
         // router.refresh();
       }
+      toast.success(
+        `Job Posting ${value ? "activated" : "deactivated"} succesfully`
+      );
     } catch (error) {
       console.error("Failed to update job posting status:", error);
-      setCheckedState(!value); // Revert the switch state on error
+      setCheckedState(!value);
+      toast.error(
+        "Some error occured while updating the status of Job Posting"
+      );
     }
   };
 

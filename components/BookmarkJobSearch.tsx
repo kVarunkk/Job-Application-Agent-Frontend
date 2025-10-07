@@ -73,6 +73,7 @@ export default function BookmarkJobSearch({ user }: { user: User | null }) {
 
   return (
     <Button
+      title="Bookmark"
       variant="ghost"
       onClick={handleBookmark}
       disabled={loading || !user}

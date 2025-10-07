@@ -32,16 +32,17 @@ import { IJobPost } from "./JobPostingsTable";
 import { SelectGroup } from "@radix-ui/react-select";
 import Link from "next/link";
 import { useProgress } from "react-transition-progress";
+import { Button } from "./ui/button";
 
 export default function FindSuitableJobs({
   user,
   setPage,
-  isProfilesPage,
+  currentPage,
   companyId,
 }: {
   user: User | null;
   setPage: Dispatch<SetStateAction<number>>;
-  isProfilesPage: boolean;
+  currentPage: "jobs" | "profiles" | "companies";
   companyId?: string;
 }) {
   const [suitableJobsSelectValue, setSuitableJobsSelectValue] = useState("");
@@ -161,7 +162,13 @@ export default function FindSuitableJobs({
       startTransition(() => {
         startProgress();
         router.push(
-          `/${isProfilesPage ? "company/profile" : "job"}s?${params.toString()}`
+          `/${
+            currentPage === "profiles"
+              ? "company/profile"
+              : currentPage === "jobs"
+              ? "job"
+              : "companie"
+          }s?${params.toString()}`
         );
       });
     } catch (e) {
@@ -170,7 +177,7 @@ export default function FindSuitableJobs({
     }
   };
 
-  if (isProfilesPage && companyId) {
+  if (currentPage === "profiles" && companyId) {
     return (
       <Select
         value={suitableJobsSelectValue}
@@ -180,7 +187,11 @@ export default function FindSuitableJobs({
           setTimeout(() => setSuitableJobsSelectValue(""), 100);
         }}
       >
-        <SelectTrigger className="rounded-full bg-primary shadow-lg w-[200px]">
+        <SelectTrigger
+          disabled={isPending}
+          className="rounded-full bg-primary shadow-lg w-[200px]"
+        >
+          {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
           <SelectValue
             placeholder={
               <p className="flex items-center gap-2 text-primary-foreground">
@@ -212,6 +223,19 @@ export default function FindSuitableJobs({
           </SelectContent>
         </SelectGroup>
       </Select>
+    );
+  }
+
+  if (currentPage === "companies") {
+    return (
+      <Button
+        disabled={isPending}
+        onClick={() => handleAiSearch()}
+        className="rounded-full bg-primary shadow-lg "
+      >
+        {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+        <Search className="w-4 h-4" /> Find Suitable Companies
+      </Button>
     );
   }
 

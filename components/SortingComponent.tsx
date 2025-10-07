@@ -14,11 +14,11 @@ import { useProgress } from "react-transition-progress";
 
 export default function SortingComponent({
   isCompanyUser,
-  isProfilesPage,
+  currentPage,
   setPage,
 }: {
   isCompanyUser: boolean;
-  isProfilesPage: boolean;
+  currentPage: "jobs" | "companies" | "profiles";
   setPage: Dispatch<SetStateAction<number>>;
 }) {
   const startProgress = useProgress();
@@ -46,7 +46,11 @@ export default function SortingComponent({
 
       router.push(
         `/${
-          isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
+          currentPage === "profiles" && isCompanyUser
+            ? "company/profiles"
+            : currentPage === "jobs"
+            ? "jobs"
+            : "companies"
         }?${params.toString()}`
       );
     });
@@ -66,32 +70,48 @@ export default function SortingComponent({
         <SelectItem value="created_at-asc">Oldest First</SelectItem>
         <SelectItem
           value={`${
-            isCompanyUser && isProfilesPage ? "full_name" : "company_name"
+            isCompanyUser && currentPage === "profiles"
+              ? "full_name"
+              : currentPage === "jobs"
+              ? "company_name"
+              : "name"
           }-asc`}
         >
-          {isCompanyUser ? "Profile" : "Company"} Name (A-Z)
+          {currentPage === "profiles" ? "Profile" : "Company"} Name (A-Z)
         </SelectItem>
         <SelectItem
           value={`${
-            isCompanyUser && isProfilesPage ? "full_name" : "company_name"
+            isCompanyUser && currentPage === "profiles"
+              ? "full_name"
+              : currentPage === "jobs"
+              ? "company_name"
+              : "name"
           }-desc`}
         >
-          {isCompanyUser ? "Profile" : "Company"} Name (Z-A)
+          {currentPage === "profiles" ? "Profile" : "Company"} Name (Z-A)
         </SelectItem>
-        <SelectItem
-          value={`${
-            isCompanyUser && isProfilesPage ? "min_salary" : "salary_min"
-          }-asc`}
-        >
-          Lowest Salary First
-        </SelectItem>
-        <SelectItem
-          value={`${
-            isCompanyUser && isProfilesPage ? "min_salary" : "salary_min"
-          }-desc`}
-        >
-          Highest Salary First
-        </SelectItem>
+        {currentPage !== "companies" && (
+          <SelectItem
+            value={`${
+              isCompanyUser && currentPage === "profiles"
+                ? "min_salary"
+                : "salary_min"
+            }-asc`}
+          >
+            Lowest Salary First
+          </SelectItem>
+        )}
+        {currentPage !== "companies" && (
+          <SelectItem
+            value={`${
+              isCompanyUser && currentPage === "profiles"
+                ? "min_salary"
+                : "salary_min"
+            }-desc`}
+          >
+            Highest Salary First
+          </SelectItem>
+        )}
       </SelectContent>
     </Select>
   );

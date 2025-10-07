@@ -82,7 +82,10 @@ export default function VirtualizedSelect({
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-full justify-between bg-input text-muted-foreground"
+              className={cn(
+                "w-full justify-between bg-input",
+                !selectedItem && "text-muted-foreground"
+              )}
               disabled={isLoading}
             >
               <span className="truncate">{selectedItem || placeholder}</span>
@@ -105,7 +108,10 @@ export default function VirtualizedSelect({
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-full justify-between bg-input text-muted-foreground"
+              className={cn(
+                "w-full justify-between bg-input",
+                !selectedItem && "text-muted-foreground"
+              )}
               disabled={isLoading}
             >
               <span className="truncate">{selectedItem || placeholder}</span>

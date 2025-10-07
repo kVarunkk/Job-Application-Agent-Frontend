@@ -33,6 +33,14 @@ export default function Footer() {
             </li>
             <li>
               <Link
+                href="/companies"
+                className="hover:underline  hover:opacity-100 transition-opacity"
+              >
+                Companies
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/blog"
                 className="hover:underline  hover:opacity-100 transition-opacity"
               >

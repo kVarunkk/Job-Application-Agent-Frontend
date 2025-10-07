@@ -1,10 +1,18 @@
 import FilterComponent from "@/components/FilterComponent";
 import { createClient } from "@/lib/supabase/server";
-import JobsList from "./JobsList";
 import { TabsContent } from "@/components/ui/tabs";
-import { IJob } from "@/lib/types";
+import { ICompanyInfo, IFormData } from "@/lib/types";
 import { headers } from "next/headers";
 import { ClientTabs } from "@/components/ClientTabs";
+import CompaniesList from "./companiesList";
+import { commonIndustries } from "@/lib/utils";
+
+const uniqueIndustries = () => {
+  const industries = commonIndustries.map((each) => ({
+    industry: each,
+  }));
+  return industries;
+};
 
 export default async function JobsPage({
   searchParams,
@@ -12,9 +20,7 @@ export default async function JobsPage({
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   const searchParameters = await searchParams;
-  const applicationStatusFilter = searchParameters
-    ? searchParameters["applicationStatus"]
-    : false;
+
   const isAISearch = searchParameters
     ? searchParameters["sortBy"] === "relevance"
     : false;
@@ -30,6 +36,7 @@ export default async function JobsPage({
   let isCompanyUser = false;
   let onboardingComplete = false;
   let ai_search_uses = 0;
+  let companyId;
   if (user) {
     const { data: jobSeekerData } = await supabase
       .from("user_info")
@@ -44,6 +51,7 @@ export default async function JobsPage({
 
     if (companyData) {
       isCompanyUser = true;
+      companyId = companyData.id;
     }
 
     if (jobSeekerData) {
@@ -58,7 +66,7 @@ export default async function JobsPage({
   const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
   const url = `${protocol}://${host}`;
 
-  let initialJobs: IJob[] = [];
+  let initialCompanies: IFormData[] = [];
   let uniqueLocations: { location: string }[] = [];
   let uniqueCompanies: { company_name: string }[] = [];
   let totalCount: number = 0;
@@ -67,7 +75,7 @@ export default async function JobsPage({
   );
   try {
     params.set("tab", activeTab);
-    const res = await fetch(`${url}/api/jobs?${params.toString()}`, {
+    const res = await fetch(`${url}/api/companies?${params.toString()}`, {
       cache: "force-cache",
       next: { revalidate: 3600 },
       headers: {
@@ -77,7 +85,7 @@ export default async function JobsPage({
     const result = await res.json();
     if (!res.ok) throw new Error(result.message);
 
-    const resFilters = await fetch(`${url}/api/jobs/filters`, {
+    const resFilters = await fetch(`${url}/api/companies/filters`, {
       cache: "force-cache",
       next: { revalidate: 3600 },
       headers: {
@@ -102,7 +110,7 @@ export default async function JobsPage({
       ai_search_uses <= 3
     ) {
       try {
-        const aiRerankRes = await fetch(`${url}/api/ai-search/jobs`, {
+        const aiRerankRes = await fetch(`${url}/api/ai-search/companies`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -110,43 +118,46 @@ export default async function JobsPage({
           },
           body: JSON.stringify({
             userId: user.id,
-            jobs: result.data.map((job: IJob) => ({
-              id: job.id,
-              job_name: job.job_name,
-              description: job.description,
-              visa_requirement: job.visa_requirement,
-              salary_range: job.salary_range,
-              locations: job.locations,
-              experience: job.experience,
+            companies: result.data.map((company: ICompanyInfo) => ({
+              id: company.id,
+              name: company.name,
+              description: company.description,
+              headquarters: company.headquarters,
+              company_size: company.company_size,
+              industry: company.industry,
             })),
           }),
         });
 
         const aiRerankResult = await aiRerankRes.json();
 
-        if (aiRerankRes.ok && aiRerankResult.rerankedJobs) {
-          const rerankedIds = aiRerankResult.rerankedJobs;
+        if (aiRerankRes.ok && aiRerankResult.rerankedCompanies) {
+          const rerankedIds = aiRerankResult.rerankedCompanies;
           const filteredOutIds = aiRerankResult.filteredOutJobs || [];
-          const jobMap = new Map(result.data.map((job: IJob) => [job.id, job]));
-          const reorderedJobs = rerankedIds
-            .map((id: string) => jobMap.get(id))
+          const companyMap = new Map(
+            result.data.map((company: ICompanyInfo) => [company.id, company])
+          );
+          const reorderedCompanies = rerankedIds
+            .map((id: string) => companyMap.get(id))
             .filter(
-              (job: IJob) =>
-                job !== undefined && !filteredOutIds.includes(job.id)
+              (company: ICompanyInfo) =>
+                company !== undefined && !filteredOutIds.includes(company.id)
             );
-          initialJobs = reorderedJobs || [];
-          totalCount = reorderedJobs.length || 0;
+          initialCompanies = reorderedCompanies || [];
+          totalCount = reorderedCompanies.length || 0;
         }
       } catch (e) {
         throw e;
       }
     } else {
-      initialJobs = result.data || [];
+      initialCompanies = result.data || [];
       totalCount = result.count || 0;
     }
   } catch (error) {
     console.error("Failed to fetch jobs:", error);
   }
+  console.log(initialCompanies);
+  const listOfUniqueIndustries = uniqueIndustries();
 
   return (
     <div>
@@ -155,8 +166,9 @@ export default async function JobsPage({
           <FilterComponent
             uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}
+            uniqueIndustries={listOfUniqueIndustries}
+            currentPage="companies"
             onboardingComplete={onboardingComplete}
-            currentPage="jobs"
           />
         </div>
         <div className="w-full md:w-2/3 ">
@@ -164,47 +176,34 @@ export default async function JobsPage({
             user={user}
             isCompanyUser={isCompanyUser}
             isAISearch={isAISearch}
-            applicationStatusFilter={applicationStatusFilter}
-            page="jobs"
+            page="companies"
           >
-            {!applicationStatusFilter && (
+            {
               <TabsContent value="all">
-                <JobsList
+                <CompaniesList
                   isCompanyUser={isCompanyUser}
                   user={user}
                   uniqueLocations={uniqueLocations}
                   uniqueCompanies={uniqueCompanies}
+                  uniqueIndustries={listOfUniqueIndustries}
+                  companyId={companyId}
                   onboardingComplete={onboardingComplete}
-                  initialJobs={initialJobs}
+                  initialCompanies={initialCompanies}
                   totalCount={totalCount}
                 />
               </TabsContent>
-            )}
-            {user &&
-              !isCompanyUser &&
-              !applicationStatusFilter &&
-              !isAISearch && (
-                <TabsContent value="saved">
-                  <JobsList
-                    isCompanyUser={isCompanyUser}
-                    user={user}
-                    uniqueLocations={uniqueLocations}
-                    uniqueCompanies={uniqueCompanies}
-                    onboardingComplete={onboardingComplete}
-                    initialJobs={initialJobs}
-                    totalCount={totalCount}
-                  />
-                </TabsContent>
-              )}
+            }
             {user && !isCompanyUser && !isAISearch && (
-              <TabsContent value="applied">
-                <JobsList
+              <TabsContent value="saved">
+                <CompaniesList
                   isCompanyUser={isCompanyUser}
                   user={user}
                   uniqueLocations={uniqueLocations}
-                  onboardingComplete={onboardingComplete}
                   uniqueCompanies={uniqueCompanies}
-                  initialJobs={initialJobs}
+                  uniqueIndustries={listOfUniqueIndustries}
+                  companyId={companyId}
+                  onboardingComplete={onboardingComplete}
+                  initialCompanies={initialCompanies}
                   totalCount={totalCount}
                 />
               </TabsContent>

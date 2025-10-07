@@ -199,16 +199,16 @@ export default function JobApplicationDialog({
       {applicationStatus ? (
         <Tooltip delayDuration={100}>
           <TooltipTrigger className="cursor-default" asChild>
-            <div>
-              <Button
-                onClick={(e) => e.stopPropagation()}
-                className="capitalize"
-                disabled={applicationStatus !== null}
-              >
-                {applicationStatus ?? "Apply Now"}{" "}
-                {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
-              </Button>
-            </div>
+            {/* <div> */}
+            <Button
+              onClick={(e) => e.stopPropagation()}
+              className="capitalize"
+              disabled={applicationStatus !== null}
+            >
+              {applicationStatus ?? "Apply Now"}{" "}
+              {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
+            </Button>
+            {/* </div> */}
           </TooltipTrigger>
           <TooltipContent className="max-w-[200px]">
             Your current application status is <b>{applicationStatus}</b>.
@@ -242,10 +242,12 @@ export default function JobApplicationDialog({
               <Card className="shadow-none border">
                 <CardHeader>
                   <CardTitle className="text-lg">Company Profile</CardTitle>
-                  <CardDescription>{jobPost.company_url}</CardDescription>
+                  {jobPost.company_url && (
+                    <CardDescription>{jobPost.company_url}</CardDescription>
+                  )}
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm ">
                     {jobPost.job_postings && jobPost.job_postings.length > 0
                       ? jobPost.job_postings[0].company_info?.description
                       : "No description provided."}
@@ -260,39 +262,31 @@ export default function JobApplicationDialog({
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  <p className="text-sm  whitespace-pre-wrap">
                     {jobPost.description || "No description provided."}
                   </p>
                   {jobPost.salary_range && (
                     <div>
                       <p className="font-semibold text-sm">Salary Range</p>
-                      <p className="text-sm text-muted-foreground">
-                        {jobPost.salary_range}
-                      </p>
+                      <p className="text-sm ">{jobPost.salary_range}</p>
                     </div>
                   )}
                   {jobPost.experience && (
                     <div>
                       <p className="font-semibold text-sm">Experience</p>
-                      <p className="text-sm text-muted-foreground">
-                        {jobPost.experience}
-                      </p>
+                      <p className="text-sm ">{jobPost.experience}</p>
                     </div>
                   )}
                   {jobPost.visa_requirement && (
                     <div>
                       <p className="font-semibold text-sm">Visa Requirement</p>
-                      <p className="text-sm text-muted-foreground">
-                        {jobPost.visa_requirement}
-                      </p>
+                      <p className="text-sm ">{jobPost.visa_requirement}</p>
                     </div>
                   )}
                   {jobPost.equity_range && (
                     <div>
                       <p className="font-semibold text-sm">Equity</p>
-                      <p className="text-sm text-muted-foreground">
-                        {jobPost.equity_range}
-                      </p>
+                      <p className="text-sm ">{jobPost.equity_range}</p>
                     </div>
                   )}
                 </CardContent>

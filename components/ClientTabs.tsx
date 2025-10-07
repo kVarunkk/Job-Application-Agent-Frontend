@@ -13,12 +13,14 @@ export function ClientTabs({
   isCompanyUser,
   isAISearch,
   applicationStatusFilter,
+  page,
   children,
 }: {
   user: User | null;
   isCompanyUser: boolean;
   isAISearch: boolean;
   applicationStatusFilter?: string | false;
+  page: "jobs" | "profiles" | "companies";
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -38,14 +40,22 @@ export function ClientTabs({
       } else {
         newSearchParams.set("tab", newTab);
       }
-      router.push(`/jobs?${newSearchParams.toString()}`);
+      router.push(
+        `/${
+          page === "jobs"
+            ? "jobs"
+            : page === "companies"
+            ? "companies"
+            : "company/profiles"
+        }?${newSearchParams.toString()}`
+      );
     });
   };
 
   return (
     <Tabs value={activeTab}>
       <div className="flex items-center justify-between flex-wrap">
-        {user && !isCompanyUser && !isAISearch && (
+        {user && !isCompanyUser && !isAISearch && page === "jobs" && (
           <TabsList className="!my-0">
             {!applicationStatusFilter && (
               <TabsTrigger
@@ -77,10 +87,59 @@ export function ClientTabs({
             </TabsTrigger>
           </TabsList>
         )}
-        <div className="flex items-center gap-2">
-          {user && !isCompanyUser && <BookmarkJobSearch user={user} />}
-          {user && !isCompanyUser && <JobsPageDropdown user={user} />}
-        </div>
+
+        {user && !isCompanyUser && !isAISearch && page === "companies" && (
+          <TabsList className="!my-0">
+            {
+              <TabsTrigger
+                value="all"
+                className="p-0"
+                onClick={() => handleTabChange("all")}
+                disabled={isPending}
+              >
+                <span className="py-1 px-2">All Companies</span>
+              </TabsTrigger>
+            }
+            {
+              <TabsTrigger
+                value="saved"
+                className="p-0"
+                onClick={() => handleTabChange("saved")}
+                disabled={isPending}
+              >
+                <span className="py-1 px-2">Saved Companies</span>
+              </TabsTrigger>
+            }
+          </TabsList>
+        )}
+
+        {user && !isAISearch && page === "profiles" && (
+          <TabsList>
+            <TabsTrigger
+              value="all"
+              className="p-0"
+              onClick={() => handleTabChange("all")}
+              disabled={isPending}
+            >
+              <span className="py-1 px-2">All Profiles</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="saved"
+              className="p-0"
+              onClick={() => handleTabChange("saved")}
+              disabled={isPending}
+            >
+              <span className="py-1 px-2">Saved Profiles</span>
+            </TabsTrigger>
+          </TabsList>
+        )}
+
+        {page === "jobs" && (
+          <div className="flex items-center gap-2">
+            {user && !isCompanyUser && <BookmarkJobSearch user={user} />}
+            {user && !isCompanyUser && <JobsPageDropdown user={user} />}
+          </div>
+        )}
       </div>
 
       {children}

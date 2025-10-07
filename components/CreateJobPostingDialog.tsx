@@ -31,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Pencil, Trash } from "lucide-react";
+import { Loader2, Pencil, PlusCircle, Trash } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -249,7 +249,20 @@ export default function CreateJobPostingDialog({
       }
 
       toast.success(
-        `Job Posting ${existingValues ? "updated" : "created"} Successfully!`
+        <div className="flex flex-col">
+          <span className="font-semibold">
+            {`Job Posting ${
+              existingValues ? "updated" : "created"
+            } Successfully!`}
+          </span>
+          <span className="text-sm mt-1">
+            Please make sure to activate your job post to make it visible to
+            applicants.
+          </span>
+        </div>,
+        {
+          duration: 8000,
+        }
       );
       form.reset();
       setIsOpen(false);
@@ -297,13 +310,18 @@ export default function CreateJobPostingDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger
+        title={existingValues ? "Edit Job Post" : "Create Job Post"}
+        asChild
+      >
         {existingValues ? (
           <Button variant={"ghost"} className="text-muted-foreground">
             <Pencil className=" h-4 w-4" />
           </Button>
         ) : (
-          <Button>Create New Job Post</Button>
+          <Button>
+            <PlusCircle /> Create New Job Post
+          </Button>
         )}
       </DialogTrigger>
       <DialogContent className="flex h-[85vh] max-w-xl flex-col overflow-y-hidden">

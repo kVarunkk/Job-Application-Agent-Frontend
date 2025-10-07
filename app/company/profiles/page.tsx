@@ -1,13 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
 import ProfilesList from "./ProfilesList";
 import FilterComponent from "@/components/FilterComponent";
 import { ICompanyInfo, IFormData } from "@/lib/types";
 import { headers } from "next/headers";
-import { Link } from "react-transition-progress/next";
+import { ClientTabs } from "@/components/ClientTabs";
 
 export default async function ProfilesPage({
   searchParams,
@@ -22,10 +20,7 @@ export default async function ProfilesPage({
   const isAISearch = searchParameters
     ? searchParameters["sortBy"] === "relevance"
     : false;
-  const activeTab =
-    searchParameters && searchParameters["tab"]
-      ? searchParameters["tab"]
-      : "all";
+
   const { data: companyDataData }: { data: ICompanyInfo | null } =
     await supabase
       .from("company_info")
@@ -66,7 +61,8 @@ export default async function ProfilesPage({
 
   try {
     const res = await fetch(`${url}/api/profiles?${params.toString()}`, {
-      cache: "no-store",
+      cache: "force-cache",
+      next: { revalidate: 3600 },
       headers: {
         Cookie: headersList.get("Cookie") || "",
       },
@@ -74,8 +70,6 @@ export default async function ProfilesPage({
     const result = await res.json();
 
     if (!res.ok) throw new Error(result.message);
-
-    // const { data: fetchedProfiles, count: fetchedCount } = result;
 
     // --- AI Re-ranking Logic ---
     if (
@@ -88,7 +82,6 @@ export default async function ProfilesPage({
       companyData.ai_search_uses <= 3
     ) {
       try {
-        // need to send the id of job_post and
         const aiRerankRes = await fetch(`${url}/api/ai-search/profiles`, {
           method: "POST",
           headers: {
@@ -134,8 +127,6 @@ export default async function ProfilesPage({
             );
           initialProfiles = reorderedProfiles || [];
           totalCount = reorderedProfiles.length || 0;
-          // setData(reorderedProfiles);
-          // setCount(reorderedProfiles.length);
         }
       } catch (e) {
         throw e;
@@ -149,66 +140,43 @@ export default async function ProfilesPage({
   }
 
   return (
-    <div className="flex flex-col h-full w-full">
-      {/* <NavbarComponent user={user} /> */}
-      <div className="flex items-start h-full gap-5">
-        <div className="hidden md:block w-1/3 px-2 h-screen overflow-y-auto sticky top-0 z-10">
+    <div>
+      <div className="flex items-start  h-full gap-5">
+        <div className="hidden md:block w-1/3 px-2 sticky top-0 z-10 max-h-[calc(100vh-1.5rem)] overflow-y-auto">
           <FilterComponent
             uniqueLocations={uniqueLocations}
             uniqueJobRoles={uniqueJobRoles}
             uniqueIndustryPreferences={uniqueIndustryPreferences}
             uniqueWorkStylePreferences={uniqueWorkStylePreferences}
             uniqueSkills={uniqueSkills}
-            isProfilesPage={true}
+            currentPage={"profiles"}
             onboardingComplete={onboarding_complete}
           />
         </div>
         <div className="w-full md:w-2/3 ">
-          <Tabs defaultValue={activeTab}>
+          <ClientTabs
+            user={user}
+            isCompanyUser={true}
+            isAISearch={isAISearch}
+            page={"profiles"}
+          >
+            <TabsContent value="all">
+              <ProfilesList
+                uniqueLocations={uniqueLocations}
+                uniqueJobRoles={uniqueJobRoles}
+                uniqueIndustryPreferences={uniqueIndustryPreferences}
+                uniqueWorkStylePreferences={uniqueWorkStylePreferences}
+                uniqueSkills={uniqueSkills}
+                user={user}
+                companyData={companyData}
+                initialProfiles={initialProfiles}
+                onboardingComplete={onboarding_complete}
+                totalCount={totalCount}
+              />
+            </TabsContent>
             {user && !isAISearch && (
-              <TabsList>
-                <TabsTrigger value="all" className="p-0">
-                  <Link
-                    className="py-1 px-2"
-                    href={`/company/profiles?${new URLSearchParams(
-                      Object.fromEntries(
-                        Object.entries(
-                          searchParameters as Record<string, string>
-                        ).filter(([key]) => key !== "tab")
-                      )
-                    ).toString()}`}
-                  >
-                    All Profiles
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="saved" className="p-0">
-                  <Link
-                    className="py-1 px-2"
-                    href={`/company/profiles?${new URLSearchParams({
-                      ...(searchParameters as Record<string, string>),
-                      tab: "saved",
-                    }).toString()}`}
-                  >
-                    Saved Profiles
-                  </Link>
-                </TabsTrigger>
-              </TabsList>
-            )}
-
-            <Suspense
-              fallback={
-                <div className="flex flex-col gap-4">
-                  <ProfileCardSkeleton />
-                  <ProfileCardSkeleton />
-                  <ProfileCardSkeleton />
-                  <ProfileCardSkeleton />
-                </div>
-              }
-            >
-              <TabsContent value="all">
+              <TabsContent value="saved">
                 <ProfilesList
-                  // searchParams={searchParams}
-                  // isFavoriteTabActive={false}
                   uniqueLocations={uniqueLocations}
                   uniqueJobRoles={uniqueJobRoles}
                   uniqueIndustryPreferences={uniqueIndustryPreferences}
@@ -219,46 +187,12 @@ export default async function ProfilesPage({
                   initialProfiles={initialProfiles}
                   onboardingComplete={onboarding_complete}
                   totalCount={totalCount}
-                  // isAllJobsTab={true}
                 />
               </TabsContent>
-              {user && !isAISearch && (
-                <TabsContent value="saved">
-                  <ProfilesList
-                    // searchParams={searchParams}
-                    // isFavoriteTabActive={true}
-                    uniqueLocations={uniqueLocations}
-                    uniqueJobRoles={uniqueJobRoles}
-                    uniqueIndustryPreferences={uniqueIndustryPreferences}
-                    uniqueWorkStylePreferences={uniqueWorkStylePreferences}
-                    uniqueSkills={uniqueSkills}
-                    user={user}
-                    companyData={companyData}
-                    initialProfiles={initialProfiles}
-                    onboardingComplete={onboarding_complete}
-                    totalCount={totalCount}
-                  />
-                </TabsContent>
-              )}
-            </Suspense>
-          </Tabs>
+            )}
+          </ClientTabs>
         </div>
       </div>
     </div>
   );
 }
-
-const ProfileCardSkeleton = () => (
-  <div className="flex flex-col gap-3 p-4 rounded-lg border bg-secondary/50">
-    <div className="flex items-center justify-between gap-4">
-      <div className="flex flex-col gap-3 w-full">
-        <Skeleton className="h-6 w-3/4 rounded-full" />
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-5 w-20 rounded-full" />
-          <Skeleton className="h-5 w-24 rounded-full" />
-        </div>
-      </div>
-      <Skeleton className="h-10 w-24 rounded-full" />
-    </div>
-  </div>
-);

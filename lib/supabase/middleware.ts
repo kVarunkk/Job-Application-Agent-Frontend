@@ -45,10 +45,13 @@ export async function updateSession(request: NextRequest) {
     "/jobs",
     "/api/jobs",
     "/api/jobs/filters",
+    "/api/companies",
+    "/api/companies/filters",
     "/privacy-policy",
     "/terms-of-service",
     "/sitemap.xml",
     "/blog",
+    "/companies",
     "/robots.txt",
     "/opengraph-image.jpg",
     "/twitter-image.jpg",
@@ -86,6 +89,10 @@ export async function updateSession(request: NextRequest) {
   const isBlogPage =
     pathname.startsWith("/blog/") && pathname.length > "/blog/".length;
 
+  const isCompanyPage =
+    pathname.startsWith("/companies/") &&
+    pathname.length > "/companies/".length;
+
   // --- 1. Handle Unauthenticated Users ---
   if (!user) {
     // If an unauthenticated user tries to access a protected page, redirect them to login.
@@ -93,6 +100,7 @@ export async function updateSession(request: NextRequest) {
       !isAuthPath &&
       !publicPaths.includes(pathname) &&
       !isJobPage &&
+      !isCompanyPage &&
       !isBlogPage
     ) {
       const url = request.nextUrl.clone();
@@ -167,6 +175,7 @@ export async function updateSession(request: NextRequest) {
       !isApplicantOnboardingPath &&
       !publicPaths &&
       !isJobPage &&
+      !isCompanyPage &&
       !isBlogPage
     ) {
       const url = request.nextUrl.clone();

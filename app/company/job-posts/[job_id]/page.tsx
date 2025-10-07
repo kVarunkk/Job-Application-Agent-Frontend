@@ -12,6 +12,7 @@ import { JobStatusSwitch } from "@/components/JobPostingsTable";
 import ApplicantsTable from "@/components/ApplicantsTable";
 import JobDescriptionCard from "@/components/JobDetailsCard";
 import FindSuitableProfilesForJobPost from "@/components/FindSuitableProfilesForJobPost";
+import ShareJobPosting from "@/components/ShareJobPosting";
 
 export default async function JobPostPage({
   params,
@@ -84,6 +85,7 @@ export default async function JobPostPage({
               existingValues={existingValues}
             />
             <DeleteJobPosting job_posting_id={job.id} is_job_posting_page />
+            <ShareJobPosting job_id={job.job_id} />
             <FindSuitableProfilesForJobPost job_post_id={job_id} />
           </div>
         </div>

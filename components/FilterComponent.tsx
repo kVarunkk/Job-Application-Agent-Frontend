@@ -45,27 +45,34 @@ export type FiltersState = {
   skills: string[];
   maxSalary?: string;
   applicationStatus: TApplicationStatus;
+  industry?: string[];
+  name?: string[];
+  size?: string[];
 };
 
 export default function FilterComponent({
   uniqueLocations,
   uniqueCompanies,
+  uniqueIndustries,
   setOpenSheet,
   uniqueJobRoles,
   uniqueIndustryPreferences,
   uniqueWorkStylePreferences,
   uniqueSkills,
-  isProfilesPage = false,
+  currentPage,
   onboardingComplete,
 }: {
   uniqueLocations: { location: string }[];
   uniqueCompanies?: { company_name: string }[];
+  uniqueIndustries?: {
+    industry: string;
+  }[];
   setOpenSheet?: Dispatch<SetStateAction<boolean>>;
   uniqueJobRoles?: { job_role: string }[];
   uniqueIndustryPreferences?: { industry_preference: string }[];
   uniqueWorkStylePreferences?: { work_style_preference: string }[];
   uniqueSkills?: { skill: string }[];
-  isProfilesPage?: boolean;
+  currentPage: "jobs" | "profiles" | "companies";
   onboardingComplete: boolean;
 }) {
   const router = useRouter();
@@ -73,86 +80,9 @@ export default function FilterComponent({
   const startProgress = useProgress();
   const [isPending, startTransition] = useTransition();
   const FILTER_CONFIG: FilterConfig[] = useMemo(() => {
-    return isProfilesPage
-      ? [
-          {
-            name: "jobType",
-            label: "Job Type",
-            type: "multi-select", // Changed to multi-select
-            placeholder: "Select the type of Job",
-            options: [
-              { value: "Fulltime", label: "Full Time" },
-              { value: "Intern", label: "Internship" },
-              { value: "Contract", label: "Contract" },
-              // 'all' is handled by the absence of the parameter in the URL
-            ],
-          },
-          {
-            name: "jobRole",
-            label: "Job Role",
-            type: "multi-select", // Changed to multi-select
-            placeholder: "Select the Job Role",
-            options: uniqueJobRoles?.map((each) => ({
-              value: each.job_role,
-              label: each.job_role,
-            })),
-          },
-          {
-            name: "industryPreference",
-            label: "Industry Preference",
-            type: "multi-select", // Changed to multi-select
-            placeholder: "Select the Industry Preference",
-            options: uniqueIndustryPreferences?.map((each) => ({
-              value: each.industry_preference,
-              label: each.industry_preference,
-            })),
-          },
-          {
-            name: "workStylePreference",
-            label: "Work Style Preference",
-            type: "multi-select", // Changed to multi-select
-            placeholder: "Select the Work Style Preference",
-            options: uniqueWorkStylePreferences?.map((each) => ({
-              value: each.work_style_preference,
-              label: each.work_style_preference,
-            })),
-          },
-          {
-            name: "skills",
-            label: "Skills",
-            type: "multi-select", // Changed to multi-select
-            placeholder: "Select the Skills",
-            options: uniqueSkills?.map((each) => ({
-              value: each.skill,
-              label: each.skill,
-            })),
-          },
-          {
-            name: "location",
-            label: "Location",
-            type: "multi-select", // Changed to multi-select
-            placeholder: "Select the location of Job",
-
-            options: uniqueLocations.map((each) => ({
-              value: each.location,
-              label: each.location,
-            })),
-          },
-
-          {
-            name: "maxSalary",
-            label: "Maximum Salary",
-            type: "number",
-            placeholder: "e.g., 80000",
-          },
-          {
-            name: "minExperience",
-            label: "Minimum Experience (years)",
-            type: "number",
-            placeholder: "e.g., 2",
-          },
-        ]
-      : [
+    switch (currentPage) {
+      case "jobs":
+        return [
           {
             name: "jobType",
             label: "Job Type",
@@ -264,14 +194,148 @@ export default function FilterComponent({
             placeholder: "e.g., 2",
           },
         ];
+      case "profiles":
+        return [
+          {
+            name: "jobType",
+            label: "Job Type",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the type of Job",
+            options: [
+              { value: "Fulltime", label: "Full Time" },
+              { value: "Intern", label: "Internship" },
+              { value: "Contract", label: "Contract" },
+              // 'all' is handled by the absence of the parameter in the URL
+            ],
+          },
+          {
+            name: "jobRole",
+            label: "Job Role",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Job Role",
+            options: uniqueJobRoles?.map((each) => ({
+              value: each.job_role,
+              label: each.job_role,
+            })),
+          },
+          {
+            name: "industryPreference",
+            label: "Industry Preference",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Industry Preference",
+            options: uniqueIndustryPreferences?.map((each) => ({
+              value: each.industry_preference,
+              label: each.industry_preference,
+            })),
+          },
+          {
+            name: "workStylePreference",
+            label: "Work Style Preference",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Work Style Preference",
+            options: uniqueWorkStylePreferences?.map((each) => ({
+              value: each.work_style_preference,
+              label: each.work_style_preference,
+            })),
+          },
+          {
+            name: "skills",
+            label: "Skills",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Skills",
+            options: uniqueSkills?.map((each) => ({
+              value: each.skill,
+              label: each.skill,
+            })),
+          },
+          {
+            name: "location",
+            label: "Location",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the location of Job",
+
+            options: uniqueLocations.map((each) => ({
+              value: each.location,
+              label: each.location,
+            })),
+          },
+
+          {
+            name: "maxSalary",
+            label: "Maximum Salary",
+            type: "number",
+            placeholder: "e.g., 80000",
+          },
+          {
+            name: "minExperience",
+            label: "Minimum Experience (years)",
+            type: "number",
+            placeholder: "e.g., 2",
+          },
+        ];
+      case "companies":
+        return [
+          {
+            name: "name",
+            label: "Company",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Company",
+            options: uniqueCompanies?.map((each) => ({
+              value: each.company_name,
+              label: each.company_name,
+            })),
+          },
+          {
+            name: "location",
+            label: "Location",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the location of Company",
+            options: uniqueLocations.map((each) => ({
+              value: each.location,
+              label: each.location,
+            })),
+            isVirtualized: true,
+          },
+          {
+            name: "industry",
+            label: "Industry",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Industry type",
+            options: uniqueIndustries?.map((each) => ({
+              value: each.industry,
+              label: each.industry,
+            })),
+            isVirtualized: true,
+          },
+          {
+            name: "size",
+            label: "Size",
+            type: "multi-select", // Changed to multi-select
+            placeholder: "Select the Size",
+            options: [
+              "1-10",
+              "11-50",
+              "51-200",
+              "201-500",
+              "501-1000",
+              "1000+",
+            ].map((each) => ({
+              value: each,
+              label: each,
+            })),
+            isVirtualized: false,
+          },
+        ];
+    }
   }, [
     uniqueCompanies,
     uniqueLocations,
     uniqueJobRoles,
+    uniqueIndustries,
     uniqueIndustryPreferences,
     uniqueWorkStylePreferences,
     uniqueSkills,
-    isProfilesPage,
+    currentPage,
     onboardingComplete,
   ]);
 
@@ -289,7 +353,7 @@ export default function FilterComponent({
       ) {
         (initialState[filter.name] as string[]) = paramValue
           ? paramValue
-              .split(",")
+              .split("|")
               .map((s) => s.trim())
               .filter(Boolean)
           : [];
@@ -342,7 +406,8 @@ export default function FilterComponent({
         filterConfig?.type === "multi-select-input"
       ) {
         if (Array.isArray(value) && value.length > 0) {
-          params.set(key, value.join(","));
+          // params.set(key, value.join(","));
+          params.set(key, value.join("|"));
         }
       } else {
         if (value && value !== "") {
@@ -366,7 +431,13 @@ export default function FilterComponent({
     startTransition(() => {
       startProgress();
       router.push(
-        `/${isProfilesPage ? "company/profiles" : "jobs"}?${params.toString()}`
+        `/${
+          currentPage === "profiles"
+            ? "company/profiles"
+            : currentPage === "jobs"
+            ? "jobs"
+            : "companies"
+        }?${params.toString()}`
       );
     });
   };
@@ -441,7 +512,8 @@ export default function FilterComponent({
       </div>
       <div className="w-full !pt-4">
         <FilterActions
-          isProfilesPage={isProfilesPage}
+          currentPage={currentPage}
+          // isProfilesPage={currentPage === "profiles"}
           setOpenSheet={setOpenSheet}
           isApplyFiltersLoading={isPending}
         />

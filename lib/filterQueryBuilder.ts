@@ -49,7 +49,7 @@ export const buildQuery = async ({
     ): string[] => {
       return param
         ? param
-            .split(",")
+            .split("|")
             .map((s) => s.trim())
             .filter(Boolean)
         : [];

@@ -1,40 +1,45 @@
 "use client";
 
-import JobsComponent from "@/components/JobsComponent";
-import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { IJob } from "@/lib/types";
+import { useSearchParams } from "next/navigation";
+import { IFormData } from "@/lib/types";
+import JobsComponent from "@/components/JobsComponent";
 
-export default function JobsList({
+export default function CompaniesList({
+  isCompanyUser,
   uniqueLocations,
   uniqueCompanies,
+  uniqueIndustries,
   user,
-  isCompanyUser,
+  companyId,
   onboardingComplete,
-  initialJobs,
+  initialCompanies,
   totalCount,
 }: {
+  isCompanyUser: boolean;
   uniqueLocations: { location: string }[];
   uniqueCompanies: { company_name: string }[];
+  uniqueIndustries: { industry: string }[];
   user: User | null;
-  isCompanyUser: boolean;
+  companyId: string;
   onboardingComplete: boolean;
-  initialJobs: IJob[];
+  initialCompanies: IFormData[];
   totalCount: number;
 }) {
-  const [dataState, setData] = useState<IJob[]>([]);
+  const [dataState, setData] = useState<IFormData[] | never[] | null>();
+  const [countState, setCount] = useState<number | null>();
   const [loading, setLoading] = useState(true);
-  const [countState, setCount] = useState<number>(0);
+
   const searchParameters = useSearchParams();
 
   useEffect(() => {
     (async () => {
-      setCount(initialJobs.length);
-      setData(initialJobs);
+      setCount(initialCompanies.length);
+      setData(initialCompanies);
       setLoading(false);
     })();
-  }, [initialJobs]);
+  }, [initialCompanies]);
 
   if (loading) {
     return (
@@ -50,12 +55,15 @@ export default function JobsList({
         user={user}
         uniqueLocations={uniqueLocations}
         uniqueCompanies={uniqueCompanies}
+        uniqueIndustries={uniqueIndustries}
         isCompanyUser={isCompanyUser}
+        current_page={"companies"}
+        companyId={companyId}
         isOnboardingComplete={onboardingComplete}
         isAllJobsTab={!searchParameters.get("tab")}
-        isAppliedJobsTabActive={searchParameters.get("tab") === "applied"}
+        isAppliedJobsTabActive={false}
         totalCount={totalCount}
-        current_page="jobs"
       />
     );
+  // }
 }

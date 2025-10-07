@@ -80,7 +80,9 @@ export default function JobsPageSheetItem({
         <div className="flex items-center gap-1">
           <Link
             href={item.url}
-            className="text-lg font-medium truncate max-w-full flex-shrink-0"
+            className="text-lg font-medium truncate max-w-full flex-shrink-0 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             {item.name}
           </Link>
