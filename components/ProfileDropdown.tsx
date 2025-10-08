@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { LogOut, Pencil, User as UserIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, User as UserIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import {
@@ -24,6 +24,7 @@ import { Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Badge } from "./ui/badge";
 
 export default function ProfileDropdown({
   user,
@@ -97,8 +98,16 @@ export default function ProfileDropdown({
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuLabel>
-          {user?.user_metadata.full_name || user?.email || "User"}
+        <DropdownMenuLabel className="flex items-center gap-2">
+          <div
+            title={user?.user_metadata.full_name || user?.email || "User"}
+            className="truncate max-w-[120px]"
+          >
+            {user?.user_metadata.full_name || user?.email || "User"}
+          </div>
+          <Badge className="w-fit">
+            {isCompanyUser ? "Company" : "Applicant"}
+          </Badge>
         </DropdownMenuLabel>
         {isUserInfo ? (
           <DropdownMenuItem>
@@ -106,7 +115,7 @@ export default function ProfileDropdown({
               href={"/get-started?edit=true"}
               className="w-full flex items-center cursor-default gap-4"
             >
-              <UserIcon className="text-muted-foreground  h-4 w-4" /> Edit
+              <UserIcon className="text-muted-foreground  h-4 w-4" />
               Profile
             </Link>
           </DropdownMenuItem>
@@ -119,7 +128,7 @@ export default function ProfileDropdown({
               className="w-full flex items-center cursor-default gap-4"
               href={"/company"}
             >
-              <UserIcon className="text-muted-foreground h-4 w-4" />
+              <LayoutDashboard className="text-muted-foreground h-4 w-4" />
               Dashboard
             </Link>
           </DropdownMenuItem>
@@ -132,8 +141,8 @@ export default function ProfileDropdown({
               className="w-full flex items-center cursor-default gap-4"
               href={"/get-started?company=true&edit=true"}
             >
-              <Pencil className="text-muted-foreground h-4 w-4" />
-              Edit Profile
+              <UserIcon className="text-muted-foreground h-4 w-4" />
+              Profile
             </Link>
           </DropdownMenuItem>
         ) : (

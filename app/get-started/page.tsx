@@ -26,7 +26,7 @@ export default async function GetStartedPage({
         },
         {
           id: uuidv4(),
-          label: "Find Jobs",
+          label: "Jobs",
           href: "/jobs",
           type: "startswith",
         },

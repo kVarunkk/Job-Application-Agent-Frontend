@@ -65,7 +65,7 @@ export default function Footer() {
             </li>
             <li>
               <Link
-                href="/company"
+                href="/hire"
                 className="hover:underline  hover:opacity-100 transition-opacity"
               >
                 For Companies

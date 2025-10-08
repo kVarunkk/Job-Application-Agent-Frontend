@@ -43,6 +43,7 @@ export async function updateSession(request: NextRequest) {
   const publicPaths = [
     "/",
     "/jobs",
+    "/hire",
     "/api/jobs",
     "/api/jobs/filters",
     "/api/companies",

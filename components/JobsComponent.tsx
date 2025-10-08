@@ -181,15 +181,14 @@ export default function JobsComponent({
     <div className="flex flex-col gap-4 w-full">
       {jobs.length > 0 && (
         <div className="w-full flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center ">
+          <div className="flex items-center gap-2 ">
             {isSuitable && (
-              <Button
+              <button
+                className="text-muted-foreground hover:text-primary transition-colors p-4"
                 onClick={navigateBack}
-                variant={"ghost"}
-                className="rounded-full"
               >
-                <ArrowLeft />
-              </Button>
+                <ArrowLeft className="h-5 w-5" />
+              </button>
             )}
             <p className="text-sm text-muted-foreground">
               Showing {jobs.length} {isSuitable ? "suitable" : ""}

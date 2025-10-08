@@ -14,7 +14,7 @@ export default async function TermsOfServicePage() {
     },
     {
       id: uuidv4(),
-      label: "Find Jobs",
+      label: "Jobs",
       href: "/jobs",
       type: "startswith",
     },
@@ -39,7 +39,7 @@ export default async function TermsOfServicePage() {
     {
       id: uuidv4(),
       label: "Hire",
-      href: "/auth/login?company=true",
+      href: "/hire",
       type: "includes",
     },
   ];

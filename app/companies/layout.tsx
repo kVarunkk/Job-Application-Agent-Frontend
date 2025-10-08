@@ -35,7 +35,7 @@ export default async function JobsLayout({
           },
           {
             id: uuidv4(),
-            label: "Find Jobs",
+            label: "Jobs",
             href: "/jobs",
             type: "startswith",
           },
