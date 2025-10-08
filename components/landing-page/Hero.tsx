@@ -48,7 +48,7 @@ export default function Hero() {
             <Button>Get Hired!</Button>
           </Link>
         )}
-        <Link href={"/hire"}>
+        <Link href={isHirePage ? "/company" : "/hire"}>
           <Button
             variant={isHirePage ? "default" : "outline"}
             className={cn(
