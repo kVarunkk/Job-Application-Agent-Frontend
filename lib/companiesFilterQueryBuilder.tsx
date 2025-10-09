@@ -56,7 +56,7 @@ export const buildCompaniesQuery = async ({
       // Explicitly select columns and exclude 'embedding'
       selectString = `
         ${companiesSelectString},
-        user_favorites_companies!inner(user_id)
+        user_favorites_companies!inner(*)
     `;
       query = supabase
         .from("company_info")
@@ -66,7 +66,7 @@ export const buildCompaniesQuery = async ({
       // Explicitly select columns and exclude 'embedding'
       selectString = `
        ${companiesSelectString},
-        user_favorites_companies(user_id)
+        user_favorites_companies(*)
     `;
       query = supabase
         .from("company_info")

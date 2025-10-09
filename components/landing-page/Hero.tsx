@@ -17,7 +17,7 @@ export default function Hero() {
   const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
-  let isHirePage = pathname.startsWith("/hire");
+  const isHirePage = pathname.startsWith("/hire");
 
   useEffect(() => {
     setMounted(true);

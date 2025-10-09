@@ -69,7 +69,7 @@ export default async function JobsPage({
     params.set("tab", activeTab);
     const res = await fetch(`${url}/api/jobs?${params.toString()}`, {
       cache: "force-cache",
-      next: { revalidate: 3600 },
+      next: { revalidate: 3600, tags: ["jobs-feed"] },
       headers: {
         Cookie: headersList.get("Cookie") || "",
       },

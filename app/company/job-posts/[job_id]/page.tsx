@@ -28,7 +28,7 @@ export default async function JobPostPage({
         `
           *,
           applications(*, user_info(*), job_postings(*)),
-          company_info(name)
+          company_info(name, website)
         `
       )
       .eq("id", job_id)

@@ -77,7 +77,7 @@ export default async function JobsPage({
     params.set("tab", activeTab);
     const res = await fetch(`${url}/api/companies?${params.toString()}`, {
       cache: "force-cache",
-      next: { revalidate: 3600 },
+      next: { revalidate: 3600, tags: ["companies-feed"] },
       headers: {
         Cookie: headersList.get("Cookie") || "",
       },
@@ -156,7 +156,6 @@ export default async function JobsPage({
   } catch (error) {
     console.error("Failed to fetch jobs:", error);
   }
-  console.log(initialCompanies);
   const listOfUniqueIndustries = uniqueIndustries();
 
   return (

@@ -69,7 +69,7 @@ export const buildQuery = async ({
       // Explicitly select columns and exclude 'embedding'
       selectString = `
         ${allJobsSelectString},
-        user_favorites!inner(user_id),
+        user_favorites!inner(*),
         job_postings(${jobPostingsSelectString}, company_info(*), applications(*)),
         applications(*)
     `;
@@ -88,7 +88,7 @@ export const buildQuery = async ({
       // Explicitly select columns and exclude 'embedding'
       selectString = `
        ${allJobsSelectString},
-        user_favorites(user_id),
+        user_favorites(*),
         applications!inner(*)
     `;
       query = supabase

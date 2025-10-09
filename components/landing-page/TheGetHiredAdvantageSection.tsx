@@ -40,7 +40,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
 
 export default function TheGetHiredAdvantageSection() {
   const pathname = usePathname();
-  let isHirePage = pathname.startsWith("/hire");
+  const isHirePage = pathname.startsWith("/hire");
   return (
     <section className="relative px-4 py-24 lg:px-20 xl:px-40 2xl:px-80 bg-muted">
       {" "}

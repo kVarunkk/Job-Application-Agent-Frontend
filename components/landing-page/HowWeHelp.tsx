@@ -67,7 +67,7 @@ export function HowWeHelp() {
   const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false); // State to track if component is mounted
   const pathname = usePathname();
-  let isHirePage = pathname.startsWith("/hire");
+  const isHirePage = pathname.startsWith("/hire");
 
   useEffect(() => {
     setMounted(true);
@@ -114,8 +114,8 @@ export function HowWeHelp() {
           description: isHirePage
             ? "Manage all your applications in one place"
             : "Manage all your applications in one place. Soon, you'll be able to auto-apply to multiple jobs across various platforms with just a few clicks, saving you hours",
-          href: "/jobs",
-          cta: "Start Applying",
+          href: isHirePage ? "/company" : "/jobs",
+          cta: isHirePage ? "Learn more" : "Start Applying",
           background: (
             <Image
               alt="Feature"
@@ -142,7 +142,7 @@ export function HowWeHelp() {
           description: isHirePage
             ? "Create high-converting roles instantly. Our templates mandate key data to ensure clarity and attract only the most qualified, focused talent."
             : "Supports 10+ leading Job Boards.",
-          href: "/",
+          href: isHirePage ? "/company" : "/",
           cta: "Learn more",
           background: isHirePage ? (
             <div className="h-[150px] lg:h-[350px]">
@@ -238,7 +238,7 @@ export function HowWeHelp() {
           description: isHirePage
             ? "Manage all your active jobs and review pre-screened, engaged talent in a single, intuitive dashboard."
             : "Connect directly with companies. Discover exclusive job postings and get your profile seen by hiring managers who are actively looking for talent like yours, right here on our platform.",
-          href: "/",
+          href: isHirePage ? "/company" : "/",
           cta: "Learn more",
           background: (
             <Image
@@ -265,7 +265,7 @@ export function HowWeHelp() {
         },
       ];
     } else return [];
-  }, [isPaused, setIsPaused, mounted, theme, systemTheme]);
+  }, [isPaused, setIsPaused, mounted, theme, systemTheme, isHirePage]);
   return (
     <div
       id="howwehelp"

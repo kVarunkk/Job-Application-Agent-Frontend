@@ -5,6 +5,8 @@ import { User } from "@supabase/supabase-js";
 import { Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import PropagationStopper from "./StopPropagation";
+import { revalidateCache } from "@/app/actions/revalidate";
 
 interface BaseFavorite {
   id: string;
@@ -43,29 +45,36 @@ export default function JobFavoriteBtn({
 
   const isCompanyMode = !!company_id && !job_id;
 
-  const { currentFavoritesList, targetId, tableName, targetIdKey } =
-    useMemo(() => {
-      if (isCompanyMode) {
-        return {
-          currentFavoritesList: userFavoritesCompanyInfo || [],
-          targetId: company_id,
-          tableName: "user_favorites_companies",
-          targetIdKey: "company_id",
-        };
-      }
+  const {
+    currentFavoritesList,
+    targetId,
+    tableName,
+    targetIdKey,
+    revalidateTag,
+  } = useMemo(() => {
+    if (isCompanyMode) {
       return {
-        currentFavoritesList: userFavorites || [],
-        targetId: job_id,
-        tableName: "user_favorites",
-        targetIdKey: "job_id",
+        currentFavoritesList: userFavoritesCompanyInfo || [],
+        targetId: company_id,
+        tableName: "user_favorites_companies",
+        targetIdKey: "company_id",
+        revalidateTag: "companies-feed",
       };
-    }, [
-      isCompanyMode,
-      job_id,
-      company_id,
-      userFavorites,
-      userFavoritesCompanyInfo,
-    ]);
+    }
+    return {
+      currentFavoritesList: userFavorites || [],
+      targetId: job_id,
+      tableName: "user_favorites",
+      targetIdKey: "job_id",
+      revalidateTag: "jobs-feed",
+    };
+  }, [
+    isCompanyMode,
+    job_id,
+    company_id,
+    userFavorites,
+    userFavoritesCompanyInfo,
+  ]);
 
   useEffect(() => {
     if (user && targetId) {
@@ -116,19 +125,21 @@ export default function JobFavoriteBtn({
       const { error } = await query;
 
       if (error) throw new Error(error.message);
+      await revalidateCache(revalidateTag);
     } catch (e) {
       console.error("Favorite action failed:", e);
       setIsFavorite((prev) => !prev);
     }
   };
   return (
-    <div className="!ml-3 inline-block align-middle">
+    <PropagationStopper className="!ml-3 inline-block align-middle">
+      {/* <div > */}
       {isCompanyUser ? (
         ""
       ) : user ? (
         <button
-          onClick={(e) => {
-            e.stopPropagation();
+          onClick={() => {
+            // e.stopPropagation();
             handleFavorite();
           }}
         >
@@ -141,6 +152,7 @@ export default function JobFavoriteBtn({
           <Star className="h-5 w-5" />
         </Link>
       )}
-    </div>
+      {/* </div> */}
+    </PropagationStopper>
   );
 }

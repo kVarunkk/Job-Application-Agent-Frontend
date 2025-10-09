@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import JobFavoriteBtn from "./JobFavoriteBtn";
 import JobApplyBtn from "./JobApplyBtn";
-import ProgressBtn from "./ProgressBtn";
 
 export default function JobItem({
   job,
@@ -28,7 +27,7 @@ export default function JobItem({
 }) {
   return (
     <>
-      <ProgressBtn href={`/jobs/${job.id}`} className="text-start">
+      <ModifiedLink href={`/jobs/${job.id}`} className="text-start">
         <div
           className={cn(
             "flex flex-col gap-3 p-4 group  rounded-lg transition hover:bg-secondary "
@@ -83,7 +82,7 @@ export default function JobItem({
             </div>
           )}
         </div>
-      </ProgressBtn>
+      </ModifiedLink>
     </>
   );
 }
@@ -143,6 +142,9 @@ function JobDetailBadges({
     case "wellfound":
       platform_url = "https://wellfound.com";
       break;
+    case "gethired":
+      platform_url = "https://gethired.devhub.co.in";
+      break;
     default:
       platform_url = "";
       break;
@@ -153,6 +155,7 @@ function JobDetailBadges({
         .filter((each) => each.value)
         .map((detail) => (
           <Badge
+            title={detail.label}
             variant={"outline"}
             key={detail.id}
             className={cn(
