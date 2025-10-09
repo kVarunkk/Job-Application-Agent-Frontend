@@ -22,6 +22,12 @@ export default async function AuthLayout({
     },
     {
       id: uuidv4(),
+      label: "Companies",
+      href: "/companies",
+      type: "startswith",
+    },
+    {
+      id: uuidv4(),
       label: "Features",
       href: "/#howwehelp",
       type: "includes",
