@@ -78,7 +78,7 @@ export default async function JobPostPage({
               Posted on {format(new Date(job.created_at), "PPP")}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <JobStatusSwitch job={job} />
             <CreateJobPostingDialog
               company_id={job.company_id}

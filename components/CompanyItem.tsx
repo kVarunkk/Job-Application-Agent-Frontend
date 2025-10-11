@@ -37,7 +37,7 @@ export default function CompanyItem({
                 <div className="flex items-center gap-1">
                   <ModifiedLink
                     href={`/companies/${company.id}`}
-                    className="inline-flex items-center gap-3 hover:underline"
+                    className="inline-flex items-center gap-3 hover:underline underline sm:no-underline underline-offset-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <img
@@ -64,9 +64,9 @@ export default function CompanyItem({
               <CompanyDetailBadges company={company} isSuitable={isSuitable} />
             </div>
             <Link
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
+              // onClick={(e) => {
+              //   e.stopPropagation();
+              // }}
               href={"/companies/" + company.id}
             >
               <Button>
@@ -120,6 +120,25 @@ function CompanyDetailBadges({
             {detail.value}
           </Badge>
         ))}
+
+      {company.website && (
+        <Link
+          onClick={(e) => e.stopPropagation()}
+          href={company.website}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Badge
+            variant={"secondary"}
+            className={cn(
+              "text-xs sm:text-sm font-medium hover:!text-secondary-foreground group-hover:border-secondary-foreground hover:underline",
+              "underline underline-offset-2 sm:no-underline"
+            )}
+          >
+            {company.website}
+          </Badge>
+        </Link>
+      )}
 
       {isSuitable && (
         <Badge

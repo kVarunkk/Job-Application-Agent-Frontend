@@ -210,7 +210,7 @@ export default function CreateJobPostingDialog({
       if (existingValues && existingValues.id) {
         payload.id = existingValues.id;
       }
-      const { error } = await supabase
+      const { data: new_job_posting, error } = await supabase
         .from("job_postings")
         .upsert(payload, {
           onConflict: "id",
@@ -218,7 +218,7 @@ export default function CreateJobPostingDialog({
         .select("*")
         .single();
 
-      if (error) throw error;
+      if (error || !new_job_posting) throw error;
 
       if (existingValues && existingValues.job_id) {
         const { error } = await supabase
@@ -246,20 +246,61 @@ export default function CreateJobPostingDialog({
           throw new Error(
             "Some error occured while updating the all jobs table"
           );
+      } else {
+        const { error: updateError } = await supabase
+          .from("job_postings")
+          .update({ status: "active" })
+          .eq("id", new_job_posting.id);
+
+        if (updateError) throw updateError;
+
+        if (!new_job_posting.job_id) {
+          // If there's no job_id, this is the first time it's being made active.
+          // Insert it into the 'all_jobs' table.
+          const { data: insertedData, error: insertError } = await supabase
+            .from("all_jobs")
+            .insert({
+              locations: new_job_posting.location,
+              job_type: new_job_posting.job_type,
+              job_name: new_job_posting.title,
+              description: new_job_posting.description,
+              visa_requirement: new_job_posting.visa_sponsorship,
+              salary_range: new_job_posting.salary_range,
+              salary_min: new_job_posting.min_salary,
+              salary_max: new_job_posting.max_salary,
+              experience_min: new_job_posting.min_experience,
+              experience_max: new_job_posting.max_experience,
+              equity_range: new_job_posting.equity_range,
+              equity_min: new_job_posting.min_equity,
+              equity_max: new_job_posting.max_equity,
+              experience: new_job_posting.experience,
+              company_url: new_job_posting.company_info?.website,
+              company_name: new_job_posting.company_info?.name,
+              platform: "gethired",
+            })
+            .select("id")
+            .single();
+
+          if (insertError) throw insertError;
+
+          // Update the job_postings table with the new job_id
+          await supabase
+            .from("job_postings")
+            .update({ job_id: insertedData.id })
+            .eq("id", new_job_posting.id);
+        }
       }
 
       toast.success(
-        <div className="flex flex-col">
-          <span className="font-semibold">
-            {`Job Posting ${
-              existingValues ? "updated" : "created"
-            } Successfully!`}
-          </span>
-          <span className="text-sm mt-1">
-            Please make sure to activate your job post to make it visible to
-            applicants.
-          </span>
-        </div>,
+        // <div className="flex flex-col">
+        //   <span className="font-semibold">
+        <>
+          {`Job Posting ${
+            existingValues ? "updated" : "created"
+          } Successfully!`}
+        </>,
+        // </span>
+        // </div>,
         {
           duration: 8000,
         }
@@ -371,7 +412,7 @@ export default function CreateJobPostingDialog({
                       <FormControl>
                         <Textarea
                           placeholder="Write a detailed job description..."
-                          className="resize-y bg-input"
+                          className="resize-y bg-input h-[200px]"
                           {...field}
                         />
                       </FormControl>

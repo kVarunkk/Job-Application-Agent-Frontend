@@ -196,7 +196,9 @@ export default async function CompanyIdPage({
           <div className="md:col-span-2 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>About {companyData.name}</CardTitle>
+                <CardTitle className="text-xl">
+                  About {companyData.name}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {companyData.description}

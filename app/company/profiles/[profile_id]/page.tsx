@@ -9,7 +9,6 @@ import ProfileFavoriteStar from "@/components/ProfileFavoriteStar";
 import { buildSalaryRange } from "../../applicants/[applicant_id]/page";
 import ProfileActiveApplication from "@/components/ProfileActiveApplications";
 import SelectProfile from "@/components/SelectProfile";
-import { FileUser } from "lucide-react";
 
 export default async function ProfilePage({
   params,
@@ -104,19 +103,13 @@ export default async function ProfilePage({
           </div>
           <div className="flex items-center gap-5">
             <SelectProfile
-              userApplications={applicantProfile.applications}
+              // userApplications={applicantProfile.applications}
               jobPostings={companyData.job_postings}
-              applicantUserId={applicantProfile.user_id}
+              companyId={companyData.id}
+              // applicantUserId={applicantProfile.user_id}
+              // resumeUrl={applicantProfile.resume_url}
+              applicantProfile={applicantProfile}
             />
-
-            {signedUrl && (
-              <a href={signedUrl} target="_blank" rel="noopener noreferrer">
-                <Button className="w-full">
-                  <FileUser className="mr-1 h-4 w-4" />
-                  View Resume
-                </Button>
-              </a>
-            )}
           </div>
         </div>
 
@@ -139,6 +132,15 @@ export default async function ProfilePage({
               </CardHeader> */}
               <CardContent>
                 <div className="space-y-4 pt-5">
+                  {signedUrl && (
+                    <a
+                      href={signedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="w-full">View Resume</Button>
+                    </a>
+                  )}
                   <div>
                     <p className="font-semibold text-sm">Desired Roles</p>
                     <p className="text-sm text-muted-foreground">

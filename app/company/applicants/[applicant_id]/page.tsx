@@ -77,12 +77,8 @@ export default async function ApplicantPage({
         .from("applications")
         .createSignedUrl(application.resume_url, 3600); // URL valid for 1 hour
 
-    if (signedUrlError) {
-      console.error("Error creating signed URL:", signedUrlError);
-      return <Error />;
-    }
-
-    const signedUrl = signedUrlData.signedUrl;
+    const signedUrl =
+      !signedUrlError && signedUrlData ? signedUrlData.signedUrl : null;
 
     return (
       <div className="flex flex-col w-full gap-8">
@@ -125,11 +121,17 @@ export default async function ApplicantPage({
                     {application.job_postings?.title}
                   </Link>
                 </p>
-                <div className="mt-4">
-                  <a href={signedUrl} target="_blank" rel="noopener noreferrer">
-                    <Button className="w-full">View Resume</Button>
-                  </a>
-                </div>
+                {signedUrl && (
+                  <div className="mt-4">
+                    <a
+                      href={signedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="w-full">View Resume</Button>
+                    </a>
+                  </div>
+                )}
               </CardContent>
             </Card>
             <Card className="mt-4  border">

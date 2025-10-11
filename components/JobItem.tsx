@@ -39,8 +39,8 @@ export default function JobItem({
                 <div className="">
                   <ModifiedLink
                     href={`/jobs/${job.id}`}
-                    className="inline hover:underline"
-                    onClick={(e) => e.stopPropagation()}
+                    className="inline hover:underline underline sm:no-underline underline-offset-2"
+                    // onClick={(e) => e.stopPropagation()}
                   >
                     <h3 className="inline text-lg sm:text-xl font-semibold">
                       {job.job_name}
@@ -56,7 +56,7 @@ export default function JobItem({
                 {job.company_url ? (
                   <Link
                     href={job.company_url || ""}
-                    className="text-muted-foreground hover:underline w-fit"
+                    className="text-muted-foreground hover:underline w-fit underline sm:no-underline underline-offset-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {job.company_name}
@@ -175,7 +175,8 @@ function JobDetailBadges({
           <Badge
             variant={"secondary"}
             className={cn(
-              "text-xs sm:text-sm font-medium hover:!text-secondary-foreground group-hover:border-secondary-foreground hover:underline"
+              "text-xs sm:text-sm font-medium hover:!text-secondary-foreground group-hover:border-secondary-foreground hover:underline",
+              "underline underline-offset-2 sm:no-underline"
             )}
           >
             {job.platform}

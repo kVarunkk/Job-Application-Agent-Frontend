@@ -385,7 +385,7 @@ export default function CompanyOnboardingForm({ user }: { user: User | null }) {
                 <FormControl>
                   <Textarea
                     placeholder="Tell us a little bit about your company..."
-                    className="resize-y bg-input"
+                    className="resize-y bg-input h-[200px]"
                     {...field}
                   />
                 </FormControl>

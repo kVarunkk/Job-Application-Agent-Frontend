@@ -320,7 +320,7 @@ export default function JobApplicationDialog({
                             <FormControl>
                               <Textarea
                                 placeholder="Type your answer here..."
-                                className="resize-y bg-input"
+                                className="resize-y bg-input  h-[200px]"
                                 {...field}
                               />
                             </FormControl>
