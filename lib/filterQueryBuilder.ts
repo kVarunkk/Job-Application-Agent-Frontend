@@ -109,6 +109,10 @@ export const buildQuery = async ({
         .eq("status", "active");
     }
 
+    // Filter out entries with null or empty job_name
+    query = query.not("job_name", "is", null);
+    query = query.not("job_name", "eq", "");
+
     // --- NEW: VECTOR SEARCH LOGIC ---
     if (sortBy === "relevance" && userEmbedding) {
       // Re-build the query to include the similarity score and order by it
