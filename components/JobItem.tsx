@@ -37,7 +37,7 @@ export default function JobItem({
             <div className="flex flex-col gap-2 mb-6 sm:mb-0">
               <div className="flex flex-col ">
                 <div className="">
-                  <ModifiedLink
+                  <Link
                     href={`/jobs/${job.id}`}
                     className="inline hover:underline underline sm:no-underline underline-offset-2"
                     // onClick={(e) => e.stopPropagation()}
@@ -45,7 +45,7 @@ export default function JobItem({
                     <h3 className="inline text-lg sm:text-xl font-semibold">
                       {job.job_name}
                     </h3>
-                  </ModifiedLink>
+                  </Link>
                   <JobFavoriteBtn
                     isCompanyUser={isCompanyUser}
                     user={user}
