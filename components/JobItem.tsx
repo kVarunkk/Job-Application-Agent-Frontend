@@ -40,7 +40,7 @@ export default function JobItem({
                   <Link
                     href={`/jobs/${job.id}`}
                     className="inline hover:underline underline sm:no-underline underline-offset-2"
-                    // onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <h3 className="inline text-lg sm:text-xl font-semibold">
                       {job.job_name}

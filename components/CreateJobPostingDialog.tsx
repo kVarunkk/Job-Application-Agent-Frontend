@@ -215,7 +215,7 @@ export default function CreateJobPostingDialog({
         .upsert(payload, {
           onConflict: "id",
         })
-        .select("*")
+        .select("*, company_info(website, name)")
         .single();
 
       if (error || !new_job_posting) throw error;
