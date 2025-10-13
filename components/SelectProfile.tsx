@@ -9,19 +9,13 @@ import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 
 export default function SelectProfile({
-  // userApplications,
   jobPostings,
   applicantProfile,
   companyId,
-}: // applicantUserId,
-// resumeUrl,
-{
-  // userApplications?: IApplication[];
+}: {
   jobPostings?: { id: string; title: string; job_id: string }[];
   applicantProfile: IFormData;
   companyId: string;
-  // applicantUserId?: string;
-  // resumeUrl: string | null;
 }) {
   const router = useRouter();
   const [selectedProfiles, setSelectedProfiles] = useState<string[]>([]);
@@ -53,7 +47,7 @@ export default function SelectProfile({
 
       if (newlySelectedJobTitle && jobPostings) {
         const selectedJob = jobPostings?.find(
-          (job) => job.title === newlySelectedJobTitle
+          (job) => job.title.trim() === newlySelectedJobTitle
         );
 
         if (!selectedJob) {

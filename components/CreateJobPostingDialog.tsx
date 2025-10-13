@@ -224,7 +224,7 @@ export default function CreateJobPostingDialog({
         const { error } = await supabase
           .from("all_jobs")
           .update({
-            job_name: payload.title,
+            job_name: payload.title.trim(),
             job_type: payload.job_type,
             salary_range: payload.salary_range,
             salary_min: payload.min_salary,
@@ -236,7 +236,7 @@ export default function CreateJobPostingDialog({
             equity_min: payload.min_equity,
             equity_max: payload.max_equity,
             visa_requirement: payload.visa_sponsorship,
-            description: payload.description,
+            description: payload.description.trim(),
             locations: payload.location,
             updated_at: new Date().toISOString(),
           })

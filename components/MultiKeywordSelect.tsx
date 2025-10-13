@@ -119,9 +119,7 @@ export default function MultiKeywordSelect({
                 className="rounded-full bg-primary shadow-lg relative"
                 disabled={loading}
               >
-                {loading && (
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                )}
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 <Badge className="absolute -top-2 -right-2 rounded-full bg-red-600 text-white">
                   {initialKeywords.length}
                 </Badge>
@@ -434,6 +432,7 @@ function ItemsList({
           No items available
         </CommandEmpty>
         <CommandGroup
+          // className="!overflow-y-hidden"
           heading={
             header && header.heading ? (
               <div className="flex flex-col gap-2">

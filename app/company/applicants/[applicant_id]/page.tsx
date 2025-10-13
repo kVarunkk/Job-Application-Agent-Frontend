@@ -72,14 +72,21 @@ export default async function ApplicantPage({
 
     // Generate a signed URL for the resume. This is a secure way to access a private file.
     // The policy on the bucket should ensure only the company can generate this URL.
-    const { data: signedUrlData, error: signedUrlError } =
-      await supabase.storage
-        .from("applications")
-        .createSignedUrl(application.resume_url, 3600); // URL valid for 1 hour
+    let signedUrl: string | null = null;
+    try {
+      const { data: signedUrlData, error: signedUrlError } =
+        await supabase.storage
+          .from("applications")
+          .createSignedUrl(application.resume_url, 3600);
 
-    const signedUrl =
-      !signedUrlError && signedUrlData ? signedUrlData.signedUrl : null;
-
+      if (signedUrlError) {
+        console.error("Error generating signed URL:", signedUrlError);
+      } else if (signedUrlData) {
+        signedUrl = signedUrlData.signedUrl;
+      }
+    } catch (err) {
+      console.error("Exception generating signed URL:", err);
+    }
     return (
       <div className="flex flex-col w-full gap-8">
         <div>
