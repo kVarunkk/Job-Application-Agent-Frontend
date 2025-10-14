@@ -31,7 +31,6 @@ export default function JobsPageSheetItem({
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogView, setDialogView] = useState<"edit" | "delete">("edit");
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   const updateItem = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
