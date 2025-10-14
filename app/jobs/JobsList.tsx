@@ -55,6 +55,7 @@ export default function JobsList({
         isAllJobsTab={!searchParameters.get("tab")}
         isAppliedJobsTabActive={searchParameters.get("tab") === "applied"}
         totalCount={totalCount}
+        current_page="jobs"
       />
     );
 }

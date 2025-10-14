@@ -230,11 +230,21 @@ export function SignUpForm({
                 </Link>
               </div>
 
-              {!isCompany && (
+              {!isCompany ? (
                 <div className="mt-4 text-center text-xs">
                   Are you a company looking to hire candidates?{" "}
                   <Link
                     href={"/auth/sign-up?company=true"}
+                    className="underline underline-offset-4"
+                  >
+                    Sign up here
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-4 text-center text-xs">
+                  Are you looking for jobs?{" "}
+                  <Link
+                    href={"/auth/sign-up"}
                     className="underline underline-offset-4"
                   >
                     Sign up here

@@ -49,7 +49,7 @@ export default async function CompanyJobPostsPage() {
         <div>
           <BackButton />
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center gap-4 justify-between">
           <h1 className="text-3xl font-medium">Your Job Postings</h1>
           <CreateJobPostingDialog company_id={companyInfo.id} />
         </div>

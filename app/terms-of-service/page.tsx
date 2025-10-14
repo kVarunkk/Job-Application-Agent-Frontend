@@ -1,3 +1,4 @@
+import FootComponent from "@/components/FootComponent";
 import Footer from "@/components/landing-page/Footer";
 import NavbarParent, { INavItem } from "@/components/NavbarParent";
 import TermsOfService from "@/components/TermsOfService";
@@ -13,8 +14,14 @@ export default async function TermsOfServicePage() {
     },
     {
       id: uuidv4(),
-      label: "Find Jobs",
+      label: "Jobs",
       href: "/jobs",
+      type: "startswith",
+    },
+    {
+      id: uuidv4(),
+      label: "Companies",
+      href: "/companies",
       type: "startswith",
     },
     {
@@ -38,7 +45,7 @@ export default async function TermsOfServicePage() {
     {
       id: uuidv4(),
       label: "Hire",
-      href: "/auth/login?company=true",
+      href: "/hire",
       type: "includes",
     },
   ];
@@ -47,6 +54,9 @@ export default async function TermsOfServicePage() {
     <>
       <NavbarParent navItems={navItems} />
       <TermsOfService />
+      <div className="px-4 lg:px-20 xl:px-40 2xl:px-80 my-20">
+        <FootComponent />
+      </div>
       <Footer />
     </>
   );

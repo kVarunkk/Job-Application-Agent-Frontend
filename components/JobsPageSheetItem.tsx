@@ -31,7 +31,6 @@ export default function JobsPageSheetItem({
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogView, setDialogView] = useState<"edit" | "delete">("edit");
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   const updateItem = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -80,7 +79,9 @@ export default function JobsPageSheetItem({
         <div className="flex items-center gap-1">
           <Link
             href={item.url}
-            className="text-lg font-medium truncate max-w-full flex-shrink-0"
+            className="text-lg font-medium truncate max-w-full flex-shrink-0 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             {item.name}
           </Link>
@@ -190,7 +191,7 @@ export default function JobsPageSheetItem({
         {/* 3. URL/Origin Paragraph */}
         <p className="text-muted-foreground truncate">
           {/* The text here will automatically truncate due to the parent's max-w-[80%] and the 'truncate' class */}
-          {origin}
+          {/* {origin} */}
           {item.url}
         </p>
       </div>

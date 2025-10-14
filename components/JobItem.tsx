@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import JobFavoriteBtn from "./JobFavoriteBtn";
 import JobApplyBtn from "./JobApplyBtn";
-import ProgressBtn from "./ProgressBtn";
 
 export default function JobItem({
   job,
@@ -28,7 +27,7 @@ export default function JobItem({
 }) {
   return (
     <>
-      <ProgressBtn href={`/jobs/${job.id}`} className="text-start">
+      <ModifiedLink href={`/jobs/${job.id}`} className="text-start">
         <div
           className={cn(
             "flex flex-col gap-3 p-4 group  rounded-lg transition hover:bg-secondary "
@@ -38,15 +37,15 @@ export default function JobItem({
             <div className="flex flex-col gap-2 mb-6 sm:mb-0">
               <div className="flex flex-col ">
                 <div className="">
-                  <ModifiedLink
+                  <Link
                     href={`/jobs/${job.id}`}
-                    className="inline hover:underline"
+                    className="inline hover:underline underline sm:no-underline underline-offset-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <h3 className="inline text-lg sm:text-xl font-semibold">
                       {job.job_name}
                     </h3>
-                  </ModifiedLink>
+                  </Link>
                   <JobFavoriteBtn
                     isCompanyUser={isCompanyUser}
                     user={user}
@@ -57,7 +56,7 @@ export default function JobItem({
                 {job.company_url ? (
                   <Link
                     href={job.company_url || ""}
-                    className="text-muted-foreground hover:underline w-fit"
+                    className="text-muted-foreground hover:underline w-fit underline sm:no-underline underline-offset-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {job.company_name}
@@ -83,7 +82,7 @@ export default function JobItem({
             </div>
           )}
         </div>
-      </ProgressBtn>
+      </ModifiedLink>
     </>
   );
 }
@@ -143,6 +142,9 @@ function JobDetailBadges({
     case "wellfound":
       platform_url = "https://wellfound.com";
       break;
+    case "gethired":
+      platform_url = "https://gethired.devhub.co.in";
+      break;
     default:
       platform_url = "";
       break;
@@ -153,6 +155,7 @@ function JobDetailBadges({
         .filter((each) => each.value)
         .map((detail) => (
           <Badge
+            title={detail.label}
             variant={"outline"}
             key={detail.id}
             className={cn(
@@ -172,7 +175,8 @@ function JobDetailBadges({
           <Badge
             variant={"secondary"}
             className={cn(
-              "text-xs sm:text-sm font-medium hover:!text-secondary-foreground group-hover:border-secondary-foreground hover:underline"
+              "text-xs sm:text-sm font-medium hover:!text-secondary-foreground group-hover:border-secondary-foreground hover:underline",
+              "underline underline-offset-2 sm:no-underline"
             )}
           >
             {job.platform}

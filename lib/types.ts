@@ -191,16 +191,24 @@ export interface ICompanyInfo {
   headquarters: string;
   company_size: string;
   logo_url: string;
+  tag_line: string;
   created_at: string;
   updated_at: string;
   ai_search_uses: number;
   filled: boolean;
+  user_favorites_companies: {
+    id: string;
+    created_at: string;
+    updated_at: string;
+    user_id: string;
+    company_id: string;
+  }[];
 }
 
 export interface ICountry {
   country: string;
   cities: string[];
-  iso2: string;
+  iso: string;
 }
 
 export interface ICreateJobPostingFormData {

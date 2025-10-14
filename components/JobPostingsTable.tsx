@@ -54,7 +54,11 @@ export const JobStatusSwitch = ({ job }: { job: IJobPosting | IJobPost }) => {
 
   return (
     <div className="flex items-center">
-      <Switch checked={checkedState} onCheckedChange={handleUpdateStatus} />
+      <Switch
+        title={`${checkedState ? "Deactivate" : "Activate"}`}
+        checked={checkedState}
+        onCheckedChange={handleUpdateStatus}
+      />
     </div>
   );
 };

@@ -4,91 +4,155 @@ import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Star } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import PropagationStopper from "./StopPropagation";
+import { revalidateCache } from "@/app/actions/revalidate";
+
+interface BaseFavorite {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+}
+
+interface IUserFavorites extends BaseFavorite {
+  job_id: string;
+}
+
+interface IUserFavoritesCompanyInfo extends BaseFavorite {
+  company_id: string;
+}
 
 export default function JobFavoriteBtn({
   isCompanyUser,
   user,
   userFavorites,
   job_id,
+  userFavoritesCompanyInfo,
+  company_id,
 }: //   isFavorite,
 {
   isCompanyUser: boolean;
   user: User | null;
-  userFavorites: {
-    id: string;
-    created_at: string;
-    updated_at: string;
-    user_id: string;
-    job_id: string;
-  }[];
-  job_id: string;
+  userFavorites?: IUserFavorites[];
+  job_id?: string;
+  userFavoritesCompanyInfo?: IUserFavoritesCompanyInfo[];
+  company_id?: string;
   //   isFavorite: boolean;
 }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const supabase = createClient();
 
-  useEffect(() => {
-    if (user && userFavorites) {
-      setIsFavorite(
-        userFavorites.filter((each) => each.user_id === user?.id).length > 0
-      );
+  const isCompanyMode = !!company_id && !job_id;
+
+  const {
+    currentFavoritesList,
+    targetId,
+    tableName,
+    targetIdKey,
+    revalidateTag,
+  } = useMemo(() => {
+    if (isCompanyMode) {
+      return {
+        currentFavoritesList: userFavoritesCompanyInfo || [],
+        targetId: company_id,
+        tableName: "user_favorites_companies",
+        targetIdKey: "company_id",
+        revalidateTag: "companies-feed",
+      };
     }
-  }, [userFavorites, user]);
+    return {
+      currentFavoritesList: userFavorites || [],
+      targetId: job_id,
+      tableName: "user_favorites",
+      targetIdKey: "job_id",
+      revalidateTag: "jobs-feed",
+    };
+  }, [
+    isCompanyMode,
+    job_id,
+    company_id,
+    userFavorites,
+    userFavoritesCompanyInfo,
+  ]);
+
+  useEffect(() => {
+    if (user && targetId) {
+      const isCurrentlyFavorited = currentFavoritesList.some(
+        (fav) =>
+          fav.user_id === user.id &&
+          (isCompanyMode
+            ? (fav as IUserFavoritesCompanyInfo).company_id === company_id
+            : (fav as IUserFavorites).job_id === job_id)
+      );
+
+      setIsFavorite(isCurrentlyFavorited);
+    } else {
+      setIsFavorite(false);
+    }
+  }, [user, targetId, currentFavoritesList, isCompanyMode, company_id, job_id]);
 
   const handleFavorite = async () => {
+    if (!user) return;
+    setIsFavorite((prev) => !prev);
+
     try {
+      const isCurrentlyFavorited = currentFavoritesList.some(
+        (fav) =>
+          fav.user_id === user.id &&
+          (isCompanyMode
+            ? (fav as IUserFavoritesCompanyInfo).company_id === targetId
+            : (fav as IUserFavorites).job_id === targetId)
+      );
+
       let query;
 
-      if (
-        userFavorites?.filter((each) => each.user_id === user?.id).length > 0
-      ) {
+      if (isCurrentlyFavorited) {
         query = supabase
-          .from("user_favorites")
+          .from(tableName)
           .delete()
-          .eq("user_id", user?.id)
-          .eq("job_id", job_id);
-      } else
-        query = supabase.from("user_favorites").insert([
-          {
-            user_id: user?.id,
-            job_id: job_id,
-          },
-        ]);
+          .eq("user_id", user.id)
+          .eq(targetIdKey, targetId);
+      } else {
+        const insertObject: Record<string, string | undefined> = {
+          user_id: user.id,
+        };
+        insertObject[targetIdKey] = targetId;
+
+        query = supabase.from(tableName).insert([insertObject]);
+      }
 
       const { error } = await query;
 
-      if (error) throw new Error(error.details);
-    } catch {}
+      if (error) throw new Error(error.message);
+      await revalidateCache(revalidateTag);
+    } catch (e) {
+      console.error("Favorite action failed:", e);
+      setIsFavorite((prev) => !prev);
+    }
   };
   return (
-    <div className="!ml-3 inline-block align-middle">
+    <PropagationStopper className="!ml-3 inline-block align-middle">
+      {/* <div > */}
       {isCompanyUser ? (
         ""
       ) : user ? (
         <button
-          onClick={(e) => {
-            // e.preventDefault();
-            e.stopPropagation();
-            setIsFavorite(!isFavorite);
+          onClick={() => {
+            // e.stopPropagation();
             handleFavorite();
           }}
-          //   className="ml-3"
         >
           <Star
-            //   fill={isFavorite ? 'white' : "transparent"}
             className={`${isFavorite && "fill-black dark:fill-white"} h-5 w-5`}
           />
         </button>
       ) : (
-        <Link
-          onClick={(e) => e.stopPropagation()}
-          href={"/auth/sign-up"}
-          //   className="ml-3"
-        >
+        <Link onClick={(e) => e.stopPropagation()} href={"/auth/sign-up"}>
           <Star className="h-5 w-5" />
         </Link>
       )}
-    </div>
+      {/* </div> */}
+    </PropagationStopper>
   );
 }

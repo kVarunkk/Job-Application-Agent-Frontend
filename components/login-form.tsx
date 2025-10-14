@@ -191,11 +191,21 @@ export function LoginForm({
                   Sign up
                 </Link>
               </div>
-              {!isCompany && (
+              {!isCompany ? (
                 <div className="mt-4 text-center text-xs">
                   Are you a company looking to hire candidates?{" "}
                   <Link
                     href={"/auth/login?company=true"}
+                    className="underline underline-offset-4"
+                  >
+                    Login here
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-4 text-center text-xs">
+                  Are you looking for jobs?{" "}
+                  <Link
+                    href={"/auth/login"}
                     className="underline underline-offset-4"
                   >
                     Login here

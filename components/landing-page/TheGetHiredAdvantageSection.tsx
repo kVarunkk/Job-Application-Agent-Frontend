@@ -12,6 +12,7 @@ import {
 import { Pointer } from "../magicui/pointer";
 import { MousePointer2 } from "lucide-react";
 import { GridPattern } from "../magicui/grid-pattern";
+import { usePathname } from "next/navigation";
 
 interface MetricCardProps {
   value: string;
@@ -38,6 +39,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
 );
 
 export default function TheGetHiredAdvantageSection() {
+  const pathname = usePathname();
+  const isHirePage = pathname.startsWith("/hire");
   return (
     <section className="relative px-4 py-24 lg:px-20 xl:px-40 2xl:px-80 bg-muted">
       {" "}
@@ -63,25 +66,45 @@ export default function TheGetHiredAdvantageSection() {
             Advantage
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Revolutionizing your job search with efficiency and precision.
+            {isHirePage
+              ? "Simplifying your entire recruitment process, from drafting to placement, to ensure effortless, high-quality hiring"
+              : "Revolutionizing your job search with efficiency and precision."}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 z-10">
           <MetricCard
-            value="5x Faster"
-            title="Apply in Minutes"
-            description="Our smart automation cuts down application time, freeing you to focus on interviews."
+            value={isHirePage ? "90% Less Screening" : "5x Faster"}
+            title={isHirePage ? "Source with Precision" : "Apply in Minutes"}
+            description={
+              isHirePage
+                ? "Our smart matching technology instantly filters out noise, so your team focuses only on qualified candidates."
+                : "Our smart automation cuts down application time, freeing you to focus on interviews."
+            }
           />
           <MetricCard
-            value="3x More Relevant"
-            title="Discover Tailored Roles"
-            description="Our AI deeply understands your profile and surfaces opportunities perfectly aligned with your skills."
+            // Second Card Modification
+            value={isHirePage ? "40% Higher Conversion" : "3x More Relevant"}
+            title={
+              isHirePage
+                ? "Engage Pre-Qualified Talent"
+                : "Discover Tailored Roles"
+            }
+            description={
+              isHirePage
+                ? "Our AI deeply analyzes candidate profiles to surface those perfectly matched and actively engaged with your roles."
+                : "Our AI deeply understands your profile and surfaces opportunities perfectly aligned with your skills."
+            }
           />
           <MetricCard
-            value="Exclusive Access"
-            title="Connect Directly"
-            description="Gain a competitive edge with unique job postings straight from hiring companies."
+            // Third Card Modification
+            value={isHirePage ? "Zero Vacancy Time" : "Exclusive Access"}
+            title={isHirePage ? "Direct Talent Access" : "Connect Directly"}
+            description={
+              isHirePage
+                ? "Gain a competitive advantage by connecting instantly and directly with candidates who are ready to interview."
+                : "Gain a competitive edge with unique job postings straight from hiring companies."
+            }
           />
           <Pointer>
             <MousePointer2 className="w-6 h-6 text-yellow-500 fill-yellow-300" />{" "}

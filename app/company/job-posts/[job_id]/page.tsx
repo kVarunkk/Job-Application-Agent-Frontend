@@ -12,6 +12,7 @@ import { JobStatusSwitch } from "@/components/JobPostingsTable";
 import ApplicantsTable from "@/components/ApplicantsTable";
 import JobDescriptionCard from "@/components/JobDetailsCard";
 import FindSuitableProfilesForJobPost from "@/components/FindSuitableProfilesForJobPost";
+import ShareJobPosting from "@/components/ShareJobPosting";
 
 export default async function JobPostPage({
   params,
@@ -27,7 +28,7 @@ export default async function JobPostPage({
         `
           *,
           applications(*, user_info(*), job_postings(*)),
-          company_info(name)
+          company_info(name, website)
         `
       )
       .eq("id", job_id)
@@ -77,13 +78,14 @@ export default async function JobPostPage({
               Posted on {format(new Date(job.created_at), "PPP")}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <JobStatusSwitch job={job} />
             <CreateJobPostingDialog
               company_id={job.company_id}
               existingValues={existingValues}
             />
             <DeleteJobPosting job_posting_id={job.id} is_job_posting_page />
+            <ShareJobPosting job_id={job.job_id} />
             <FindSuitableProfilesForJobPost job_post_id={job_id} />
           </div>
         </div>

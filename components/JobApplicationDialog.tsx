@@ -36,8 +36,8 @@ import toast from "react-hot-toast";
 import { User } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import PropagationStopper from "./StopPropagation";
 
-// Define a dynamic schema for the questions array
 const createFormSchema = (questions: string[]) => {
   const schemaFields = questions.reduce<Record<string, z.ZodTypeAny>>(
     (acc, _, index) => {
@@ -52,12 +52,10 @@ const createFormSchema = (questions: string[]) => {
 
 export default function JobApplicationDialog({
   jobPost,
-  // dialogStateCallback,
   user,
   isAppliedJobsTabActive,
 }: {
   jobPost: IJob;
-  // dialogStateCallback?: (state: boolean) => void;
   user: User | null;
   isAppliedJobsTabActive: boolean;
 }) {
@@ -73,7 +71,10 @@ export default function JobApplicationDialog({
     [jobPost]
   );
 
-  // Dynamically create a Zod schema based on the number of questions
+  useEffect(() => {
+    console.log(applicationStatus);
+  }, [applicationStatus]);
+
   const formSchema = useMemo(() => createFormSchema(questions), [questions]);
 
   type FormSchemaType = z.infer<typeof formSchema>;
@@ -187,172 +188,171 @@ export default function JobApplicationDialog({
   };
 
   return (
-    <Dialog
-      open={isDialogOpen}
-      onOpenChange={(open) => {
-        setIsDialogOpen(open);
-        // if (dialogStateCallback) {
-        //   dialogStateCallback(open);
-        // }
-      }}
-    >
-      {applicationStatus ? (
-        <Tooltip delayDuration={100}>
-          <TooltipTrigger className="cursor-default" asChild>
-            <div>
-              <Button
-                onClick={(e) => e.stopPropagation()}
-                className="capitalize"
-                disabled={applicationStatus !== null}
-              >
-                {applicationStatus ?? "Apply Now"}{" "}
-                {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
-              </Button>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent className="max-w-[200px]">
-            Your current application status is <b>{applicationStatus}</b>.
-            You&apos;ll be notified via email if the status changes.
-          </TooltipContent>
-        </Tooltip>
-      ) : (
-        <DialogTrigger asChild>
-          <Button
-            onClick={(e) => e.stopPropagation()}
-            className="capitalize"
-            disabled={applicationStatus !== null}
-          >
-            {applicationStatus ?? "Apply Now"}{" "}
-            {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
-          </Button>
-        </DialogTrigger>
-      )}
-      <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0 overflow-hidden">
-        <div className="flex flex-col md:flex-row h-full">
-          {/* Left Panel: Company Info */}
-          <div className="flex-1 overflow-y-auto p-6 bg-secondary">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">
-                Apply for {jobPost.job_name}
-              </DialogTitle>
-              <DialogDescription>at {jobPost.company_name}</DialogDescription>
-            </DialogHeader>
-            {/* <Separator className="my-4" /> */}
-            <div className="space-y-4 mt-5">
-              <Card className="shadow-none border">
-                <CardHeader>
-                  <CardTitle className="text-lg">Company Profile</CardTitle>
-                  <CardDescription>{jobPost.company_url}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    {jobPost.job_postings && jobPost.job_postings.length > 0
-                      ? jobPost.job_postings[0].company_info?.description
-                      : "No description provided."}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="shadow-none border">
-                <CardHeader>
-                  <CardTitle className="text-lg">Job Details</CardTitle>
-                  <CardDescription className="text-sm font-medium">
-                    {jobPost.job_type} | {jobPost.locations.join(", ")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {jobPost.description || "No description provided."}
-                  </p>
-                  {jobPost.salary_range && (
-                    <div>
-                      <p className="font-semibold text-sm">Salary Range</p>
-                      <p className="text-sm text-muted-foreground">
-                        {jobPost.salary_range}
-                      </p>
-                    </div>
-                  )}
-                  {jobPost.experience && (
-                    <div>
-                      <p className="font-semibold text-sm">Experience</p>
-                      <p className="text-sm text-muted-foreground">
-                        {jobPost.experience}
-                      </p>
-                    </div>
-                  )}
-                  {jobPost.visa_requirement && (
-                    <div>
-                      <p className="font-semibold text-sm">Visa Requirement</p>
-                      <p className="text-sm text-muted-foreground">
-                        {jobPost.visa_requirement}
-                      </p>
-                    </div>
-                  )}
-                  {jobPost.equity_range && (
-                    <div>
-                      <p className="font-semibold text-sm">Equity</p>
-                      <p className="text-sm text-muted-foreground">
-                        {jobPost.equity_range}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              {/* You can add more company details here */}
-            </div>
-          </div>
-
-          {/* Right Panel: Application Form */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                <h3 className="text-lg font-semibold">Your Answers</h3>
-                {questions.length > 0 ? (
-                  questions.map((question, index) => (
-                    <FormField
-                      key={index}
-                      control={form.control}
-                      name={`question_${index}`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{question}</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Type your answer here..."
-                              className="resize-y bg-input"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    This job does not have any custom questions.
-                  </p>
-                )}
-
-                <div className="flex justify-end mt-6">
-                  <Button type="submit" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Submitting...
-                      </>
-                    ) : (
-                      "Submit Application"
+    <PropagationStopper>
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open);
+        }}
+      >
+        {applicationStatus ? (
+          <Tooltip delayDuration={100}>
+            <TooltipTrigger className="cursor-default" asChild>
+              <div>
+                <Button
+                  onClick={(e) => e.stopPropagation()}
+                  className="capitalize"
+                  disabled={
+                    applicationStatus !== null || jobPost.status === "inactive"
+                  }
+                >
+                  {applicationStatus ?? "Apply Now"}{" "}
+                  {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
+                </Button>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[200px]">
+              Your current application status is <b>{applicationStatus}</b>.
+              You&apos;ll be notified via email if the status changes.
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <DialogTrigger asChild>
+            <Button
+              // onClick={(e) => e.stopPropagation()}
+              className="capitalize"
+              disabled={
+                applicationStatus !== null || jobPost.status === "inactive"
+              }
+            >
+              {applicationStatus ?? "Apply Now"}{" "}
+              {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
+            </Button>
+          </DialogTrigger>
+        )}
+        <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0 overflow-hidden">
+          <div className="flex flex-col md:flex-row h-full">
+            {/* Left Panel: Company Info */}
+            <div className="flex-1 overflow-y-auto p-6 bg-secondary">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">
+                  Apply for {jobPost.job_name}
+                </DialogTitle>
+                <DialogDescription>at {jobPost.company_name}</DialogDescription>
+              </DialogHeader>
+              {/* <Separator className="my-4" /> */}
+              <div className="space-y-4 mt-5">
+                <Card className="shadow-none border">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Company Profile</CardTitle>
+                    {jobPost.company_url && (
+                      <CardDescription>{jobPost.company_url}</CardDescription>
                     )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm ">
+                      {jobPost.job_postings && jobPost.job_postings.length > 0
+                        ? jobPost.job_postings[0].company_info?.description
+                        : "No description provided."}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="shadow-none border">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Job Details</CardTitle>
+                    <CardDescription className="text-sm font-medium">
+                      {jobPost.job_type} | {jobPost.locations.join(", ")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm  whitespace-pre-wrap">
+                      {jobPost.description || "No description provided."}
+                    </p>
+                    {jobPost.salary_range && (
+                      <div>
+                        <p className="font-semibold text-sm">Salary Range</p>
+                        <p className="text-sm ">{jobPost.salary_range}</p>
+                      </div>
+                    )}
+                    {jobPost.experience && (
+                      <div>
+                        <p className="font-semibold text-sm">Experience</p>
+                        <p className="text-sm ">{jobPost.experience}</p>
+                      </div>
+                    )}
+                    {jobPost.visa_requirement && (
+                      <div>
+                        <p className="font-semibold text-sm">
+                          Visa Requirement
+                        </p>
+                        <p className="text-sm ">{jobPost.visa_requirement}</p>
+                      </div>
+                    )}
+                    {jobPost.equity_range && (
+                      <div>
+                        <p className="font-semibold text-sm">Equity</p>
+                        <p className="text-sm ">{jobPost.equity_range}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                {/* You can add more company details here */}
+              </div>
+            </div>
+
+            {/* Right Panel: Application Form */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
+                  <h3 className="text-lg font-semibold">Your Answers</h3>
+                  {questions.length > 0 ? (
+                    questions.map((question, index) => (
+                      <FormField
+                        key={index}
+                        control={form.control}
+                        name={`question_${index}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{question}</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Type your answer here..."
+                                className="resize-y bg-input  h-[200px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      This job does not have any custom questions.
+                    </p>
+                  )}
+
+                  <div className="flex justify-end mt-6">
+                    <Button type="submit" disabled={loading}>
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        "Submit Application"
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </PropagationStopper>
   );
 }

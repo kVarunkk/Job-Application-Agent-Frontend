@@ -72,18 +72,21 @@ export default async function ApplicantPage({
 
     // Generate a signed URL for the resume. This is a secure way to access a private file.
     // The policy on the bucket should ensure only the company can generate this URL.
-    const { data: signedUrlData, error: signedUrlError } =
-      await supabase.storage
-        .from("applications")
-        .createSignedUrl(application.resume_url, 3600); // URL valid for 1 hour
+    let signedUrl: string | null = null;
+    try {
+      const { data: signedUrlData, error: signedUrlError } =
+        await supabase.storage
+          .from("applications")
+          .createSignedUrl(application.resume_url, 3600);
 
-    if (signedUrlError) {
-      console.error("Error creating signed URL:", signedUrlError);
-      return <Error />;
+      if (signedUrlError) {
+        console.error("Error generating signed URL:", signedUrlError);
+      } else if (signedUrlData) {
+        signedUrl = signedUrlData.signedUrl;
+      }
+    } catch (err) {
+      console.error("Exception generating signed URL:", err);
     }
-
-    const signedUrl = signedUrlData.signedUrl;
-
     return (
       <div className="flex flex-col w-full gap-8">
         <div>
@@ -125,11 +128,17 @@ export default async function ApplicantPage({
                     {application.job_postings?.title}
                   </Link>
                 </p>
-                <div className="mt-4">
-                  <a href={signedUrl} target="_blank" rel="noopener noreferrer">
-                    <Button className="w-full">View Resume</Button>
-                  </a>
-                </div>
+                {signedUrl && (
+                  <div className="mt-4">
+                    <a
+                      href={signedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="w-full">View Resume</Button>
+                    </a>
+                  </div>
+                )}
               </CardContent>
             </Card>
             <Card className="mt-4  border">

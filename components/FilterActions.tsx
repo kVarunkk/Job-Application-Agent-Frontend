@@ -7,11 +7,11 @@ import { useProgress } from "react-transition-progress";
 import { Dispatch, SetStateAction, startTransition, useCallback } from "react";
 
 export default function FilterActions({
-  isProfilesPage,
+  currentPage,
   setOpenSheet,
   isApplyFiltersLoading,
 }: {
-  isProfilesPage: boolean;
+  currentPage: "jobs" | "profiles" | "companies";
   setOpenSheet: Dispatch<SetStateAction<boolean>> | undefined;
   isApplyFiltersLoading: boolean;
 }) {
@@ -32,10 +32,16 @@ export default function FilterActions({
     startTransition(() => {
       startProgress();
       router.push(
-        `/${isProfilesPage ? "company/profiles" : "jobs"}?${params.toString()}`
+        `/${
+          currentPage === "profiles"
+            ? "company/profiles"
+            : currentPage === "jobs"
+            ? "jobs"
+            : "companies"
+        }?${params.toString()}`
       );
     });
-  }, [sortBy, sortOrder, tab, setOpenSheet, router, isProfilesPage]);
+  }, [sortBy, sortOrder, tab, setOpenSheet, router, currentPage]);
 
   return (
     <div className="flex items-center justify-between">

@@ -69,7 +69,7 @@ export default async function JobsPage({
     params.set("tab", activeTab);
     const res = await fetch(`${url}/api/jobs?${params.toString()}`, {
       cache: "force-cache",
-      next: { revalidate: 3600 },
+      next: { revalidate: 3600, tags: ["jobs-feed"] },
       headers: {
         Cookie: headersList.get("Cookie") || "",
       },
@@ -79,7 +79,7 @@ export default async function JobsPage({
 
     const resFilters = await fetch(`${url}/api/jobs/filters`, {
       cache: "force-cache",
-      next: { revalidate: 3600 },
+      next: { revalidate: 86400 },
       headers: {
         Cookie: headersList.get("Cookie") || "",
       },
@@ -87,10 +87,8 @@ export default async function JobsPage({
 
     const filterData = await resFilters.json();
 
-    if (!resFilters.ok) throw new Error(filterData.message);
-
-    uniqueLocations = filterData.locations;
-    uniqueCompanies = filterData.companies;
+    uniqueLocations = resFilters.ok ? filterData.locations : [];
+    uniqueCompanies = resFilters.ok ? filterData.companies : [];
 
     // --- AI Re-ranking Logic ---
 
@@ -151,11 +149,12 @@ export default async function JobsPage({
   return (
     <div>
       <div className="flex items-start px-4 lg:px-20 xl:px-40 2xl:px-80 py-5 h-full gap-5">
-        <div className="hidden md:block w-1/3 px-2 sticky top-0 z-10 max-h-[calc(100vh-1.5rem)] overflow-y-scroll">
+        <div className="hidden md:block w-1/3 px-2 sticky top-0 z-10 max-h-[calc(100vh-1.5rem)] overflow-y-auto">
           <FilterComponent
             uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}
             onboardingComplete={onboardingComplete}
+            currentPage="jobs"
           />
         </div>
         <div className="w-full md:w-2/3 ">
@@ -164,6 +163,7 @@ export default async function JobsPage({
             isCompanyUser={isCompanyUser}
             isAISearch={isAISearch}
             applicationStatusFilter={applicationStatusFilter}
+            page="jobs"
           >
             {!applicationStatusFilter && (
               <TabsContent value="all">

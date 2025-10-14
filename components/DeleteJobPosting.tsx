@@ -70,7 +70,6 @@ export default function DeleteJobPosting({
         router.refresh();
       }
     } catch (error) {
-      console.error("API Error:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to delete job posting."
       );
@@ -80,7 +79,7 @@ export default function DeleteJobPosting({
   };
   return (
     <Dialog>
-      <DialogTrigger asChild>
+      <DialogTrigger title="Delete Job Post" asChild>
         <Button variant={"ghost"} className="text-muted-foreground">
           <Trash className="h-4 w-4" />
         </Button>

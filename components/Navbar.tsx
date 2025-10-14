@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { INavItemWithActive } from "./NavbarParent";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { Link as ModifiedLink } from "react-transition-progress/next";
 
 export default function NavbarComponent({
   items,
@@ -44,7 +45,7 @@ export default function NavbarComponent({
       {items ? (
         <div className=" items-center gap-4 text-sm hidden md:flex">
           {items.map((item) => (
-            <Link
+            <ModifiedLink
               key={item.id}
               href={item.href}
               className={cn(
@@ -53,7 +54,7 @@ export default function NavbarComponent({
               )}
             >
               {item.label}
-            </Link>
+            </ModifiedLink>
           ))}
         </div>
       ) : (
@@ -96,7 +97,7 @@ const NavbarSheet = ({ items }: { items: INavItemWithActive[] }) => {
         {items ? (
           <div className="flex flex-col gap-3 items-start ">
             {items.map((item) => (
-              <Link
+              <ModifiedLink
                 key={item.id}
                 href={item.href}
                 className={cn(
@@ -106,7 +107,7 @@ const NavbarSheet = ({ items }: { items: INavItemWithActive[] }) => {
                 onClick={() => setOpen(false)}
               >
                 {item.label}
-              </Link>
+              </ModifiedLink>
             ))}
           </div>
         ) : (

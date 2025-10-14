@@ -1,3 +1,4 @@
+import FootComponent from "@/components/FootComponent";
 import FAQSection from "@/components/landing-page/FAQSection";
 import Footer from "@/components/landing-page/Footer";
 import Hero from "@/components/landing-page/Hero";
@@ -10,8 +11,14 @@ export default async function Home() {
   const navItems: INavItem[] = [
     {
       id: uuidv4(),
-      label: "Find Jobs",
+      label: "Jobs",
       href: "/jobs",
+      type: "startswith",
+    },
+    {
+      id: uuidv4(),
+      label: "Companies",
+      href: "/companies",
       type: "startswith",
     },
     {
@@ -35,7 +42,7 @@ export default async function Home() {
     {
       id: uuidv4(),
       label: "Hire",
-      href: "/auth/login?company=true",
+      href: "/hire",
       type: "includes",
     },
   ];
@@ -48,6 +55,9 @@ export default async function Home() {
           <HowWeHelp />
           <TheGetHiredAdvantageSection />
           <FAQSection />
+          <div className="px-4 lg:px-20 xl:px-40 2xl:px-80">
+            <FootComponent />
+          </div>
           <Footer />
         </div>
       </div>

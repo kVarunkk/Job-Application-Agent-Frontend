@@ -36,9 +36,8 @@ export default async function AgentLayout({
     ];
 
     return (
-      <div className="h-screen w-screen">
+      <div className="h-screen w-screen overflow-x-hidden">
         <NavbarParent navItems={navItems} />
-
         <div className="w-full px-4 py-5 lg:px-20 xl:px-40 2xl:px-80">
           {children}
         </div>

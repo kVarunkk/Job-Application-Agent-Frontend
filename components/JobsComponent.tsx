@@ -1,6 +1,6 @@
 "use client";
 
-import { IFormData, IJob } from "@/lib/types";
+import { ICompanyInfo, IFormData, IJob } from "@/lib/types";
 import Link from "next/link";
 import {
   startTransition,
@@ -23,6 +23,7 @@ import ScrollToTopButton from "./ScrollToTopButton";
 import SortingComponent from "./SortingComponent";
 import { useProgress } from "react-transition-progress";
 import { Link as ModifiedLink } from "react-transition-progress/next";
+import CompanyItem from "./CompanyItem";
 
 export default function JobsComponent({
   initialJobs,
@@ -30,8 +31,9 @@ export default function JobsComponent({
   user,
   uniqueLocations,
   uniqueCompanies,
+  uniqueIndustries,
   isCompanyUser,
-  isProfilesPage = false,
+  current_page,
   uniqueJobRoles,
   uniqueIndustryPreferences,
   uniqueWorkStylePreferences,
@@ -47,8 +49,9 @@ export default function JobsComponent({
   user: User | null;
   uniqueLocations: { location: string }[];
   uniqueCompanies?: { company_name: string }[];
+  uniqueIndustries?: { industry: string }[];
   isCompanyUser: boolean;
-  isProfilesPage?: boolean;
+  current_page: "jobs" | "profiles" | "companies";
   uniqueJobRoles?: { job_role: string }[];
   uniqueIndustryPreferences?: { industry_preference: string }[];
   uniqueWorkStylePreferences?: { work_style_preference: string }[];
@@ -59,7 +62,9 @@ export default function JobsComponent({
   isAppliedJobsTabActive: boolean;
   totalCount: number;
 }) {
-  const [jobs, setJobs] = useState<IJob[] | IFormData[]>(initialJobs ?? []);
+  const [jobs, setJobs] = useState<IJob[] | IFormData[] | ICompanyInfo[]>(
+    initialJobs ?? []
+  );
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -88,7 +93,11 @@ export default function JobsComponent({
     try {
       const res = await fetch(
         `/api/${
-          isProfilesPage && isCompanyUser ? "profiles" : "jobs"
+          current_page === "profiles" && isCompanyUser
+            ? "profiles"
+            : current_page === "jobs"
+            ? "jobs"
+            : "companies"
         }?${params.toString()}`
       );
       if (!res.ok) throw new Error("Some error occured");
@@ -113,8 +122,10 @@ export default function JobsComponent({
     page,
     searchParams,
     isCompanyUser,
-    isProfilesPage,
+    current_page,
     isAllJobsTab,
+    isAppliedJobsTabActive,
+    totalCount,
   ]);
 
   useEffect(() => {
@@ -138,7 +149,7 @@ export default function JobsComponent({
         observer.unobserve(currentLoader);
       }
     };
-  }, [isLoading, jobs, loadMoreJobs]); // Re-run effect if loading state or jobs change
+  }, [isLoading, jobs, loadMoreJobs]);
 
   const navigateBack = async () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -156,7 +167,11 @@ export default function JobsComponent({
       startProgress();
       router.push(
         `/${
-          isProfilesPage && isCompanyUser ? "company/profiles" : "jobs"
+          current_page === "profiles" && isCompanyUser
+            ? "company/profiles"
+            : current_page === "jobs"
+            ? "jobs"
+            : "companies"
         }?${params.toString()}`
       );
     });
@@ -164,47 +179,50 @@ export default function JobsComponent({
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      {jobs.length > 0 && (
+      {true && (
         <div className="w-full flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center ">
+          <div className="flex items-center gap-2 ">
             {isSuitable && (
-              <Button
+              <button
+                className="text-muted-foreground hover:text-primary transition-colors p-4"
                 onClick={navigateBack}
-                variant={"ghost"}
-                className="rounded-full"
               >
-                <ArrowLeft />
-              </Button>
+                <ArrowLeft className="h-5 w-5" />
+              </button>
             )}
             <p className="text-sm text-muted-foreground">
               Showing {jobs.length} {isSuitable ? "suitable" : ""}
               {totalCount ? ` of ${totalCount}` : ""}{" "}
-              {isProfilesPage && isCompanyUser ? "profiles" : "jobs"}
+              {current_page === "profiles" && isCompanyUser
+                ? "profiles"
+                : current_page === "jobs"
+                ? "jobs"
+                : "companies"}
             </p>
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
             {user &&
               isOnboardingComplete &&
               !isCompanyUser &&
-              !isProfilesPage &&
+              !(current_page === "profiles") &&
               isAllJobsTab && (
                 <FindSuitableJobs
                   user={user}
                   setPage={setPage}
-                  isProfilesPage={isProfilesPage}
+                  currentPage={current_page}
                   companyId={companyId}
                 />
               )}
             {user &&
               isOnboardingComplete &&
               isCompanyUser &&
-              isProfilesPage &&
+              current_page === "profiles" &&
               isAllJobsTab && (
                 <FindSuitableJobs
                   user={user}
                   setPage={setPage}
-                  isProfilesPage={isProfilesPage}
+                  currentPage={current_page}
                   companyId={companyId}
                 />
               )}
@@ -233,7 +251,7 @@ export default function JobsComponent({
             {searchParams.get("sortBy") !== "relevance" && (
               <SortingComponent
                 isCompanyUser={isCompanyUser}
-                isProfilesPage={isProfilesPage}
+                currentPage={current_page}
                 setPage={setPage}
               />
             )}
@@ -246,15 +264,16 @@ export default function JobsComponent({
               uniqueWorkStylePreferences={uniqueWorkStylePreferences ?? []}
               uniqueSkills={uniqueSkills ?? []}
               isCompanyUser={isCompanyUser}
-              isProfilesPage={isProfilesPage}
+              currentPage={current_page}
               onboardingComplete={isOnboardingComplete}
+              uniqueIndustries={uniqueIndustries ?? []}
             />
           </div>
         </div>
       )}
 
       {jobs.length > 0 ? (
-        isProfilesPage && isCompanyUser ? (
+        current_page === "profiles" && isCompanyUser ? (
           (jobs as IFormData[]).map((job) => (
             <ProfileItem
               key={job.user_id}
@@ -263,7 +282,7 @@ export default function JobsComponent({
               companyId={companyId}
             />
           ))
-        ) : (
+        ) : current_page === "jobs" ? (
           (jobs as IJob[]).map((job) => (
             <JobItem
               isCompanyUser={isCompanyUser}
@@ -275,13 +294,34 @@ export default function JobsComponent({
               isOnboardingComplete={isOnboardingComplete}
             />
           ))
+        ) : (
+          (jobs as ICompanyInfo[]).map((job) => (
+            <CompanyItem
+              isCompanyUser={isCompanyUser}
+              key={job.id}
+              company={job}
+              user={user}
+              isSuitable={isSuitable}
+            />
+          ))
         )
       ) : (
         <p className="text-muted-foreground mt-20 mx-auto text-center">
-          No {isCompanyUser ? "profiles" : "jobs"} found for the selected
-          Filter. <br />
+          No{" "}
+          {isCompanyUser && current_page === "profiles"
+            ? "profiles"
+            : current_page === "jobs"
+            ? "jobs"
+            : "companies"}{" "}
+          found for the selected Filter. <br />
           <ModifiedLink
-            href={isCompanyUser ? "/company/profiles" : "/jobs"}
+            href={
+              isCompanyUser && current_page === "profiles"
+                ? "/company/profiles"
+                : current_page === "jobs"
+                ? "/jobs"
+                : "/companies"
+            }
             className="underline"
           >
             Clear Filters

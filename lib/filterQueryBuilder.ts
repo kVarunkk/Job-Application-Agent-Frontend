@@ -49,7 +49,7 @@ export const buildQuery = async ({
     ): string[] => {
       return param
         ? param
-            .split(",")
+            .split("|")
             .map((s) => s.trim())
             .filter(Boolean)
         : [];
@@ -69,7 +69,7 @@ export const buildQuery = async ({
       // Explicitly select columns and exclude 'embedding'
       selectString = `
         ${allJobsSelectString},
-        user_favorites!inner(user_id),
+        user_favorites!inner(*),
         job_postings(${jobPostingsSelectString}, company_info(*), applications(*)),
         applications(*)
     `;
@@ -88,7 +88,7 @@ export const buildQuery = async ({
       // Explicitly select columns and exclude 'embedding'
       selectString = `
        ${allJobsSelectString},
-        user_favorites(user_id),
+        user_favorites(*),
         applications!inner(*)
     `;
       query = supabase
@@ -108,6 +108,10 @@ export const buildQuery = async ({
         .select(selectString, { count: "exact" })
         .eq("status", "active");
     }
+
+    // Filter out entries with null or empty job_name
+    query = query.not("job_name", "is", null);
+    query = query.not("job_name", "eq", "");
 
     // --- NEW: VECTOR SEARCH LOGIC ---
     if (sortBy === "relevance" && userEmbedding) {
@@ -149,8 +153,9 @@ export const buildQuery = async ({
     }
 
     const locationsArray = parseMultiSelectParam(location);
+
     if (locationsArray.length > 0) {
-      query = query.overlaps("locations", locationsArray);
+      query = query.overlaps("normalized_locations", locationsArray);
     }
 
     const platformsArray = parseMultiSelectParam(platform);

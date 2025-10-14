@@ -21,6 +21,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { TApplicationStatus } from "./ApplicationStatusBadge";
+import PropagationStopper from "./StopPropagation";
+import { revalidateCache } from "@/app/actions/revalidate";
 
 export default function JobApplyBtn({
   isCompanyUser,
@@ -128,12 +130,14 @@ export default function JobApplyBtn({
         </Link>
       )}
 
-      <JobStatusDialog
-        job={job}
-        showDialog={showReturnDialog}
-        onClose={handleCloseDialog}
-        userId={user?.id}
-      />
+      {showReturnDialog && (
+        <JobStatusDialog
+          job={job}
+          showDialog={showReturnDialog}
+          onClose={handleCloseDialog}
+          userId={user?.id}
+        />
+      )}
     </>
   );
 }
@@ -159,7 +163,20 @@ function JobStatusDialog({
       });
       if (error) throw error;
 
+      await revalidateCache("jobs-feed");
+
       onClose(TApplicationStatus.SUBMITTED);
+      toast.success(
+        job.job_name && job.company_name ? (
+          <p>
+            Succesfully applied to{" "}
+            <span className="font-medium">{job.job_name}</span> at{" "}
+            <span className="font-medium">{job.company_name} </span>
+          </p>
+        ) : (
+          <p>Succesfully applied to the job</p>
+        )
+      );
     } catch (e) {
       console.error(e);
       toast.error(
@@ -169,45 +186,48 @@ function JobStatusDialog({
   };
 
   return (
-    <AlertDialog
-      open={showDialog}
-      onOpenChange={() => {
-        onClose();
-      }}
-    >
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Did you apply for the role of {job.job_name} at {job.company_name}?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            This helps us track your application status.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel asChild>
-            <Button
-              variant={"secondary"}
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-              }}
-            >
-              No
-            </Button>
-          </AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                updateJobApplicationStatus();
-              }}
-            >
-              Yes
-            </Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <PropagationStopper className="absolute inset-0">
+      <AlertDialog
+        open={showDialog}
+        // onOpenChange={() => {
+        //   onClose();
+        // }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Did you apply for the role of {job.job_name} at {job.company_name}
+              ?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This helps us track your application status.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button
+                variant={"secondary"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                }}
+              >
+                No
+              </Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateJobApplicationStatus();
+                }}
+              >
+                Yes
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </PropagationStopper>
   );
 }

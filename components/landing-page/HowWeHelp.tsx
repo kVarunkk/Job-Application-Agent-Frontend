@@ -8,6 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const platforms = [
   {
@@ -63,10 +65,10 @@ const platforms = [
 export function HowWeHelp() {
   const [isPaused, setIsPaused] = useState(false);
   const { theme, systemTheme } = useTheme();
-
   const [mounted, setMounted] = useState(false); // State to track if component is mounted
+  const pathname = usePathname();
+  const isHirePage = pathname.startsWith("/hire");
 
-  // When component mounts, set mounted to true
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -76,18 +78,25 @@ export function HowWeHelp() {
       return [
         {
           // Icon: FileSearchIcon,
-          name: "Personalized Job Discovery",
-          description:
-            "Stop wasting time on irrelevant jobs. Our advanced matching system learns your preferences and skills to bring you opportunities you'll actually love",
-          href: "/jobs",
-          cta: "Find your Dream Job",
+          name: isHirePage
+            ? "Personalized Candidate Discovery"
+            : "Personalized Job Discovery",
+          description: isHirePage
+            ? "Stop wasting time on irrelevant job seeker profiles. Our advanced matching system learns your preferences to bring you candidates you'll actually love"
+            : "Stop wasting time on irrelevant jobs. Our advanced matching system learns your preferences and skills to bring you opportunities you'll actually love",
+          href: isHirePage ? "/company/profiles" : "/jobs",
+          cta: `Find your Dream ${isHirePage ? "Candidate" : "Job"}`,
           background: (
             <Image
               alt="Feature"
               src={
                 theme === "dark" ||
                 (theme === "system" && systemTheme === "dark")
-                  ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20205115.png"
+                  ? isHirePage
+                    ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/hire_page/company-howwehelp-dark-1.png"
+                    : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20205115.png"
+                  : isHirePage
+                  ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/hire_page/company-howwehelp-light-1.png"
                   : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20204910.png"
               }
               width={400}
@@ -99,18 +108,25 @@ export function HowWeHelp() {
         },
         {
           // Icon: InputIcon,
-          name: "Effortless Application Management",
-          description:
-            "Manage all your applications in one place. Soon, you'll be able to auto-apply to multiple jobs across various platforms with just a few clicks, saving you hours",
-          href: "/jobs",
-          cta: "Start Applying",
+          name: isHirePage
+            ? "Effortless Applicant Tracking"
+            : "Effortless Application Management",
+          description: isHirePage
+            ? "Manage all your applications in one place"
+            : "Manage all your applications in one place. Soon, you'll be able to auto-apply to multiple jobs across various platforms with just a few clicks, saving you hours",
+          href: isHirePage ? "/company" : "/jobs",
+          cta: isHirePage ? "Learn more" : "Start Applying",
           background: (
             <Image
               alt="Feature"
               src={
                 theme === "dark" ||
                 (theme === "system" && systemTheme === "dark")
-                  ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20203706.png"
+                  ? isHirePage
+                    ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/hire_page/company-howwehelp-dark-2.png"
+                    : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20203706.png"
+                  : isHirePage
+                  ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/hire_page/company-howwehelp-light-2.png"
                   : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20204646.png"
               }
               width={400}
@@ -122,11 +138,28 @@ export function HowWeHelp() {
         },
         {
           // Icon: GlobeIcon,
-          name: "Multiplatform Support",
-          description: "Supports 10+ leading Job Boards.",
-          href: "/",
+          name: isHirePage ? "AI Job Composer" : "Multiplatform Support",
+          description: isHirePage
+            ? "Create high-converting roles instantly. Our templates mandate key data to ensure clarity and attract only the most qualified, focused talent."
+            : "Supports 10+ leading Job Boards.",
+          href: isHirePage ? "/company" : "/",
           cta: "Learn more",
-          background: (
+          background: isHirePage ? (
+            <div className="h-[150px] lg:h-[350px]">
+              <Image
+                alt="Feature"
+                src={
+                  theme === "dark" ||
+                  (theme === "system" && systemTheme === "dark")
+                    ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/hire_page/company-howwehelp-dark-4.png"
+                    : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/hire_page/company-howwehelp-light-4.png"
+                }
+                width={400}
+                height={400}
+                className="absolute -right-0 top-10 opacity-30 scale-150"
+              />
+            </div>
+          ) : (
             <div className="relative flex flex-col items-center justify-center overflow-hidden h-[250px] lg:h-[350px] w-full opacity-80 scale-125">
               {/* Layer 1: Slower, larger orbit, maybe less saturated logos */}
 
@@ -199,10 +232,13 @@ export function HowWeHelp() {
         },
         {
           // Icon: CalendarIcon,
-          name: "Direct Connections & Opportunities",
-          description:
-            "Connect directly with companies. Discover exclusive job postings and get your profile seen by hiring managers who are actively looking for talent like yours, right here on our platform.",
-          href: "/",
+          name: isHirePage
+            ? "Direct Talent Pipeline"
+            : "Direct Connections & Opportunities",
+          description: isHirePage
+            ? "Manage all your active jobs and review pre-screened, engaged talent in a single, intuitive dashboard."
+            : "Connect directly with companies. Discover exclusive job postings and get your profile seen by hiring managers who are actively looking for talent like yours, right here on our platform.",
+          href: isHirePage ? "/company" : "/",
           cta: "Learn more",
           background: (
             <Image
@@ -210,19 +246,26 @@ export function HowWeHelp() {
               src={
                 theme === "dark" ||
                 (theme === "system" && systemTheme === "dark")
-                  ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20223352.png"
+                  ? isHirePage
+                    ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/hire_page/company-howwehelp-dark-3.png"
+                    : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20223352.png"
+                  : isHirePage
+                  ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/hire_page/company-howwehelp-light-3.png"
                   : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-29%20223643.png"
               }
               width={400}
               height={400}
-              className="absolute -right-0 -top-60 opacity-30 h-[450px] w-[400px] sm:h-auto sm:w-auto"
+              className={cn(
+                "absolute -right-0 opacity-30  sm:h-auto sm:w-auto",
+                !isHirePage && "-top-60 h-[450px] w-[400px]"
+              )}
             />
           ),
           className: "lg:col-start-1 lg:col-end-3 lg:row-start-3 lg:row-end-4",
         },
       ];
     } else return [];
-  }, [isPaused, setIsPaused, mounted, theme, systemTheme]);
+  }, [isPaused, setIsPaused, mounted, theme, systemTheme, isHirePage]);
   return (
     <div
       id="howwehelp"
@@ -230,10 +273,14 @@ export function HowWeHelp() {
     >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          How We Help You Get Hired
+          {isHirePage
+            ? "    How We Revolutionize Your Hiring"
+            : "How We Help You Get Hired"}
         </h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Revolutionizing your job search with efficiency and precision.
+          {isHirePage
+            ? "Connecting you with exceptional, pre-qualified talent with speed and unmatched precision."
+            : "Revolutionizing your job search with efficiency and precision."}
         </p>
       </div>
       <BentoGrid className="lg:grid-rows-3 lg:grid-cols-2">

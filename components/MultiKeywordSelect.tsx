@@ -10,7 +10,7 @@ import React, {
   useEffect,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { X, Check, ChevronsUpDown, User } from "lucide-react";
+import { X, Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VariableSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
@@ -49,6 +49,11 @@ interface MultiKeywordSelectProps {
   availableItems?: string[];
   isVirtualized?: boolean;
   showKeywords?: boolean;
+  loading?: boolean;
+  header?: {
+    heading: string;
+    description?: string;
+  };
 }
 
 export default function MultiKeywordSelect({
@@ -60,6 +65,8 @@ export default function MultiKeywordSelect({
   availableItems = [],
   isVirtualized = false,
   showKeywords = true,
+  loading = false,
+  header,
 }: MultiKeywordSelectProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -110,11 +117,12 @@ export default function MultiKeywordSelect({
                 role="combobox"
                 aria-expanded={open}
                 className="rounded-full bg-primary shadow-lg relative"
+                disabled={loading}
               >
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 <Badge className="absolute -top-2 -right-2 rounded-full bg-red-600 text-white">
                   {initialKeywords.length}
                 </Badge>
-                <User />
                 <span className="truncate">{placeholder}</span>
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />{" "}
               </Button>
@@ -133,46 +141,21 @@ export default function MultiKeywordSelect({
               </Button>
             )}
           </PopoverTrigger>
-          {name === "profile" ? (
-            <PopoverContent
-              className="p-0 relative"
-              style={{ pointerEvents: "auto" }}
-            >
-              <div
-                className="max-h-[300px] overflow-y-auto"
-                style={{
-                  maskImage:
-                    "linear-gradient(to bottom, black 50%, transparent 100%)",
-                }}
-              >
-                <ItemsList
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
-                  isVirtualized={isVirtualized}
-                  filteredAvailableItems={filteredAvailableItems}
-                  Row={Row}
-                  initialKeywords={initialKeywords}
-                  addKeyword={addKeyword}
-                  removeKeyword={removeKeyword}
-                  name={name}
-                />
-              </div>
-            </PopoverContent>
-          ) : (
-            <PopoverContent className="p-0 " style={{ pointerEvents: "auto" }}>
-              <ItemsList
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                isVirtualized={isVirtualized}
-                filteredAvailableItems={filteredAvailableItems}
-                Row={Row}
-                initialKeywords={initialKeywords}
-                addKeyword={addKeyword}
-                removeKeyword={removeKeyword}
-                name={name}
-              />
-            </PopoverContent>
-          )}
+
+          <PopoverContent className="p-0 " style={{ pointerEvents: "auto" }}>
+            <ItemsList
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              isVirtualized={isVirtualized}
+              filteredAvailableItems={filteredAvailableItems}
+              Row={Row}
+              initialKeywords={initialKeywords}
+              addKeyword={addKeyword}
+              removeKeyword={removeKeyword}
+              name={name}
+              header={header}
+            />
+          </PopoverContent>
         </Popover>
       ) : (
         <Drawer open={open} onOpenChange={setOpen}>
@@ -181,8 +164,11 @@ export default function MultiKeywordSelect({
               <Button
                 role="combobox"
                 aria-expanded={open}
-                className="rounded-full bg-primary shadow-lg"
+                className="rounded-full bg-primary shadow-lg relative"
               >
+                <Badge className="absolute -top-2 -right-2 rounded-full bg-red-600 text-white">
+                  {initialKeywords.length}
+                </Badge>
                 <span className="truncate">{placeholder}</span>
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -242,6 +228,7 @@ export default function MultiKeywordSelect({
                   addKeyword={addKeyword}
                   removeKeyword={removeKeyword}
                   name={name}
+                  header={header}
                 />
               </div>
             </DrawerContent>
@@ -349,6 +336,7 @@ function ItemsList({
   addKeyword,
   removeKeyword,
   name,
+  header,
 }: {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
@@ -376,6 +364,10 @@ function ItemsList({
   addKeyword: (keyword: string) => void;
   removeKeyword: (keyword: string) => void;
   name: keyof GenericFormData;
+  header?: {
+    heading: string;
+    description?: string;
+  };
 }) {
   const [rowHeights, setRowHeights] = useState<Record<string, number>>({});
   const listRef = useRef<VariableSizeList | null>(null);
@@ -439,7 +431,21 @@ function ItemsList({
         >
           No items available
         </CommandEmpty>
-        <CommandGroup>
+        <CommandGroup
+          // className="!overflow-y-hidden"
+          heading={
+            header && header.heading ? (
+              <div className="flex flex-col gap-2">
+                <div className="font-semibold">{header.heading}</div>
+                {header.description && (
+                  <div className="">{header.description}</div>
+                )}
+              </div>
+            ) : (
+              ""
+            )
+          }
+        >
           {isVirtualized
             ? filteredAvailableItems.length > 0 && (
                 <div className="h-60 w-full">
