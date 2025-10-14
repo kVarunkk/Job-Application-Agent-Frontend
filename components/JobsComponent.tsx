@@ -179,7 +179,7 @@ export default function JobsComponent({
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      {jobs.length > 0 && (
+      {true && (
         <div className="w-full flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-2 ">
             {isSuitable && (

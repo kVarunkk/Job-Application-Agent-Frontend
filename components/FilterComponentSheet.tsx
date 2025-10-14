@@ -46,7 +46,12 @@ export default function FilterComponentSheet({
 
   if (searchParams.size > 0) {
     searchParams.forEach((value, key) => {
-      if (key !== "sortOrder" && key !== "sortBy" && key !== "job_post") {
+      if (
+        key !== "sortOrder" &&
+        key !== "sortBy" &&
+        key !== "job_post" &&
+        key !== "tab"
+      ) {
         filtersApplied.push({
           id: uuidv4(),
           name: key,
