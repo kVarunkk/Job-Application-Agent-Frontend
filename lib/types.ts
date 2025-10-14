@@ -208,7 +208,7 @@ export interface ICompanyInfo {
 export interface ICountry {
   country: string;
   cities: string[];
-  iso2: string;
+  iso: string;
 }
 
 export interface ICreateJobPostingFormData {

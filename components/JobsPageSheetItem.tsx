@@ -192,7 +192,7 @@ export default function JobsPageSheetItem({
         {/* 3. URL/Origin Paragraph */}
         <p className="text-muted-foreground truncate">
           {/* The text here will automatically truncate due to the parent's max-w-[80%] and the 'truncate' class */}
-          {origin}
+          {/* {origin} */}
           {item.url}
         </p>
       </div>

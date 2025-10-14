@@ -101,10 +101,10 @@ export default function MultiLocationSelector({
 
     if (isRemote === "yes") {
       locationString = selectedCountry
-        ? `Remote (${countryData?.iso2})`
+        ? `Remote (${countryData?.iso})`
         : "Remote";
     } else if (selectedCity && selectedCountry) {
-      locationString = `${selectedCity} (${countryData?.iso2})`;
+      locationString = `${selectedCity} (${countryData?.iso})`;
     } else if (selectedCountry) {
       locationString = selectedCountry;
     }
