@@ -79,7 +79,7 @@ export default async function JobsPage({
 
     const resFilters = await fetch(`${url}/api/jobs/filters`, {
       cache: "force-cache",
-      next: { revalidate: 3600 },
+      next: { revalidate: 86400 },
       headers: {
         Cookie: headersList.get("Cookie") || "",
       },
@@ -87,10 +87,8 @@ export default async function JobsPage({
 
     const filterData = await resFilters.json();
 
-    if (!resFilters.ok) throw new Error(filterData.message);
-
-    uniqueLocations = filterData.locations;
-    uniqueCompanies = filterData.companies;
+    uniqueLocations = resFilters.ok ? filterData.locations : [];
+    uniqueCompanies = resFilters.ok ? filterData.companies : [];
 
     // --- AI Re-ranking Logic ---
 

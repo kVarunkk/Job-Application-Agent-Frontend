@@ -153,8 +153,9 @@ export const buildQuery = async ({
     }
 
     const locationsArray = parseMultiSelectParam(location);
+
     if (locationsArray.length > 0) {
-      query = query.overlaps("locations", locationsArray);
+      query = query.overlaps("normalized_locations", locationsArray);
     }
 
     const platformsArray = parseMultiSelectParam(platform);
