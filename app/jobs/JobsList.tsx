@@ -7,7 +7,7 @@ import { User } from "@supabase/supabase-js";
 import { IJob } from "@/lib/types";
 
 export default function JobsList({
-  uniqueLocations,
+  // uniqueLocations,
   uniqueCompanies,
   user,
   isCompanyUser,
@@ -15,7 +15,7 @@ export default function JobsList({
   initialJobs,
   totalCount,
 }: {
-  uniqueLocations: { location: string }[];
+  // uniqueLocations: { location: string }[];
   uniqueCompanies: { company_name: string }[];
   user: User | null;
   isCompanyUser: boolean;
@@ -48,7 +48,7 @@ export default function JobsList({
         initialJobs={dataState || []}
         totalJobs={countState || 0}
         user={user}
-        uniqueLocations={uniqueLocations}
+        // uniqueLocations={uniqueLocations}
         uniqueCompanies={uniqueCompanies}
         isCompanyUser={isCompanyUser}
         isOnboardingComplete={onboardingComplete}

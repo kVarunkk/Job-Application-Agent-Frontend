@@ -45,6 +45,7 @@ export async function updateSession(request: NextRequest) {
     "/jobs",
     "/hire",
     "/api/jobs",
+    "/api/locations",
     "/api/jobs/filters",
     "/api/companies",
     "/api/companies/filters",

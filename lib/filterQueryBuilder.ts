@@ -137,9 +137,9 @@ export const buildQuery = async ({
     }
     // --- END NEW LOGIC ---
 
-    if (isFavoriteTabActive && user) {
-      query = query.filter("user_favorites.user_id", "eq", user.id);
-    }
+    // if (isFavoriteTabActive && user) {
+    //   query = query.filter("user_favorites.user_id", "eq", user.id);
+    // }
 
     // Existing filters...
     const jobTypesArray = parseMultiSelectParam(jobType);

@@ -24,7 +24,7 @@ export default function FilterComponentSheet({
   onboardingComplete,
   uniqueIndustries,
 }: {
-  uniqueLocations: { location: string }[];
+  uniqueLocations?: { location: string }[];
   uniqueCompanies: { company_name: string }[];
   uniqueJobRoles: { job_role: string }[];
   uniqueIndustryPreferences: { industry_preference: string }[];

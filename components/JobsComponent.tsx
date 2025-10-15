@@ -47,7 +47,7 @@ export default function JobsComponent({
   initialJobs: IJob[] | IFormData[];
   totalJobs: number;
   user: User | null;
-  uniqueLocations: { location: string }[];
+  uniqueLocations?: { location: string }[];
   uniqueCompanies?: { company_name: string }[];
   uniqueIndustries?: { industry: string }[];
   isCompanyUser: boolean;

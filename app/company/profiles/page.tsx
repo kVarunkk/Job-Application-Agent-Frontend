@@ -62,7 +62,7 @@ export default async function ProfilesPage({
   try {
     const res = await fetch(`${url}/api/profiles?${params.toString()}`, {
       cache: "force-cache",
-      next: { revalidate: 3600 },
+      next: { revalidate: 3600, tags: ["profiles-feed"] },
       headers: {
         Cookie: headersList.get("Cookie") || "",
       },

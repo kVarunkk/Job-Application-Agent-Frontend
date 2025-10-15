@@ -5,6 +5,7 @@ const userInfoSelectString = `user_id, desired_roles, preferred_locations, min_s
 export async function buildProfileQuery({
   searchQuery,
   jobRoles,
+  jobTypes,
   locations,
   minExperience,
   maxExperience,
@@ -14,7 +15,7 @@ export async function buildProfileQuery({
   workStyle,
   companySize,
   industry,
-  visaRequired,
+  // visaRequired,
   sortKey,
   sortOrder,
   start_index,
@@ -22,18 +23,19 @@ export async function buildProfileQuery({
   isFavoriteTabActive = false,
   jobEmbedding,
 }: {
-  searchQuery?: string;
-  jobRoles?: string[];
-  locations?: string[];
-  minExperience?: number;
-  maxExperience?: number;
-  minSalary?: number;
-  maxSalary?: number;
-  skills?: string[];
-  workStyle?: string[];
-  companySize?: string[];
-  industry?: string[];
-  visaRequired?: boolean;
+  searchQuery?: string | null;
+  jobRoles?: string | null;
+  jobTypes?: string | null;
+  locations?: string | null;
+  minExperience?: string | null;
+  maxExperience?: string | null;
+  minSalary?: string | null;
+  maxSalary?: string | null;
+  skills?: string | null;
+  workStyle?: string | null;
+  companySize?: string | null;
+  industry?: string | null;
+  // visaRequired?: boolean;
   sortKey?: string;
   sortOrder?: "asc" | "desc";
   start_index: number;
@@ -46,6 +48,18 @@ export async function buildProfileQuery({
     const {
       data: { user },
     } = await supabase.auth.getUser();
+
+    const parseMultiSelectParam = (
+      param: string | null | undefined
+    ): string[] => {
+      return param
+        ? param
+            .split("|")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
+    };
+
     let query;
     let selectString;
 
@@ -122,45 +136,53 @@ export async function buildProfileQuery({
     if (searchQuery) {
       query = query.ilike("full_name", `%${searchQuery}%`);
     }
-    if (jobRoles) {
-      query = query.contains("desired_roles", jobRoles);
+    const jobRolesArray = parseMultiSelectParam(jobRoles);
+    if (jobRolesArray.length > 0) {
+      query = query.overlaps("desired_roles", jobRolesArray);
     }
-    if (locations) {
-      query = query.overlaps("preferred_locations", locations);
+    const jobTypesArray = parseMultiSelectParam(jobTypes);
+    if (jobTypesArray.length > 0) {
+      query = query.overlaps("job_type", jobTypesArray);
     }
-    if (minExperience !== undefined) {
-      query = query.gte("experience_years", minExperience);
+    const locationsArray = parseMultiSelectParam(locations);
+    if (locationsArray.length > 0) {
+      // console.log("Filtering locations:", locations);
+      query = query.overlaps("preferred_locations", locationsArray);
     }
-    if (maxExperience !== undefined) {
-      query = query.lte("experience_years", maxExperience);
+    if (minExperience) {
+      query = query.gte("experience_years", parseInt(minExperience));
     }
-    if (minSalary !== undefined) {
-      query = query.gte("min_salary", minSalary);
+    if (maxExperience) {
+      query = query.lte("experience_years", parseInt(maxExperience));
     }
-    if (maxSalary !== undefined) {
-      query = query.lte("max_salary", maxSalary);
+    if (minSalary) {
+      query = query.gte("min_salary", parseInt(minSalary));
     }
-    if (skills) {
-      query = query.overlaps("top_skills", skills);
+    if (maxSalary) {
+      query = query.lte("max_salary", parseInt(maxSalary));
     }
-    if (workStyle) {
-      query = query.contains("work_style_preferences", workStyle);
+    const skillsArray = parseMultiSelectParam(skills);
+    if (skillsArray.length > 0) {
+      query = query.overlaps("top_skills", skillsArray);
+    }
+    const workStyleArray = parseMultiSelectParam(workStyle);
+    if (workStyleArray.length > 0) {
+      query = query.overlaps("work_style_preferences", workStyleArray);
     }
     if (companySize) {
-      query = query.in("company_size_preference", companySize);
+      query = query.eq("company_size_preference", companySize);
     }
-    if (industry) {
-      query = query.contains("industry_preferences", industry);
+    const industryArray = parseMultiSelectParam(industry);
+    if (industryArray.length > 0) {
+      query = query.overlaps("industry_preferences", industryArray);
     }
-    if (visaRequired !== undefined) {
-      query = query.eq("visa_sponsorship_required", visaRequired);
-    }
+    // if (visaRequired !== undefined) {
+    //   query = query.eq("visa_sponsorship_required", visaRequired);
+    // }
 
     // Apply sorting
-    if (sortKey && sortOrder) {
+    if (sortKey && sortKey !== "relevance") {
       query = query.order(sortKey, { ascending: sortOrder === "asc" });
-    } else {
-      query = query.order("experience_years", { ascending: false }); // Default sort
     }
 
     // Apply pagination
