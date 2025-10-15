@@ -29,7 +29,7 @@ export default function JobsComponent({
   initialJobs,
   totalJobs,
   user,
-  uniqueLocations,
+  // uniqueLocations,
   uniqueCompanies,
   uniqueIndustries,
   isCompanyUser,
@@ -47,7 +47,7 @@ export default function JobsComponent({
   initialJobs: IJob[] | IFormData[];
   totalJobs: number;
   user: User | null;
-  uniqueLocations: { location: string }[];
+  // uniqueLocations: { location: string }[];
   uniqueCompanies?: { company_name: string }[];
   uniqueIndustries?: { industry: string }[];
   isCompanyUser: boolean;
@@ -257,7 +257,7 @@ export default function JobsComponent({
             )}
 
             <FilterComponentSheet
-              uniqueLocations={uniqueLocations}
+              // uniqueLocations={uniqueLocations}
               uniqueCompanies={uniqueCompanies ?? []}
               uniqueJobRoles={uniqueJobRoles ?? []}
               uniqueIndustryPreferences={uniqueIndustryPreferences ?? []}

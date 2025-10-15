@@ -59,7 +59,7 @@ export default async function JobsPage({
   const url = `${protocol}://${host}`;
 
   let initialJobs: IJob[] = [];
-  let uniqueLocations: { location: string }[] = [];
+  // let uniqueLocations: { location: string }[] = [];
   let uniqueCompanies: { company_name: string }[] = [];
   let totalCount: number = 0;
   const params = new URLSearchParams(
@@ -87,7 +87,7 @@ export default async function JobsPage({
 
     const filterData = await resFilters.json();
 
-    uniqueLocations = resFilters.ok ? filterData.locations : [];
+    // uniqueLocations = resFilters.ok ? filterData.locations : [];
     uniqueCompanies = resFilters.ok ? filterData.companies : [];
 
     // --- AI Re-ranking Logic ---
@@ -151,7 +151,7 @@ export default async function JobsPage({
       <div className="flex items-start px-4 lg:px-20 xl:px-40 2xl:px-80 py-5 h-full gap-5">
         <div className="hidden md:block w-1/3 px-2 sticky top-0 z-10 max-h-[calc(100vh-1.5rem)] overflow-y-auto">
           <FilterComponent
-            uniqueLocations={uniqueLocations}
+            // uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}
             onboardingComplete={onboardingComplete}
             currentPage="jobs"
@@ -170,7 +170,7 @@ export default async function JobsPage({
                 <JobsList
                   isCompanyUser={isCompanyUser}
                   user={user}
-                  uniqueLocations={uniqueLocations}
+                  // uniqueLocations={uniqueLocations}
                   uniqueCompanies={uniqueCompanies}
                   onboardingComplete={onboardingComplete}
                   initialJobs={initialJobs}
@@ -186,7 +186,7 @@ export default async function JobsPage({
                   <JobsList
                     isCompanyUser={isCompanyUser}
                     user={user}
-                    uniqueLocations={uniqueLocations}
+                    // uniqueLocations={uniqueLocations}
                     uniqueCompanies={uniqueCompanies}
                     onboardingComplete={onboardingComplete}
                     initialJobs={initialJobs}
@@ -199,7 +199,7 @@ export default async function JobsPage({
                 <JobsList
                   isCompanyUser={isCompanyUser}
                   user={user}
-                  uniqueLocations={uniqueLocations}
+                  // uniqueLocations={uniqueLocations}
                   onboardingComplete={onboardingComplete}
                   uniqueCompanies={uniqueCompanies}
                   initialJobs={initialJobs}

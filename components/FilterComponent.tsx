@@ -18,6 +18,7 @@ import InputFilter from "./InputFilterComponent";
 import { TApplicationStatus } from "@/lib/types";
 import { useProgress } from "react-transition-progress";
 import FilterActions from "./FilterActions";
+import { useCachedFetch } from "@/lib/hooks/useCachedFetch";
 
 type FilterConfig = {
   name: keyof FiltersState;
@@ -51,7 +52,7 @@ export type FiltersState = {
 };
 
 export default function FilterComponent({
-  uniqueLocations,
+  // uniqueLocations,
   uniqueCompanies,
   uniqueIndustries,
   setOpenSheet,
@@ -62,7 +63,7 @@ export default function FilterComponent({
   currentPage,
   onboardingComplete,
 }: {
-  uniqueLocations: { location: string }[];
+  // uniqueLocations: { location: string }[];
   uniqueCompanies?: { company_name: string }[];
   uniqueIndustries?: {
     industry: string;
@@ -79,6 +80,13 @@ export default function FilterComponent({
   const searchParams = useSearchParams();
   const startProgress = useProgress();
   const [isPending, startTransition] = useTransition();
+  const { data: countries, isLoading } = useCachedFetch<{ location: string }[]>(
+    "countryData",
+    "/api/locations",
+    undefined,
+    true
+  );
+
   const FILTER_CONFIG: FilterConfig[] = useMemo(() => {
     switch (currentPage) {
       case "jobs":
@@ -121,10 +129,13 @@ export default function FilterComponent({
             label: "Location",
             type: "multi-select", // Changed to multi-select
             placeholder: "Select the location of Job",
-            options: uniqueLocations.map((each) => ({
-              value: each.location,
-              label: each.location,
-            })),
+            options:
+              countries && !isLoading
+                ? countries.map((each) => ({
+                    value: each.location,
+                    label: each.location,
+                  }))
+                : [],
             isVirtualized: true,
           },
           {
@@ -254,10 +265,13 @@ export default function FilterComponent({
             type: "multi-select", // Changed to multi-select
             placeholder: "Select the location of Job",
 
-            options: uniqueLocations.map((each) => ({
-              value: each.location,
-              label: each.location,
-            })),
+            options:
+              countries && !isLoading
+                ? countries.map((each) => ({
+                    value: each.location,
+                    label: each.location,
+                  }))
+                : [],
           },
 
           {
@@ -290,10 +304,13 @@ export default function FilterComponent({
             label: "Location",
             type: "multi-select", // Changed to multi-select
             placeholder: "Select the location of Company",
-            options: uniqueLocations.map((each) => ({
-              value: each.location,
-              label: each.location,
-            })),
+            options:
+              countries && !isLoading
+                ? countries.map((each) => ({
+                    value: each.location,
+                    label: each.location,
+                  }))
+                : [],
             isVirtualized: true,
           },
           {
@@ -329,7 +346,8 @@ export default function FilterComponent({
     }
   }, [
     uniqueCompanies,
-    uniqueLocations,
+    countries,
+    isLoading,
     uniqueJobRoles,
     uniqueIndustries,
     uniqueIndustryPreferences,
@@ -462,6 +480,7 @@ export default function FilterComponent({
             className="mt-1 w-full"
             availableItems={config.options?.map((e) => e.value)}
             isVirtualized={config.isVirtualized}
+            loading={isLoading}
           />
         );
       case "multi-select-input":

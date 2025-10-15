@@ -2,11 +2,8 @@
 
 import { useEffect, useState } from "react";
 import VirtualizedSelect from "./VirtualizedSelect";
-
-interface CountryData {
-  country: string;
-  cities: string[];
-}
+import { useCachedFetch } from "@/lib/hooks/useCachedFetch";
+import { ICountry } from "@/lib/types";
 
 interface LocationSelectorProps {
   value: string;
@@ -14,12 +11,15 @@ interface LocationSelectorProps {
 }
 
 export function LocationSelector({ value, onChange }: LocationSelectorProps) {
-  const [countries, setCountries] = useState<CountryData[]>([]);
+  // const [countries, setCountries] = useState<CountryData[]>([]);
   const [cities, setCities] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  // const [isLoading, setIsLoading] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
+  const { data: countries, isLoading } = useCachedFetch<ICountry[]>(
+    "countryData",
+    "/api/locations"
+  );
 
   useEffect(() => {
     if (value) {
@@ -31,45 +31,45 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
     }
   }, [value]);
 
+  // useEffect(() => {
+  //   const fetchCountries = async () => {
+  //     const cachedData = localStorage.getItem("countryData");
+  //     const now = Date.now();
+
+  //     if (cachedData) {
+  //       const { data, expiry } = JSON.parse(cachedData);
+  //       if (now < expiry) {
+  //         setCountries(data);
+  //         setIsLoading(false);
+  //         return;
+  //       } else {
+  //         localStorage.removeItem("countryData");
+  //       }
+  //     }
+
+  //     setIsLoading(true);
+  //     try {
+  //       const response = await fetch("/api/locations");
+  //       const data = await response.json();
+  //       setCountries(data.data);
+
+  //       const oneDay = 24 * 60 * 60 * 1000;
+  //       localStorage.setItem(
+  //         "countryData",
+  //         JSON.stringify({ data: data.data, expiry: now + oneDay })
+  //       );
+  //     } catch (e) {
+  //       console.error(e);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   fetchCountries();
+  // }, []);
+
   useEffect(() => {
-    const fetchCountries = async () => {
-      const cachedData = localStorage.getItem("countryData");
-      const now = Date.now();
-
-      if (cachedData) {
-        const { data, expiry } = JSON.parse(cachedData);
-        if (now < expiry) {
-          setCountries(data);
-          setIsLoading(false);
-          return;
-        } else {
-          localStorage.removeItem("countryData");
-        }
-      }
-
-      setIsLoading(true);
-      try {
-        const response = await fetch("/api/locations");
-        const data = await response.json();
-        setCountries(data.data);
-
-        const oneDay = 24 * 60 * 60 * 1000;
-        localStorage.setItem(
-          "countryData",
-          JSON.stringify({ data: data.data, expiry: now + oneDay })
-        );
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCountries();
-  }, []);
-
-  useEffect(() => {
-    if (selectedCountry) {
+    if (selectedCountry && Array.isArray(countries)) {
       const countryData = countries.find((c) => c.country === selectedCountry);
       setCities(countryData?.cities || []);
     } else {

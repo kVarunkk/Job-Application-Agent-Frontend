@@ -12,6 +12,7 @@ import { X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ICountry } from "@/lib/types";
 import VirtualizedSelect from "./VirtualizedSelect";
+import { useCachedFetch } from "@/lib/hooks/useCachedFetch";
 
 interface MultiLocationSelectorProps {
   value: string[]; // controlled by RHF
@@ -24,54 +25,21 @@ export default function MultiLocationSelector({
   onChange,
   className = "",
 }: MultiLocationSelectorProps) {
-  const [countries, setCountries] = useState<ICountry[]>([]);
+  // const [countries, setCountries] = useState<ICountry[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [isRemote, setIsRemote] = useState<"yes" | "no" | "">("");
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch countries with caching
-  useEffect(() => {
-    const fetchCountries = async () => {
-      const cachedData = localStorage.getItem("countryData");
-      const now = Date.now();
-
-      if (cachedData) {
-        const { data, expiry } = JSON.parse(cachedData);
-        if (now < expiry) {
-          setCountries(data);
-          setIsLoading(false);
-          return;
-        } else {
-          localStorage.removeItem("countryData");
-        }
-      }
-
-      setIsLoading(true);
-      try {
-        const response = await fetch("/api/locations");
-        const data = await response.json();
-        setCountries(data.data);
-
-        const oneDay = 24 * 60 * 60 * 1000;
-        localStorage.setItem(
-          "countryData",
-          JSON.stringify({ data: data.data, expiry: now + oneDay })
-        );
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCountries();
-  }, []);
+  const { data: countries, isLoading } = useCachedFetch<ICountry[]>(
+    "countryData",
+    "/api/locations"
+  );
 
   // Load cities when country changes
   useEffect(() => {
-    if (selectedCountry) {
+    if (selectedCountry && countries) {
       const countryData = countries.find((c) => c.country === selectedCountry);
       setCities(countryData?.cities || []);
     } else {
@@ -96,7 +64,9 @@ export default function MultiLocationSelector({
   }, []);
 
   const addCurrentSelection = useCallback(() => {
-    const countryData = countries.find((c) => c.country === selectedCountry);
+    const countryData = countries
+      ? countries.find((c) => c.country === selectedCountry)
+      : undefined;
     let locationString = "";
 
     if (isRemote === "yes") {

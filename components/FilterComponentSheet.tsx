@@ -13,7 +13,7 @@ import { useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 
 export default function FilterComponentSheet({
-  uniqueLocations,
+  // uniqueLocations,
   uniqueCompanies,
   uniqueJobRoles,
   uniqueIndustryPreferences,
@@ -24,7 +24,7 @@ export default function FilterComponentSheet({
   onboardingComplete,
   uniqueIndustries,
 }: {
-  uniqueLocations: { location: string }[];
+  // uniqueLocations: { location: string }[];
   uniqueCompanies: { company_name: string }[];
   uniqueJobRoles: { job_role: string }[];
   uniqueIndustryPreferences: { industry_preference: string }[];
@@ -78,7 +78,7 @@ export default function FilterComponentSheet({
         </SheetHeader>
         {currentPage === "profiles" && isCompanyUser ? (
           <FilterComponent
-            uniqueLocations={uniqueLocations}
+            // uniqueLocations={uniqueLocations}
             uniqueJobRoles={uniqueJobRoles}
             uniqueIndustryPreferences={uniqueIndustryPreferences}
             uniqueWorkStylePreferences={uniqueWorkStylePreferences}
@@ -89,7 +89,7 @@ export default function FilterComponentSheet({
           />
         ) : currentPage === "jobs" ? (
           <FilterComponent
-            uniqueLocations={uniqueLocations}
+            // uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}
             setOpenSheet={setOpenSheet}
             onboardingComplete={onboardingComplete}
@@ -97,7 +97,7 @@ export default function FilterComponentSheet({
           />
         ) : (
           <FilterComponent
-            uniqueLocations={uniqueLocations}
+            // uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}
             uniqueIndustries={uniqueIndustries}
             setOpenSheet={setOpenSheet}
