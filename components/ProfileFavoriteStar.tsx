@@ -1,5 +1,6 @@
 "use client";
 
+import { revalidateCache } from "@/app/actions/revalidate";
 import { createClient } from "@/lib/supabase/client";
 import { IFormData } from "@/lib/types";
 import { Star } from "lucide-react";
@@ -56,6 +57,7 @@ export default function ProfileFavoriteStar({
       const { error } = await query;
 
       if (error) throw new Error(error.details);
+      await revalidateCache("profiles-feed");
     } catch (e) {
       console.error(e);
     }

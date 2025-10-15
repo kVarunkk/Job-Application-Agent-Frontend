@@ -52,7 +52,7 @@ export type FiltersState = {
 };
 
 export default function FilterComponent({
-  // uniqueLocations,
+  uniqueLocations,
   uniqueCompanies,
   uniqueIndustries,
   setOpenSheet,
@@ -63,7 +63,7 @@ export default function FilterComponent({
   currentPage,
   onboardingComplete,
 }: {
-  // uniqueLocations: { location: string }[];
+  uniqueLocations?: { location: string }[];
   uniqueCompanies?: { company_name: string }[];
   uniqueIndustries?: {
     industry: string;
@@ -80,12 +80,18 @@ export default function FilterComponent({
   const searchParams = useSearchParams();
   const startProgress = useProgress();
   const [isPending, startTransition] = useTransition();
-  const { data: countries, isLoading } = useCachedFetch<{ location: string }[]>(
-    "countryData",
-    "/api/locations",
-    undefined,
-    true
-  );
+  const { data: countries, isLoading } =
+    currentPage === "jobs"
+      ? useCachedFetch<{ location: string }[]>(
+          "countryData",
+          "/api/locations",
+          undefined,
+          true
+        )
+      : { data: null, isLoading: false };
+
+  const toOptions = (list?: { location: string }[]) =>
+    list?.map((each) => ({ value: each.location, label: each.location })) || [];
 
   const FILTER_CONFIG: FilterConfig[] = useMemo(() => {
     switch (currentPage) {
@@ -129,13 +135,8 @@ export default function FilterComponent({
             label: "Location",
             type: "multi-select", // Changed to multi-select
             placeholder: "Select the location of Job",
-            options:
-              countries && !isLoading
-                ? countries.map((each) => ({
-                    value: each.location,
-                    label: each.location,
-                  }))
-                : [],
+            options: !isLoading && countries ? toOptions(countries) : [],
+
             isVirtualized: true,
           },
           {
@@ -265,13 +266,10 @@ export default function FilterComponent({
             type: "multi-select", // Changed to multi-select
             placeholder: "Select the location of Job",
 
-            options:
-              countries && !isLoading
-                ? countries.map((each) => ({
-                    value: each.location,
-                    label: each.location,
-                  }))
-                : [],
+            options: uniqueLocations?.map((each) => ({
+              value: each.location,
+              label: each.location,
+            })),
           },
 
           {
@@ -304,13 +302,10 @@ export default function FilterComponent({
             label: "Location",
             type: "multi-select", // Changed to multi-select
             placeholder: "Select the location of Company",
-            options:
-              countries && !isLoading
-                ? countries.map((each) => ({
-                    value: each.location,
-                    label: each.location,
-                  }))
-                : [],
+            options: uniqueLocations?.map((each) => ({
+              value: each.location,
+              label: each.location,
+            })),
             isVirtualized: true,
           },
           {
@@ -347,6 +342,7 @@ export default function FilterComponent({
   }, [
     uniqueCompanies,
     countries,
+    uniqueLocations,
     isLoading,
     uniqueJobRoles,
     uniqueIndustries,

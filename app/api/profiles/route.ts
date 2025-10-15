@@ -29,17 +29,18 @@ export async function GET(request: NextRequest) {
 
   // Extract filter params
   const searchQuery = searchParams.get("search");
-  const jobRoles = searchParams.get("jobRoles")?.split(",");
-  const locations = searchParams.get("locations")?.split(",");
-  const minExperience = parseInt(searchParams.get("minExperience") || "", 10);
-  const maxExperience = parseInt(searchParams.get("maxExperience") || "", 10);
-  const minSalary = parseInt(searchParams.get("minSalary") || "", 10);
-  const maxSalary = parseInt(searchParams.get("maxSalary") || "", 10);
-  const skills = searchParams.get("skills")?.split(",");
-  const workStyle = searchParams.get("workStyle")?.split(",");
-  const companySize = searchParams.get("companySize")?.split(",");
-  const industry = searchParams.get("industry")?.split(",");
-  const visaRequired = searchParams.get("visaRequired") === "true";
+  const jobRoles = searchParams.get("jobRole");
+  const jobTypes = searchParams.get("jobType");
+  const locations = searchParams.get("location");
+  const minExperience = searchParams.get("minExperience");
+  const maxExperience = searchParams.get("maxExperience");
+  const minSalary = searchParams.get("minSalary");
+  const maxSalary = searchParams.get("maxSalary");
+  const skills = searchParams.get("skills");
+  const workStyle = searchParams.get("workStylePreference");
+  const companySize = searchParams.get("companySize");
+  const industry = searchParams.get("industryPreference");
+  // const visaRequired = searchParams.get("visaRequired") === "true";
   const sortBy = searchParams.get("sortBy");
   const sortOrder = searchParams.get("sortOrder");
   const isFavoriteTabActive = searchParams.get("tab") === "saved";
@@ -53,18 +54,19 @@ export async function GET(request: NextRequest) {
 
   try {
     const { data, error, count } = await buildProfileQuery({
-      searchQuery: searchQuery ?? undefined,
+      searchQuery,
       jobRoles,
+      jobTypes,
       locations,
-      minExperience: isNaN(minExperience) ? undefined : minExperience,
-      maxExperience: isNaN(maxExperience) ? undefined : maxExperience,
-      minSalary: isNaN(minSalary) ? undefined : minSalary,
-      maxSalary: isNaN(maxSalary) ? undefined : maxSalary,
+      minExperience,
+      maxExperience,
+      minSalary,
+      maxSalary,
       skills,
       workStyle,
       companySize,
       industry,
-      visaRequired: searchParams.has("visaRequired") ? visaRequired : undefined,
+      // visaRequired,
       sortKey: sortBy ?? undefined,
       sortOrder: sortOrder as "asc" | "desc",
       start_index: startIndex,
