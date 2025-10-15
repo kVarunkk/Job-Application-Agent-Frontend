@@ -80,15 +80,12 @@ export default function FilterComponent({
   const searchParams = useSearchParams();
   const startProgress = useProgress();
   const [isPending, startTransition] = useTransition();
-  const { data: countries, isLoading } =
-    currentPage === "jobs"
-      ? useCachedFetch<{ location: string }[]>(
-          "countryData",
-          "/api/locations",
-          undefined,
-          true
-        )
-      : { data: null, isLoading: false };
+  const { data: countries, isLoading } = useCachedFetch<{ location: string }[]>(
+    "countryData",
+    "/api/locations",
+    undefined,
+    true
+  );
 
   const toOptions = (list?: { location: string }[]) =>
     list?.map((each) => ({ value: each.location, label: each.location })) || [];
