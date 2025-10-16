@@ -63,7 +63,7 @@ export default async function ProfilePage({
       .single();
 
     if (error || !applicantProfileData) {
-      console.error("Error fetching applicant data:", error);
+      // console.error("Error fetching applicant data:", error);
       return <ErrorComponent />;
     }
 
@@ -76,7 +76,7 @@ export default async function ProfilePage({
         .createSignedUrl(applicantProfile.resume_path || "", 3600);
 
     if (signedUrlError) {
-      console.error("Error creating signed URL:", signedUrlError);
+      // console.error("Error creating signed URL:", signedUrlError);
       return <ErrorComponent />;
     }
 
@@ -260,8 +260,8 @@ export default async function ProfilePage({
         </div>
       </div>
     );
-  } catch (err) {
-    console.error("Error in ApplicantPage:", err);
+  } catch {
+    // console.error("Error in ApplicantPage:", err);
     return <ErrorComponent />;
   }
 }

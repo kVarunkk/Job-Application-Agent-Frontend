@@ -29,8 +29,8 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("FastAPI embedding error:", errorData);
+      // const errorData = await response.json();
+      // console.error("FastAPI embedding error:", errorData);
       return NextResponse.json(
         { error: "Failed to create embedding." },
         { status: response.status }

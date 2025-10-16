@@ -73,8 +73,8 @@ export const useJobPostingStatus = (
       toast.success(
         `Job Posting ${value ? "activated" : "deactivated"} succesfully`
       );
-    } catch (error) {
-      console.error("Failed to update job posting status:", error);
+    } catch {
+      // console.error("Failed to update job posting status:", error);
       setCheckedState(!value);
       toast.error(
         "Some error occured while updating the status of Job Posting"

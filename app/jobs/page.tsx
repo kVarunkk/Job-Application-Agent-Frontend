@@ -242,8 +242,8 @@ export default async function JobsPage({
       initialJobs = result.data || [];
       totalCount = result.count || 0;
     }
-  } catch (error) {
-    console.error("Failed to fetch jobs:", error);
+  } catch {
+    // console.error("Failed to fetch jobs:", error);
   }
 
   return (

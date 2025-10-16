@@ -66,7 +66,7 @@ export default function FindSuitableJobs({
       .eq("company_id", companyId);
 
     if (error) {
-      console.error("Error fetching job postings:", error);
+      // console.error("Error fetching job postings:", error);
       return [];
     }
 
@@ -96,7 +96,7 @@ export default function FindSuitableJobs({
 
       if (userInfoError && userInfoError.code !== "PGRST116") {
         // PGRST116 means no rows found
-        console.error("Error fetching user info:", userInfoError);
+        // console.error("Error fetching user info:", userInfoError);
         toast.error("Failed to load your profile. Please try again.");
         return;
       }
@@ -148,7 +148,7 @@ export default function FindSuitableJobs({
         // });
       });
     } catch (error: unknown) {
-      console.error("Error in handleFindSuitableJobs:", error);
+      // console.error("Error in handleFindSuitableJobs:", error);
       toast.error(
         `An unexpected error occurred: ${
           error instanceof Error ? error.message : "Please try again."
@@ -179,8 +179,8 @@ export default function FindSuitableJobs({
           }s?${params.toString()}`
         );
       });
-    } catch (e) {
-      console.log(e);
+    } catch {
+      // console.log(e);
       toast.error("Some error occured with AI Smart Search, Please try again");
     }
   };

@@ -71,10 +71,6 @@ export default function JobApplicationDialog({
     [jobPost]
   );
 
-  useEffect(() => {
-    console.log(applicationStatus);
-  }, [applicationStatus]);
-
   const formSchema = useMemo(() => createFormSchema(questions), [questions]);
 
   type FormSchemaType = z.infer<typeof formSchema>;
@@ -178,7 +174,7 @@ export default function JobApplicationDialog({
       setIsDialogOpen(false);
       setApplicationStatus("submitted" as TApplicationStatus.SUBMITTED);
     } catch (error) {
-      console.error("An error occurred during submission:", error);
+      // console.error("An error occurred during submission:", error);
       toast.error(
         error instanceof Error ? error.message : "An unexpected error occurred."
       );

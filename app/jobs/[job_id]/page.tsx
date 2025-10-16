@@ -109,7 +109,7 @@ export default async function JobPage({
     const job = data as IJob;
 
     if (error || !job) {
-      console.error("Error fetching job posting:", error);
+      // console.error("Error fetching job posting:", error);
       return <Error />;
     }
 
@@ -211,8 +211,8 @@ export default async function JobPage({
         </div>
       </>
     );
-  } catch (err) {
-    console.error("Error in JobPostPage:", err);
+  } catch {
+    // console.error("Error in JobPostPage:", err);
     return <Error />;
   }
 }

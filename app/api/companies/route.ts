@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (error) {
-      console.error("API Error fetching jobs:", error);
+      // console.error("API Error fetching jobs:", error);
       return NextResponse.json({ error: error }, { status: 500 });
     }
 

@@ -52,8 +52,8 @@ export default function ApplicationStatusSelect({
 
         setCurrentStatus(newStatus);
         // toast.success("Application status updated successfully!");
-      } catch (error) {
-        console.error("Failed to update application status:", error);
+      } catch {
+        // console.error("Failed to update application status:", error);
         // toast.error("Failed to update status. Please try again.");
       } finally {
         setIsUpdating(false);

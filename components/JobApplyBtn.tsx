@@ -177,8 +177,8 @@ function JobStatusDialog({
           <p>Succesfully applied to the job</p>
         )
       );
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // console.error(e);
       toast.error(
         "Some error occured while updating the application status. Please try again."
       );

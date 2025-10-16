@@ -34,7 +34,7 @@ export default function AgentNavbar({ agent, user }: AgentNavbarProps) {
       )
       .eq("id", agent?.id)
       .single();
-    console.log(data);
+    // console.log(data);
     if (data) setAgentState(data as unknown as Agent);
   }, [agent?.id]);
 

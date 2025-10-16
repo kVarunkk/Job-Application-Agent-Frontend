@@ -309,8 +309,8 @@ export default function CreateJobPostingDialog({
       setIsOpen(false);
 
       router.refresh();
-    } catch (error) {
-      console.error("API call failed:", error);
+    } catch {
+      // console.error("API call failed:", error);
       toast.error(
         `Some error occured while ${
           existingValues ? "updating" : "creating"
