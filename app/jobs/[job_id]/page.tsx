@@ -24,6 +24,7 @@ export async function generateMetadata({
     const { job_id } = await params;
     const selectString = `
            ${allJobsSelectString},
+            description,
             user_favorites(*),
             job_postings(*, company_info(*), applications(*)),
             applications(*)
@@ -93,6 +94,7 @@ export default async function JobPage({
     }
     const selectString = `
            ${allJobsSelectString},
+            description,
             user_favorites(*),
             job_postings(*, company_info(*), applications(*)),
             applications(*)

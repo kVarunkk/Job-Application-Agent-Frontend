@@ -1,6 +1,7 @@
 import { createClient } from "./supabase/server";
-export const allJobsSelectString = `id, created_at, updated_at, job_name, job_type, platform, locations, description, salary_range, visa_requirement, salary_min, salary_max, company_name, company_url, experience, experience_min, experience_max, equity_range, equity_min, equity_max, job_url, status`;
-const jobPostingsSelectString = `id, created_at, updated_at, company_id, title, description, job_type, salary_range, status, location, min_salary, max_salary, min_experience, max_experience, visa_sponsorship, min_equity, max_equity, experience, equity_range, salary_currency, questions, job_id`;
+export const allJobsSelectString = `id, created_at, updated_at, job_name, job_type, platform, locations, salary_range, visa_requirement, salary_min, salary_max, company_name, company_url, experience, experience_min, experience_max, equity_range, equity_min, equity_max, job_url, status`;
+const jobPostingsSelectString = `id, created_at, updated_at, company_id, title, job_type, salary_range, status, location, min_salary, max_salary, min_experience, max_experience, visa_sponsorship, min_equity, max_equity, experience, equity_range, salary_currency, questions, job_id`;
+const companyInfoSelectString = `id, name, website, logo_url, description, industry, company_size, headquarters`;
 
 export const buildQuery = async ({
   jobType,
@@ -70,7 +71,7 @@ export const buildQuery = async ({
       selectString = `
         ${allJobsSelectString},
         user_favorites!inner(*),
-        job_postings(${jobPostingsSelectString}, company_info(*), applications(*)),
+        job_postings(${jobPostingsSelectString}, company_info(${companyInfoSelectString}), applications(*)),
         applications(*)
     `;
       query = supabase
@@ -100,7 +101,7 @@ export const buildQuery = async ({
       selectString = `
        ${allJobsSelectString},
         user_favorites(*),
-        job_postings(${jobPostingsSelectString}, company_info(*), applications(*)),
+        job_postings(${jobPostingsSelectString}, company_info(${companyInfoSelectString}), applications(*)),
         applications(*)
     `;
       query = supabase
@@ -121,7 +122,7 @@ export const buildQuery = async ({
         {
           embedding: userEmbedding,
           match_threshold: 0.5, // You can adjust this threshold
-          match_count: 20, // Fetch a larger set to then apply filters
+          match_count: 100, // Fetch a larger set to then apply filters
         }
       );
 
