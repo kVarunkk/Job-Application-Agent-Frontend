@@ -13,15 +13,32 @@ const maskStyle = {
   WebkitMaskImage: "linear-gradient(to bottom, black 70%, transparent 100%)", // For older browsers
 };
 
+// Define local paths
+const JOB_SEEKER_DARK = "/hero/job-seeker-hero-dark.png";
+const JOB_SEEKER_LIGHT = "/hero/job-seeker-hero-light.png";
+const HIRE_PAGE_DARK = "/hero/company-hero-dark.png";
+const HIRE_PAGE_LIGHT = "/hero/company-hero-light.png";
+
 export default function Hero() {
   const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const isHirePage = pathname.startsWith("/hire");
 
+  const currentTheme = theme === "system" ? systemTheme : theme;
+  const isDark = currentTheme === "dark";
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const getImagePath = () => {
+    if (isHirePage) {
+      return isDark ? HIRE_PAGE_DARK : HIRE_PAGE_LIGHT;
+    } else {
+      return isDark ? JOB_SEEKER_DARK : JOB_SEEKER_LIGHT;
+    }
+  };
 
   return (
     <div className="flex flex-col gap-5 w-full items-center text-center px-4 py-3 lg:px-20 xl:px-40 2xl:px-80">
@@ -64,19 +81,12 @@ export default function Hero() {
       {mounted && (
         <Image
           className="rounded-xl border border-border drop-shadow-xl"
-          src={
-            theme === "dark" || (theme === "system" && systemTheme === "dark")
-              ? isHirePage
-                ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/hire_page/company-hero-dark.png"
-                : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-28%20at%2023-32-47%20Job%20Application%20Agent.png"
-              : isHirePage
-              ? "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/hire_page/company-hero-light.png"
-              : "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/Screenshot%202025-07-28%20at%2023-32-35%20Job%20Application%20Agent.png"
-          }
+          src={getImagePath()} // Using the new local path function
           style={maskStyle}
           height={2000}
           width={2000}
           alt="Snapshot of the GetHired Job Board"
+          priority // Set priority to load this critical image fast
         />
       )}
     </div>

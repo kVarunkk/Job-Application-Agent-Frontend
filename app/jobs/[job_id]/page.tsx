@@ -13,6 +13,7 @@ import { allJobsSelectString } from "@/lib/filterQueryBuilder";
 import { Metadata } from "next";
 
 import JobPageDropdown from "@/components/JobPageDropdown";
+// import JobSchema from "@/components/jsonLdSchema";
 
 export async function generateMetadata({
   params,
@@ -115,6 +116,7 @@ export default async function JobPage({
 
     return (
       <>
+        {/* <JobSchema job={job} /> */}
         <div className="flex flex-col gap-8 w-full px-4 py-5 lg:px-20 xl:px-40 2xl:px-80">
           <div>
             <BackButton />
