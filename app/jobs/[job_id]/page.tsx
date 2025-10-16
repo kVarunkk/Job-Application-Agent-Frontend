@@ -39,7 +39,7 @@ export async function generateMetadata({
     if (error) throw error;
 
     return {
-      title: data?.job_name,
+      title: `${data?.job_name} at ${data?.company_name}`,
       description: `Apply for the ${data?.job_name} position at ${data?.company_name}.`,
       keywords: [
         data?.job_name,
@@ -51,7 +51,7 @@ export async function generateMetadata({
       ],
     };
   } catch (err) {
-    console.error("Error generating metadata:", err);
+    // console.error("Error generating metadata:", err);
     return {
       title: "Job Details",
       description: "Detailed view of the job posting.",

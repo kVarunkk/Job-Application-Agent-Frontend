@@ -258,3 +258,11 @@ export enum TApplicationStatus {
 }
 
 export type TAgentType = keyof typeof agentConfigs;
+
+export interface JobListingSearchParams {
+  jobTitleKeywords?: string;
+  location?: string;
+  jobType?: string;
+  minSalary?: string;
+  // Add any other filter parameters here
+}
