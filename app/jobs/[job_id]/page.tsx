@@ -39,7 +39,7 @@ export async function generateMetadata({
     if (error) throw error;
 
     return {
-      title: data?.job_name,
+      title: `${data?.job_name} at ${data?.company_name}`,
       description: `Apply for the ${data?.job_name} position at ${data?.company_name}.`,
       keywords: [
         data?.job_name,
@@ -50,8 +50,8 @@ export async function generateMetadata({
         "employment",
       ],
     };
-  } catch (err) {
-    console.error("Error generating metadata:", err);
+  } catch {
+    // console.error("Error generating metadata:", err);
     return {
       title: "Job Details",
       description: "Detailed view of the job posting.",
@@ -109,7 +109,7 @@ export default async function JobPage({
     const job = data as IJob;
 
     if (error || !job) {
-      console.error("Error fetching job posting:", error);
+      // console.error("Error fetching job posting:", error);
       return <Error />;
     }
 
@@ -211,8 +211,8 @@ export default async function JobPage({
         </div>
       </>
     );
-  } catch (err) {
-    console.error("Error in JobPostPage:", err);
+  } catch {
+    // console.error("Error in JobPostPage:", err);
     return <Error />;
   }
 }

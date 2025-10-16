@@ -153,8 +153,8 @@ export default async function JobsPage({
       initialCompanies = result.data || [];
       totalCount = result.count || 0;
     }
-  } catch (error) {
-    console.error("Failed to fetch jobs:", error);
+  } catch {
+    // console.error("Failed to fetch jobs:", error);
   }
   const listOfUniqueIndustries = uniqueIndustries();
 

@@ -64,7 +64,7 @@ export default async function ApplicantPage({
       .single();
 
     if (error || !applicationData) {
-      console.error("Error fetching applicant data:", error);
+      // console.error("Error fetching applicant data:", error);
       return <Error />;
     }
 
@@ -80,12 +80,12 @@ export default async function ApplicantPage({
           .createSignedUrl(application.resume_url, 3600);
 
       if (signedUrlError) {
-        console.error("Error generating signed URL:", signedUrlError);
+        // console.error("Error generating signed URL:", signedUrlError);
       } else if (signedUrlData) {
         signedUrl = signedUrlData.signedUrl;
       }
-    } catch (err) {
-      console.error("Exception generating signed URL:", err);
+    } catch {
+      // console.error("Exception generating signed URL:", err);
     }
     return (
       <div className="flex flex-col w-full gap-8">
@@ -341,8 +341,8 @@ export default async function ApplicantPage({
         </div>
       </div>
     );
-  } catch (err) {
-    console.error("Error in ApplicantPage:", err);
+  } catch {
+    // console.error("Error in ApplicantPage:", err);
     return <Error />;
   }
 }

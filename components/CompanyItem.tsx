@@ -22,7 +22,7 @@ export default function CompanyItem({
   isSuitable: boolean;
   isCompanyUser: boolean;
 }) {
-  console.log(company.user_favorites_companies);
+  // console.log(company.user_favorites_companies);
   return (
     <>
       <ProgressBtn href={`/companies/${company.id}`} className="text-start">

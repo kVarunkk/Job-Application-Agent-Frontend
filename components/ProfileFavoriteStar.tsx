@@ -58,8 +58,8 @@ export default function ProfileFavoriteStar({
 
       if (error) throw new Error(error.details);
       await revalidateCache("profiles-feed");
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // console.error(e);
     }
   };
 

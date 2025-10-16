@@ -40,7 +40,7 @@ export default async function CompanyJobPostsPage() {
       .order("created_at", { ascending: false });
 
     if (jobPostsError) {
-      console.error("Error fetching job postings:", jobPostsError);
+      // console.error("Error fetching job postings:", jobPostsError);
       throw jobPostsError;
     }
 
@@ -56,8 +56,8 @@ export default async function CompanyJobPostsPage() {
         <JobPostingsTable data={jobPosts || []} />
       </div>
     );
-  } catch (err) {
-    console.error("Error in CompanyJobPostsPage:", err);
+  } catch {
+    // console.error("Error in CompanyJobPostsPage:", err);
     return <ErrorComponent />;
   }
 }

@@ -49,8 +49,8 @@ export function useCachedFetch<T>(
           key,
           JSON.stringify({ data: json.data || json, expiry: now + ttlMs })
         );
-      } catch (e) {
-        console.error(`Failed to fetch ${url}`, e);
+      } catch {
+        // console.error(`Failed to fetch ${url}`, e);
       } finally {
         setIsLoading(false);
       }

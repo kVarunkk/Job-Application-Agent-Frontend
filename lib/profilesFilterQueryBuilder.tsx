@@ -119,7 +119,7 @@ export async function buildProfileQuery({
       );
 
       if (searchError) {
-        console.error("Vector search error:", searchError);
+        // console.error("Vector search error:", searchError);
         throw searchError;
       }
 

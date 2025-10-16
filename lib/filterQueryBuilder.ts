@@ -127,7 +127,7 @@ export const buildQuery = async ({
       );
 
       if (searchError) {
-        console.error("Vector search error:", searchError);
+        // console.error("Vector search error:", searchError);
         throw searchError;
       }
 

@@ -230,8 +230,8 @@ export default function CompanyOnboardingForm({ user }: { user: User | null }) {
 
       toast.success("Information Saved Successfully!");
       router.push("/company");
-    } catch (error) {
-      console.error("API call failed:", error);
+    } catch {
+      // console.error("API call failed:", error);
       toast.error(
         "An error occurred while saving information. Please try again."
       );

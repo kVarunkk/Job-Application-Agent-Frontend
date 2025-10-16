@@ -126,8 +126,8 @@ export default function JobFavoriteBtn({
 
       if (error) throw new Error(error.message);
       await revalidateCache(revalidateTag);
-    } catch (e) {
-      console.error("Favorite action failed:", e);
+    } catch {
+      // console.error("Favorite action failed:", e);
       setIsFavorite((prev) => !prev);
     }
   };

@@ -49,27 +49,29 @@ export default function ProfileDropdown({
 
   useEffect(() => {
     (async () => {
-      const supabase = createClient();
+      try {
+        const supabase = createClient();
 
-      const { data, error } = await supabase
-        .from("user_info")
-        .select("*")
-        .eq("user_id", user?.id)
-        .single();
+        const { data, error } = await supabase
+          .from("user_info")
+          .select("*")
+          .eq("user_id", user?.id)
+          .single();
 
-      const { data: companyData, error: companyError } = await supabase
-        .from("company_info")
-        .select("*")
-        .eq("user_id", user?.id)
-        .single();
+        const { data: companyData, error: companyError } = await supabase
+          .from("company_info")
+          .select("*")
+          .eq("user_id", user?.id)
+          .single();
 
-      if (companyData && !companyError) {
-        setIsCompanyUser(true);
-      }
+        if (companyData && !companyError) {
+          setIsCompanyUser(true);
+        }
 
-      if (data && !error) {
-        setIsUserInfo(true);
-      }
+        if (data && !error) {
+          setIsUserInfo(true);
+        }
+      } catch {}
     })();
   }, [user]);
 

@@ -2,9 +2,107 @@ import FilterComponent from "@/components/FilterComponent";
 import { createClient } from "@/lib/supabase/server";
 import JobsList from "./JobsList";
 import { TabsContent } from "@/components/ui/tabs";
-import { IJob } from "@/lib/types";
+import { IJob, JobListingSearchParams } from "@/lib/types";
 import { headers } from "next/headers";
 import { ClientTabs } from "@/components/ClientTabs";
+import { Metadata } from "next";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<JobListingSearchParams>;
+}): Promise<Metadata> {
+  const { jobTitleKeywords, location, jobType } = await searchParams;
+
+  const baseTitle = "Find Your Next Job";
+  let title = baseTitle;
+  let description =
+    "Explore thousands of high-quality job postings filtered by relevance, salary, and experience. Start your career search here.";
+  const keywords = [
+    "jobs",
+    "career",
+    "employment",
+    "remote",
+    "tech jobs",
+    "hiring",
+    "job search",
+  ];
+
+  const titleParts: string[] = [];
+
+  // --- 1. Dynamic Title Construction ---
+
+  // A. Job Title Keywords (e.g., "Software Engineer")
+  if (jobTitleKeywords) {
+    const keywordsArray = jobTitleKeywords
+      .split("|")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (keywordsArray.length > 0) {
+      // Use the first keyword for the primary title focus
+      titleParts.push(keywordsArray[0]);
+      keywords.push(...keywordsArray);
+    }
+  }
+
+  // B. Job Type (e.g., "Remote", "Full-Time")
+  if (jobType) {
+    const typesArray = jobType
+      .split("|")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (typesArray.length > 0) {
+      titleParts.unshift(typesArray.join(" & ")); // Prepend type for emphasis
+      titleParts.push("Jobs"); // Ensure "Jobs" is included
+      keywords.push(...typesArray.map((t) => `${t} jobs`));
+    }
+  }
+
+  // C. Location (e.g., "in Bangalore")
+  if (location) {
+    const locationsArray = location
+      .split("|")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (locationsArray.length > 0) {
+      const locationString = locationsArray.join(", ");
+
+      // FIX: Only prepend "in " if a job title or type is already present.
+      if (titleParts.length > 0) {
+        titleParts.push(`in ${locationString}`);
+      } else {
+        titleParts.push(locationString);
+      }
+      keywords.push(...locationsArray);
+    }
+  }
+
+  // Final Title Logic
+  if (titleParts.length > 0) {
+    // Join parts (e.g., "Remote Software Engineer in Bangalore")
+    title = `${titleParts.join(" ")}`;
+
+    // Update description to reflect specific search
+    description = `Search and apply for ${titleParts.join(
+      " "
+    )} roles. Filtered by location, salary, and company, we help you find the best career opportunities now.`;
+  }
+
+  // --- 2. Keyword Cleanup ---
+  // Ensure "jobs" is always included if location/type is present
+  if (
+    titleParts.length > 0 &&
+    !titleParts.some((p) => p.toLowerCase().includes("jobs"))
+  ) {
+    keywords.push("jobs");
+  }
+
+  return {
+    title: title,
+    description: description,
+    keywords: Array.from(new Set(keywords)).join(", "),
+  };
+}
 
 export default async function JobsPage({
   searchParams,
@@ -31,25 +129,27 @@ export default async function JobsPage({
   let onboardingComplete = false;
   let ai_search_uses = 0;
   if (user) {
-    const { data: jobSeekerData } = await supabase
-      .from("user_info")
-      .select("ai_search_uses, filled")
-      .eq("user_id", user?.id)
-      .single();
-    const { data: companyData } = await supabase
-      .from("company_info")
-      .select("id, ai_search_uses, filled")
-      .eq("user_id", user?.id)
-      .single();
+    try {
+      const { data: jobSeekerData } = await supabase
+        .from("user_info")
+        .select("ai_search_uses, filled")
+        .eq("user_id", user?.id)
+        .single();
+      const { data: companyData } = await supabase
+        .from("company_info")
+        .select("id, ai_search_uses, filled")
+        .eq("user_id", user?.id)
+        .single();
 
-    if (companyData) {
-      isCompanyUser = true;
-    }
+      if (companyData) {
+        isCompanyUser = true;
+      }
 
-    if (jobSeekerData) {
-      onboardingComplete = jobSeekerData.filled;
-      ai_search_uses = jobSeekerData.ai_search_uses;
-    }
+      if (jobSeekerData) {
+        onboardingComplete = jobSeekerData.filled;
+        ai_search_uses = jobSeekerData.ai_search_uses;
+      }
+    } catch {}
   }
 
   // --- Data Fetching ---
@@ -142,8 +242,8 @@ export default async function JobsPage({
       initialJobs = result.data || [];
       totalCount = result.count || 0;
     }
-  } catch (error) {
-    console.error("Failed to fetch jobs:", error);
+  } catch {
+    // console.error("Failed to fetch jobs:", error);
   }
 
   return (

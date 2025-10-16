@@ -45,7 +45,7 @@ export default async function ProfilesPage({
   const uniqueSkills = filterData?.uniqueSkills || [];
   const uniqueLocations = filterData?.uniqueLocations || [];
   if (filterError) {
-    console.error("Error fetching unique profile filters:", filterError);
+    // console.error("Error fetching unique profile filters:", filterError);
   }
 
   const headersList = await headers();
@@ -135,8 +135,8 @@ export default async function ProfilesPage({
       initialProfiles = result.data || [];
       totalCount = result.count || 0;
     }
-  } catch (error) {
-    console.error("Failed to fetch profiles:", error);
+  } catch {
+    // console.error("Failed to fetch profiles:", error);
   }
 
   return (

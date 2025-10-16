@@ -110,8 +110,8 @@ export default function JobsComponent({
         setPage(nextPage);
         setJobs((prevJobs) => [...prevJobs, ...data]);
       }
-    } catch (error) {
-      console.error("Failed to fetch more jobs:", error);
+    } catch {
+      // console.error("Failed to fetch more jobs:", error);
     } finally {
       setIsLoading(false);
     }
