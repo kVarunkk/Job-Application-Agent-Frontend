@@ -13,17 +13,18 @@ export default async function JobsLayout({
     const {
       data: { user },
     } = await supabase.auth.getUser();
-
-    const { data: companyData } = await supabase
-      .from("company_info")
-      .select("id, ai_search_uses, filled")
-      .eq("user_id", user?.id)
-      .single();
-
     let isCompanyUser = false;
-    if (companyData) {
-      isCompanyUser = true;
-    }
+    try {
+      const { data: companyData } = await supabase
+        .from("company_info")
+        .select("id, ai_search_uses, filled")
+        .eq("user_id", user?.id)
+        .single();
+
+      if (companyData) {
+        isCompanyUser = true;
+      }
+    } catch {}
 
     const navItems: INavItem[] = !isCompanyUser
       ? [

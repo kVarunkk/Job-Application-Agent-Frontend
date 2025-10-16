@@ -129,25 +129,27 @@ export default async function JobsPage({
   let onboardingComplete = false;
   let ai_search_uses = 0;
   if (user) {
-    const { data: jobSeekerData } = await supabase
-      .from("user_info")
-      .select("ai_search_uses, filled")
-      .eq("user_id", user?.id)
-      .single();
-    const { data: companyData } = await supabase
-      .from("company_info")
-      .select("id, ai_search_uses, filled")
-      .eq("user_id", user?.id)
-      .single();
+    try {
+      const { data: jobSeekerData } = await supabase
+        .from("user_info")
+        .select("ai_search_uses, filled")
+        .eq("user_id", user?.id)
+        .single();
+      const { data: companyData } = await supabase
+        .from("company_info")
+        .select("id, ai_search_uses, filled")
+        .eq("user_id", user?.id)
+        .single();
 
-    if (companyData) {
-      isCompanyUser = true;
-    }
+      if (companyData) {
+        isCompanyUser = true;
+      }
 
-    if (jobSeekerData) {
-      onboardingComplete = jobSeekerData.filled;
-      ai_search_uses = jobSeekerData.ai_search_uses;
-    }
+      if (jobSeekerData) {
+        onboardingComplete = jobSeekerData.filled;
+        ai_search_uses = jobSeekerData.ai_search_uses;
+      }
+    } catch {}
   }
 
   // --- Data Fetching ---

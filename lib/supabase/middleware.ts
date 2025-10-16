@@ -121,22 +121,30 @@ export async function updateSession(request: NextRequest) {
 
   // --- 2. Handle Authenticated Users ---
   if (user) {
-    // Check if the user has an applicant profile
-    const { data: userInfo } = await supabase
-      .from("user_info")
-      .select("filled")
-      .eq("user_id", user.id)
-      .single();
+    let isApplicant = false;
+    let isCompany = false;
+    let userInfo = null;
+    let companyInfo = null;
+    try {
+      // Check if the user has an applicant profile
+      const { data: userInfoData } = await supabase
+        .from("user_info")
+        .select("filled")
+        .eq("user_id", user.id)
+        .single();
 
-    // Check if the user has a company profile
-    const { data: companyInfo } = await supabase
-      .from("company_info")
-      .select("filled")
-      .eq("user_id", user.id)
-      .single();
+      // Check if the user has a company profile
+      const { data: companyInfoData } = await supabase
+        .from("company_info")
+        .select("filled")
+        .eq("user_id", user.id)
+        .single();
 
-    const isApplicant = userInfo?.filled || false;
-    const isCompany = companyInfo?.filled || false;
+      isApplicant = userInfoData?.filled || false;
+      isCompany = companyInfoData?.filled || false;
+      userInfo = userInfoData;
+      companyInfo = companyInfoData;
+    } catch {}
 
     // Redirect authenticated users away from auth pages
     if (isAuthPath) {

@@ -50,7 +50,7 @@ export async function generateMetadata({
         "employment",
       ],
     };
-  } catch (err) {
+  } catch {
     // console.error("Error generating metadata:", err);
     return {
       title: "Job Details",

@@ -56,14 +56,22 @@ export default function FindSuitableJobs({
   const findCompanyUsersJobPostings = useCallback(async (): Promise<
     IJobPost[]
   > => {
+    if (!companyId || !supabase) {
+      return [];
+    }
+
     const { data, error } = await supabase
       .from("job_postings")
       .select("*")
       .eq("company_id", companyId);
-    if (data && !error) {
-      return data;
-    } else return [];
-  }, [supabase, companyId]);
+
+    if (error) {
+      console.error("Error fetching job postings:", error);
+      return [];
+    }
+
+    return data as IJobPost[];
+  }, [companyId, supabase]);
 
   useEffect(() => {
     (async () => {
