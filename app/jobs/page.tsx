@@ -10,8 +10,9 @@ import { Metadata } from "next";
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<JobListingSearchParams>;
+  searchParams: Promise<JobListingSearchParams>; // Removed Promise as searchParams is usually a direct object
 }): Promise<Metadata> {
+  // Access searchParams directly, assuming the Next.js App Router pattern
   const { jobTitleKeywords, location, jobType } = await searchParams;
 
   const baseTitle = "Find Your Next Job";
@@ -32,6 +33,18 @@ export async function generateMetadata({
 
   // --- 1. Dynamic Title Construction ---
 
+  // B. Job Type (e.g., "Remote", "Full-Time") - Placed first for prefixing
+  if (jobType) {
+    const typesArray = jobType
+      .split("|")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (typesArray.length > 0) {
+      titleParts.push(typesArray.join(" & "));
+      keywords.push(...typesArray.map((t) => `${t} jobs`));
+    }
+  }
+
   // A. Job Title Keywords (e.g., "Software Engineer")
   if (jobTitleKeywords) {
     const keywordsArray = jobTitleKeywords
@@ -39,22 +52,10 @@ export async function generateMetadata({
       .map((s) => s.trim())
       .filter(Boolean);
     if (keywordsArray.length > 0) {
-      // Use the first keyword for the primary title focus
-      titleParts.push(keywordsArray[0]);
+      titleParts.push(
+        keywordsArray[0].charAt(0).toUpperCase() + keywordsArray[0].slice(1)
+      );
       keywords.push(...keywordsArray);
-    }
-  }
-
-  // B. Job Type (e.g., "Remote", "Full-Time")
-  if (jobType) {
-    const typesArray = jobType
-      .split("|")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if (typesArray.length > 0) {
-      titleParts.unshift(typesArray.join(" & ")); // Prepend type for emphasis
-      titleParts.push("Jobs"); // Ensure "Jobs" is included
-      keywords.push(...typesArray.map((t) => `${t} jobs`));
     }
   }
 
@@ -67,40 +68,44 @@ export async function generateMetadata({
     if (locationsArray.length > 0) {
       const locationString = locationsArray.join(", ");
 
-      // FIX: Only prepend "in " if a job title or type is already present.
+      // If we have any keywords (Type or Title), use "in [Location]"
       if (titleParts.length > 0) {
         titleParts.push(`in ${locationString}`);
       } else {
+        // If only location is present, use location name directly
         titleParts.push(locationString);
       }
       keywords.push(...locationsArray);
     }
   }
 
-  // Final Title Logic
+  // --- 2. Final Consolidation and Edge Case Handling ---
+
   if (titleParts.length > 0) {
-    // Join parts (e.g., "Remote Software Engineer in Bangalore")
-    title = `${titleParts.join(" ")}`;
+    // Add "Jobs" keyword only ONCE at the very end if not already present
+    // This fixes "Remote Jobs Jobs" issue.
+    if (!titleParts.some((p) => p.toLowerCase().includes("jobs"))) {
+      titleParts.push("Jobs");
+    }
 
-    // Update description to reflect specific search
-    description = `Search and apply for ${titleParts.join(
-      " "
-    )} roles. Filtered by location, salary, and company, we help you find the best career opportunities now.`;
+    // Join all parts (e.g., "Remote Software Engineer in Bangalore Jobs")
+    const dynamicSearchTerm = titleParts.join(" ");
+
+    // Final SEO Title: [Search Term] - GetHired
+    title = `${dynamicSearchTerm}`;
+
+    // Update description using the finalized search term
+    description = `Search and apply for ${dynamicSearchTerm} roles. Filtered by location, salary, and company, we help you find the best career opportunities now.`;
   }
 
-  // --- 2. Keyword Cleanup ---
-  // Ensure "jobs" is always included if location/type is present
-  if (
-    titleParts.length > 0 &&
-    !titleParts.some((p) => p.toLowerCase().includes("jobs"))
-  ) {
-    keywords.push("jobs");
-  }
+  // --- 3. Keyword Cleanup ---
+  // Ensure the final keywords array is unique and joined
+  const finalKeywords = Array.from(new Set(keywords)).join(", ");
 
   return {
     title: title,
     description: description,
-    keywords: Array.from(new Set(keywords)).join(", "),
+    keywords: finalKeywords,
   };
 }
 
