@@ -90,7 +90,9 @@ export default function FindSuitableJobs({
       // 2. Fetch user_info
       const { data: userInfo, error: userInfoError } = await supabase
         .from("user_info")
-        .select("*")
+        .select(
+          "desired_roles, preferred_locations, job_type, visa_sponsorship_required, min_salary, experience_years"
+        )
         .eq("user_id", user.id)
         .single();
 
@@ -119,7 +121,7 @@ export default function FindSuitableJobs({
 
       const addMultiParam = (paramName: string, values: string[] | null) => {
         if (values && values.length > 0) {
-          params.set(paramName, values.join(","));
+          params.set(paramName, values.join("|"));
         }
       };
 
