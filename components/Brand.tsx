@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
-// Define the shape of the props for better type safety
 interface BrandProps {
   type: "long" | "short";
 }
@@ -15,7 +14,6 @@ export default function Brand({ type }: BrandProps) {
     "light" | "dark" | undefined
   >(undefined);
 
-  // Determine the effective theme (light or dark)
   useEffect(() => {
     if (theme === "system") {
       setCurrentTheme(systemTheme === "dark" ? "dark" : "light");
@@ -24,24 +22,19 @@ export default function Brand({ type }: BrandProps) {
     }
   }, [theme, systemTheme]);
 
-  // Define your image URLs based on type and mode
   const imageUrls = {
     long: {
-      light:
-        "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/logos/Group%2011.png", // Path to your long logo for light mode
-      dark: "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/logos/Group%2010.png", // Path to your long logo for dark mode
+      light: "/logos/long-light.png",
+      dark: "/logos/long-dark.png",
     },
     short: {
-      dark: "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/logos/Group%206.png", // Path to your short logo for light mode
-      light:
-        "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/landing_page/logos/Group%207.png", // Path to your short logo for dark mode
+      dark: "/logos/short-dark.png",
+      light: "/logos/short-light.png",
     },
   };
 
-  // Determine the correct image source based on props and effective theme
   const getBrandImageSrc = () => {
     if (!currentTheme) {
-      // Return a default or null while theme is being determined
       return null;
     }
     return currentTheme === "dark"
@@ -52,7 +45,6 @@ export default function Brand({ type }: BrandProps) {
   const src = getBrandImageSrc();
 
   if (!src) {
-    // Render nothing or a placeholder until the theme is determined
     return null;
   }
 
