@@ -5,7 +5,23 @@ import Hero from "@/components/landing-page/Hero";
 import { HowWeHelp } from "@/components/landing-page/HowWeHelp";
 import TheGetHiredAdvantageSection from "@/components/landing-page/TheGetHiredAdvantageSection";
 import NavbarParent, { INavItem } from "@/components/NavbarParent";
+import { Metadata } from "next";
 import { v4 as uuidv4 } from "uuid";
+
+export const metadata: Metadata = {
+  title: "GetHired - Your smartest path to the perfect candidate",
+  description:
+    "Leverage proprietary AI to screen and qualify candidates instantly. Post your job, eliminate noise, and significantly reduce your time-to-hire with an always-on, empathetic recruiting co-pilot.",
+  keywords: [
+    "hire tech talent",
+    "ai recruiting platform",
+    "post job free",
+    "conversational AI hiring",
+    "recruitment software",
+    "find developers",
+    "ats",
+  ],
+};
 
 export default async function HirePage() {
   const navItems: INavItem[] = [
