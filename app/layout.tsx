@@ -17,6 +17,17 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  keywords: [
+    "job search",
+    "ai job application",
+    "personalized job recommendations",
+    "automated job applications",
+    "job matching",
+    "career advancement",
+    "job hunting",
+    "tech jobs",
+    "remote jobs",
+  ],
 };
 
 const geistSans = Geist({

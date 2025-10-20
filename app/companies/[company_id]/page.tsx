@@ -54,45 +54,20 @@ export async function generateMetadata({
       companyData.description ||
       `Learn about ${companyName} and see their active job openings on GetHired.`;
 
-    const productionUrl = "https://gethired.devhub.co.in";
-
-    const baseUrl =
-      process.env.NODE_ENV === "production"
-        ? productionUrl
-        : process.env.NEXT_PUBLIC_VERCEL_URL
-        ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-        : "http://localhost:3000";
-    const metadataBase = new URL(baseUrl);
-    const absoluteImageUrl = `${metadataBase}/opengraph-image.jpg`;
-
     return {
       title: `${companyName} - Job Openings and Company Profile | GetHired`,
-      description: companyDescription.substring(0, 160), // Trim description for SEO
-
-      openGraph: {
-        title: `${companyName} | See Open Jobs at ${companyName}`,
-        description: companyDescription.substring(0, 160),
-        url: `${baseUrl}/companies/${company_id}`,
-        siteName: "GetHired",
-        images: [
-          {
-            url: absoluteImageUrl,
-            width: 1200,
-            height: 630,
-            alt: companyName,
-          },
-        ],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: companyName,
-        description: companyDescription.substring(0, 160),
-        images: [absoluteImageUrl],
-      },
+      description: companyDescription.substring(0, 160),
+      keywords: [
+        companyName,
+        "company profile",
+        "job openings",
+        "tech company jobs",
+        "developer careers",
+      ],
     };
   } catch {
     return {
-      title: "Company Profile Not Found | GetHired",
+      title: "Company Profile | GetHired",
       description: "View profiles of companies hiring top tech talent.",
     };
   }
