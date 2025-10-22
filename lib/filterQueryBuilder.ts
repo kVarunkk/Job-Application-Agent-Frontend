@@ -20,6 +20,7 @@ export const buildQuery = async ({
   sortOrder,
   userEmbedding,
   applicationStatus,
+  createdAfter,
 }: {
   jobType?: string | null;
   visaRequirement?: string | null;
@@ -37,6 +38,7 @@ export const buildQuery = async ({
   isAppliedJobsTabActive?: boolean;
   userEmbedding?: string | null;
   applicationStatus?: string | null;
+  createdAfter?: string | null;
 }) => {
   try {
     const supabase = await createClient();
@@ -115,14 +117,15 @@ export const buildQuery = async ({
     query = query.not("job_name", "eq", "");
 
     // --- NEW: VECTOR SEARCH LOGIC ---
-    if (sortBy === "relevance" && userEmbedding) {
+    if (sortBy === "relevance" && userEmbedding && createdAfter) {
       // Re-build the query to include the similarity score and order by it
       const { data: searchData, error: searchError } = await supabase.rpc(
-        "match_all_jobs",
+        "match_all_jobs_new",
         {
           embedding: userEmbedding,
-          match_threshold: 0.5, // You can adjust this threshold
-          match_count: 100, // Fetch a larger set to then apply filters
+          match_threshold: 0.7,
+          match_count: 100,
+          min_created_at: createdAfter,
         }
       );
 

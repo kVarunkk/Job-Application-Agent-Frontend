@@ -80,6 +80,7 @@ export function ForgotPasswordForm({
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="bg-input"
                   />
                 </div>
                 {error && <p className="text-sm text-red-500">{error}</p>}

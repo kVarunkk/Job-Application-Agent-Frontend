@@ -179,6 +179,8 @@ export interface IFormData {
     company_id: string;
   }[];
   applications?: IApplication[];
+  is_promotion_active?: boolean;
+  is_job_digest_active?: boolean;
 }
 
 export interface ICompanyInfo {

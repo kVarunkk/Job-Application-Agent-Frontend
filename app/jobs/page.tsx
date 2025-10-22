@@ -172,6 +172,14 @@ export default async function JobsPage({
   );
   try {
     params.set("tab", activeTab);
+    params.set("limit", "20");
+    if (params.get("sortBy") === "relevance") {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const cutoffDate = sevenDaysAgo.toISOString();
+      params.set("limit", "100");
+      params.set("createdAfter", cutoffDate);
+    }
     const res = await fetch(`${url}/api/jobs?${params.toString()}`, {
       cache: "force-cache",
       next: { revalidate: 3600, tags: ["jobs-feed"] },

@@ -96,8 +96,8 @@ export default function JobsComponent({
           current_page === "profiles" && isCompanyUser
             ? "profiles"
             : current_page === "jobs"
-            ? "jobs"
-            : "companies"
+              ? "jobs"
+              : "companies"
         }?${params.toString()}`
       );
       if (!res.ok) throw new Error("Some error occured");
@@ -159,6 +159,7 @@ export default function JobsComponent({
     if (sortBy === "relevance") {
       params.delete("sortBy");
     }
+
     if (jobPost) {
       params.delete("job_post");
     }
@@ -170,8 +171,8 @@ export default function JobsComponent({
           current_page === "profiles" && isCompanyUser
             ? "company/profiles"
             : current_page === "jobs"
-            ? "jobs"
-            : "companies"
+              ? "jobs"
+              : "companies"
         }?${params.toString()}`
       );
     });
@@ -196,8 +197,8 @@ export default function JobsComponent({
               {current_page === "profiles" && isCompanyUser
                 ? "profiles"
                 : current_page === "jobs"
-                ? "jobs"
-                : "companies"}
+                  ? "jobs"
+                  : "companies"}
             </p>
           </div>
 
@@ -311,16 +312,16 @@ export default function JobsComponent({
           {isCompanyUser && current_page === "profiles"
             ? "profiles"
             : current_page === "jobs"
-            ? "jobs"
-            : "companies"}{" "}
+              ? "jobs"
+              : "companies"}{" "}
           found for the selected Filter. <br />
           <ModifiedLink
             href={
               isCompanyUser && current_page === "profiles"
                 ? "/company/profiles"
                 : current_page === "jobs"
-                ? "/jobs"
-                : "/companies"
+                  ? "/jobs"
+                  : "/companies"
             }
             className="underline"
           >

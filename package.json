@@ -4,7 +4,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:emails": "email build",
+    "dev:emails": "email dev"
   },
   "dependencies": {
     "@ai-sdk/google-vertex": "^3.0.3",
@@ -28,6 +30,7 @@
     "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-tabs": "^1.1.12",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@react-email/components": "0.5.7",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "@tanstack/react-table": "^8.21.3",
@@ -41,15 +44,15 @@
     "motion": "^12.23.11",
     "next": "latest",
     "next-themes": "^0.4.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "react-hook-form": "^7.62.0",
     "react-hot-toast": "^2.5.2",
     "react-markdown": "^10.1.0",
     "react-transition-progress": "^0.0.4",
     "react-virtualized-auto-sizer": "^1.0.26",
     "react-window": "^1.8.11",
-    "resend": "^6.0.1",
+    "resend": "^6.2.0",
     "tailwind-merge": "^3.3.1",
     "uuid": "^11.1.0",
     "vaul": "^1.1.2",
@@ -57,6 +60,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@react-email/preview-server": "^4.3.1",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -66,6 +70,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "postcss": "^8",
+    "react-email": "4.3.1",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"

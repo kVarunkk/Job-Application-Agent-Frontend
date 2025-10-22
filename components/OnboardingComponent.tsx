@@ -40,6 +40,7 @@ import MultiKeywordSelect from "./MultiKeywordSelect";
 import { User } from "@supabase/supabase-js";
 import ResumePreviewDialog from "./ResumePreviewDialog";
 import { Loader2, X } from "lucide-react";
+import UserOnboardingPersonalization from "./UserOnboardingPersonalization";
 
 // --- Step Components ---
 
@@ -740,11 +741,15 @@ export const OnboardingForm: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<
     Partial<Record<keyof IFormData, string>>
   >({});
-  const [user, setUser] = useState<User | null>(null); // Supabase user object
+  const [user, setUser] = useState<User | null>(null);
+  const [initialPreferencesState, setInitialPreferencesState] = useState<{
+    id: string;
+    is_promotion_active: boolean;
+    is_job_digest_active: boolean;
+  } | null>(null);
   const router = useRouter();
   const steps = useMemo(() => {
     return [
@@ -814,6 +819,11 @@ export const OnboardingForm: React.FC = () => {
           .single();
 
         if (data) {
+          setInitialPreferencesState(() => ({
+            id: data.user_id,
+            is_promotion_active: data.is_promotion_active,
+            is_job_digest_active: data.is_job_digest_active,
+          }));
           setFormData((prev) => ({
             ...prev,
             ...data,
@@ -1127,9 +1137,19 @@ export const OnboardingForm: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-10 items-center justify-center mt-32 mb-32  p-4">
-      <p className="text-6xl font-bold max-w-2xl">
-        Let&apos;s get you Hired, quickly.
-      </p>
+      <div className="flex flex-col gap-5 max-w-2xl w-full">
+        <p className="text-6xl font-bold ">
+          Let&apos;s get you Hired, quickly.
+        </p>
+        {initialPreferencesState ? (
+          <UserOnboardingPersonalization
+            initialPreferences={initialPreferencesState}
+          />
+        ) : (
+          ""
+        )}
+      </div>
+
       <Card className="w-full max-w-2xl !border-none !p-0 shadow-none">
         <CardHeader className="!p-0 mb-5">
           <Progress value={progress} className="mt-4" />
@@ -1154,8 +1174,8 @@ export const OnboardingForm: React.FC = () => {
             {isLoading
               ? "Processing..."
               : currentStep === totalSteps - 1
-              ? "Submit"
-              : "Next"}
+                ? "Submit"
+                : "Next"}
           </Button>
         </CardFooter>
         <p className="text-muted-foreground text-xs text-center mt-5">
