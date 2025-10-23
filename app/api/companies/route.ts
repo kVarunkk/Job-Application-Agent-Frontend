@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildCompaniesQuery } from "@/lib/companiesFilterQueryBuilder";
 
-const COMPANIES_PER_PAGE = 20;
+let COMPANIES_PER_PAGE = 20;
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -15,6 +15,9 @@ export async function GET(request: NextRequest) {
   const sortOrder = searchParams.get("sortOrder");
   const size = searchParams.get("size");
   const isFavoriteTabActive = searchParams.get("tab") === "saved";
+  COMPANIES_PER_PAGE = parseInt(
+    searchParams.get("limit") || COMPANIES_PER_PAGE.toString()
+  );
 
   const startIndex = (page - 1) * COMPANIES_PER_PAGE;
   const endIndex = startIndex + COMPANIES_PER_PAGE - 1;

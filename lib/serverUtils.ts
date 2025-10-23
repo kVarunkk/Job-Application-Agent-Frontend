@@ -31,3 +31,11 @@ export async function getVertexClient() {
     location: "us-central1",
   });
 }
+
+export function getCutOffDate(daysAgo: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+  // this helps the /api/jobs endpoint to cache results by date only (ignoring time)
+  date.setUTCHours(0, 0, 0, 0);
+  return date.toISOString();
+}

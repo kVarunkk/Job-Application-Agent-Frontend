@@ -114,7 +114,7 @@ export async function buildProfileQuery({
         {
           job_embedding: jobEmbedding,
           match_threshold: 0.5, // You can adjust this threshold
-          match_count: 50, // Fetch a larger set to then apply filters
+          match_count: 100, // Fetch a larger set to then apply filters
         }
       );
 
@@ -183,6 +183,7 @@ export async function buildProfileQuery({
     // Apply sorting
     if (sortKey && sortKey !== "relevance") {
       query = query.order(sortKey, { ascending: sortOrder === "asc" });
+      query = query.order("user_id", { ascending: sortOrder === "asc" }); // Tiebreaker
     }
 
     // Apply pagination

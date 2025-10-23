@@ -75,6 +75,10 @@ export default async function JobsPage({
   );
   try {
     params.set("tab", activeTab);
+    params.set("limit", "20");
+    if (params.get("sortBy") === "relevance") {
+      params.set("limit", "100");
+    }
     const res = await fetch(`${url}/api/companies?${params.toString()}`, {
       cache: "force-cache",
       next: { revalidate: 3600, tags: ["companies-feed"] },

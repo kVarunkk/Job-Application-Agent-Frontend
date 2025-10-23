@@ -22,6 +22,8 @@ export async function getAllDigestUsers(): Promise<IFormData[]> {
         `
     )
     .neq("email", null)
+    .neq("full_name", null)
+    .eq("filled", true)
     .eq("is_job_digest_active", true);
 
   if (error) {

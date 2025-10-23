@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { getAllDigestUsers, sendJobDigestEmail } from "@/lib/digest-utils";
 import { IFormData, IJob } from "@/lib/types";
+import { getCutOffDate } from "@/lib/serverUtils";
 
 const INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET;
 
@@ -42,12 +43,30 @@ export async function GET() {
     );
 
     // Wait for all user emails to be processed
-    await Promise.all(digestPromises);
+    const results = await Promise.all(digestPromises);
+
+    const successCount = results.filter((res) => res.success).length;
+    const failureCount = results.length - successCount;
 
     return NextResponse.json({
       success: true,
-      message: `Successfully processed digest for ${users.length} users.`,
+      message: `Processed digests for ${users.length} users. Success: ${successCount}, Failures: ${failureCount}.
+      Failure Details: ${results
+        .map((res, index) =>
+          !res.success
+            ? `User: ${users[index].email}, Error: ${res.error}`
+            : null
+        )
+        .filter((entry) => entry !== null)
+        .join("; ")}
+      
+      `,
     });
+
+    // return NextResponse.json({
+    //   success: true,
+    //   message: `Successfully processed digest for ${users.length} users.`,
+    // });
   } catch (error) {
     console.error("Global Job Digest Execution Failed:", error);
     return NextResponse.json(
@@ -67,13 +86,10 @@ async function processUserDigest(user: IFormData, digestDate: string) {
   try {
     // --- 2. Initial Vector Search (Step 1) ---
 
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    // Convert to ISO string (YYYY-MM-DDTHH:MM:SS.mmmZ) for accurate transfer and SQL comparison
-    const cutoffDate = sevenDaysAgo.toISOString();
+    const cutoffDate = getCutOffDate(10);
 
     const jobFetchRes = await fetch(
-      `${URL}/api/jobs?sortBy=relevance&limit=100&createdAfter=${cutoffDate}`,
+      `${URL}/api/jobs?sortBy=relevance&limit=100&createdAfter=${cutoffDate}&userId=${user.user_id}`,
       {
         cache: "force-cache",
         headers: {
@@ -161,12 +177,26 @@ async function processUserDigest(user: IFormData, digestDate: string) {
     const topJobs = finalJobs.slice(0, 10);
 
     if (topJobs.length > 0 && user.email && user.full_name) {
-      await sendJobDigestEmail(user.email, user.full_name, topJobs, digestDate);
+      const { success, error } = await sendJobDigestEmail(
+        user.email,
+        user.full_name,
+        topJobs,
+        digestDate
+      );
+      if (!success || error) {
+        throw new Error(`Failed to send email: ${error}`);
+      }
       console.log(`Sent digest to ${user.email} with ${topJobs.length} jobs.`);
+      return { success: true };
     } else {
       console.log(`Skipped digest for ${user?.email}: no suitable jobs found.`);
+      return { success: false, error: "No suitable jobs found" };
     }
   } catch (e) {
     console.error(`Error processing digest for user ${user?.email}:`, e);
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : String(e),
+    };
   }
 }

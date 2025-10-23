@@ -60,6 +60,10 @@ export default async function ProfilesPage({
   );
 
   try {
+    params.set("limit", "20");
+    if (params.get("sortBy") === "relevance") {
+      params.set("limit", "100");
+    }
     const res = await fetch(`${url}/api/profiles?${params.toString()}`, {
       cache: "force-cache",
       next: { revalidate: 3600, tags: ["profiles-feed"] },

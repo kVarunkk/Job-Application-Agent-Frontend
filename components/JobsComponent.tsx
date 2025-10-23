@@ -62,9 +62,7 @@ export default function JobsComponent({
   isAppliedJobsTabActive: boolean;
   totalCount: number;
 }) {
-  const [jobs, setJobs] = useState<IJob[] | IFormData[] | ICompanyInfo[]>(
-    initialJobs ?? []
-  );
+  const [jobs, setJobs] = useState<IJob[] | IFormData[] | ICompanyInfo[]>([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -89,6 +87,7 @@ export default function JobsComponent({
       "tab",
       isAllJobsTab ? "all" : isAppliedJobsTabActive ? "applied" : "saved"
     );
+    params.set("limit", "20");
 
     try {
       const res = await fetch(

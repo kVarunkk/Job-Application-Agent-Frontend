@@ -1,7 +1,7 @@
 import { buildProfileQuery } from "@/lib/profilesFilterQueryBuilder";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-const PROFILES_PER_PAGE = 20;
+let PROFILES_PER_PAGE = 20;
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -45,6 +45,10 @@ export async function GET(request: NextRequest) {
   const sortOrder = searchParams.get("sortOrder");
   const isFavoriteTabActive = searchParams.get("tab") === "saved";
   const job_post_id = searchParams.get("job_post");
+
+  PROFILES_PER_PAGE = parseInt(
+    searchParams.get("limit") || PROFILES_PER_PAGE.toString()
+  );
 
   const startIndex = (page - 1) * PROFILES_PER_PAGE;
   const endIndex = startIndex + PROFILES_PER_PAGE - 1;

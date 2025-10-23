@@ -35,32 +35,47 @@ export async function GET(request: NextRequest) {
     searchParams.get("limit") || JOBS_PER_PAGE.toString()
   );
   const createdAfter = searchParams.get("createdAfter");
+  const applicantUserId = searchParams.get("userId");
 
   const startIndex = (page - 1) * JOBS_PER_PAGE;
   const endIndex = startIndex + JOBS_PER_PAGE - 1;
 
   try {
     let userEmbedding = null;
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (sortBy === "relevance" && user) {
+    if (applicantUserId) {
       const { data: userData, error } = await supabase
         .from("user_info")
         .select("embedding")
-        .eq("user_id", user.id)
+        .eq("user_id", applicantUserId)
         .single();
-
       if (error || !userData) {
         // console.error("Error fetching user embedding:", error);
         // You might want to handle this gracefully for users without an embedding
       } else {
         userEmbedding = userData.embedding;
       }
+    } else {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (sortBy === "relevance" && user) {
+        const { data: userData, error } = await supabase
+          .from("user_info")
+          .select("embedding")
+          .eq("user_id", user.id)
+          .single();
+
+        if (error || !userData) {
+          // console.error("Error fetching user embedding:", error);
+          // You might want to handle this gracefully for users without an embedding
+        } else {
+          userEmbedding = userData.embedding;
+        }
+      }
     }
 
-    const { data, error, count } = await buildQuery({
+    const { data, error, count, matchedJobIds } = await buildQuery({
       jobType,
       location,
       visaRequirement,
@@ -78,6 +93,7 @@ export async function GET(request: NextRequest) {
       userEmbedding,
       applicationStatus,
       createdAfter,
+      isInternalCall,
     });
 
     if (error) {
@@ -85,7 +101,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error }, { status: 500 });
     }
 
-    return NextResponse.json({ data: data || [], count });
+    return NextResponse.json({ data: data || [], count, matchedJobIds });
   } catch (err: unknown) {
     return NextResponse.json(
       {

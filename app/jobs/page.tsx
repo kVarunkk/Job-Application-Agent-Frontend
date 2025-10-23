@@ -6,6 +6,7 @@ import { IJob, JobListingSearchParams } from "@/lib/types";
 import { headers } from "next/headers";
 import { ClientTabs } from "@/components/ClientTabs";
 import { Metadata } from "next";
+import { getCutOffDate } from "@/lib/serverUtils";
 
 export async function generateMetadata({
   searchParams,
@@ -174,9 +175,7 @@ export default async function JobsPage({
     params.set("tab", activeTab);
     params.set("limit", "20");
     if (params.get("sortBy") === "relevance") {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const cutoffDate = sevenDaysAgo.toISOString();
+      const cutoffDate = getCutOffDate(30);
       params.set("limit", "100");
       params.set("createdAfter", cutoffDate);
     }
@@ -251,6 +250,20 @@ export default async function JobsPage({
       } catch (e) {
         throw e;
       }
+    } else if (
+      params.get("sortBy") === "relevance" &&
+      user &&
+      result.data &&
+      result.data.length > 0 &&
+      ai_search_uses > 3
+    ) {
+      const jobMap = new Map(result.data.map((job: IJob) => [job.id, job]));
+      // console.log(result.matchedJobIds);
+      initialJobs =
+        result.matchedJobIds
+          .map((id: string) => jobMap.get(id))
+          .filter((job: IJob) => job !== undefined) || [];
+      totalCount = result.count || 0;
     } else {
       initialJobs = result.data || [];
       totalCount = result.count || 0;

@@ -81,7 +81,7 @@ export const buildCompaniesQuery = async ({
         {
           embedding: userEmbedding,
           match_threshold: 0.5, // You can adjust this threshold
-          match_count: 20, // Fetch a larger set to then apply filters
+          match_count: 100, // Fetch a larger set to then apply filters
         }
       );
 
@@ -128,6 +128,7 @@ export const buildCompaniesQuery = async ({
     // Apply sorting conditionally
     if (sortBy && sortBy !== "relevance") {
       query = query.order(sortBy, { ascending: sortOrder === "asc" });
+      query = query.order("id", { ascending: sortOrder === "asc" }); // Tiebreaker
     }
 
     // Apply pagination
