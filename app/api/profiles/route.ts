@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
       ?.embedding || null;
 
   try {
-    const { data, error, count } = await buildProfileQuery({
+    const { data, error, count, matchedProfileIds } = await buildProfileQuery({
       searchQuery,
       jobRoles,
       jobTypes,
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error }, { status: 500 });
     }
 
-    return NextResponse.json({ data: data || [], count });
+    return NextResponse.json({ data: data || [], count, matchedProfileIds });
   } catch (err: unknown) {
     return NextResponse.json(
       {

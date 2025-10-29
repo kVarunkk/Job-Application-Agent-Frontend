@@ -24,6 +24,7 @@ import SortingComponent from "./SortingComponent";
 import { useProgress } from "react-transition-progress";
 import { Link as ModifiedLink } from "react-transition-progress/next";
 import CompanyItem from "./CompanyItem";
+import InfoTooltip from "./InfoTooltip";
 
 export default function JobsComponent({
   initialJobs,
@@ -179,17 +180,17 @@ export default function JobsComponent({
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      {true && (
-        <div className="w-full flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-2 ">
-            {isSuitable && (
-              <button
-                className="text-muted-foreground hover:text-primary transition-colors p-4"
-                onClick={navigateBack}
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-            )}
+      <div className="w-full flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-2 ">
+          {isSuitable && (
+            <button
+              className="text-muted-foreground hover:text-primary transition-colors p-4"
+              onClick={navigateBack}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          )}
+          <div className="flex items-center gap-2">
             <p className="text-sm text-muted-foreground">
               Showing {jobs.length} {isSuitable ? "suitable" : ""}
               {totalCount ? ` of ${totalCount}` : ""}{" "}
@@ -199,78 +200,87 @@ export default function JobsComponent({
                   ? "jobs"
                   : "companies"}
             </p>
-          </div>
-
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
-            {user &&
-              isOnboardingComplete &&
-              !isCompanyUser &&
-              !(current_page === "profiles") &&
-              isAllJobsTab && (
-                <FindSuitableJobs
-                  user={user}
-                  setPage={setPage}
-                  currentPage={current_page}
-                  companyId={companyId}
-                />
-              )}
-            {user &&
-              isOnboardingComplete &&
-              isCompanyUser &&
-              current_page === "profiles" &&
-              isAllJobsTab && (
-                <FindSuitableJobs
-                  user={user}
-                  setPage={setPage}
-                  currentPage={current_page}
-                  companyId={companyId}
-                />
-              )}
-
-            {!isOnboardingComplete && user && !isCompanyUser && (
-              <Tooltip delayDuration={100}>
-                <TooltipTrigger className="cursor-default" asChild>
-                  <Link
-                    href={
-                      isCompanyUser
-                        ? "/get-started?company=true&edit=true"
-                        : "/get-started?edit=true"
-                    }
-                  >
-                    <Button className="rounded-full text-sm">
-                      Complete Onboarding
-                    </Button>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Complete Onboarding to use AI Smart Search
-                </TooltipContent>
-              </Tooltip>
+            {current_page === "jobs" && isSuitable ? (
+              <InfoTooltip
+                content={
+                  "Jobs posted in the past 1 month, sorted by relevance."
+                }
+              />
+            ) : (
+              ""
             )}
+          </div>
+        </div>
 
-            {searchParams.get("sortBy") !== "relevance" && (
-              <SortingComponent
-                isCompanyUser={isCompanyUser}
-                currentPage={current_page}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
+          {user &&
+            isOnboardingComplete &&
+            !isCompanyUser &&
+            !(current_page === "profiles") &&
+            isAllJobsTab && (
+              <FindSuitableJobs
+                user={user}
                 setPage={setPage}
+                currentPage={current_page}
+                companyId={companyId}
+              />
+            )}
+          {user &&
+            isOnboardingComplete &&
+            isCompanyUser &&
+            current_page === "profiles" &&
+            isAllJobsTab && (
+              <FindSuitableJobs
+                user={user}
+                setPage={setPage}
+                currentPage={current_page}
+                companyId={companyId}
               />
             )}
 
-            <FilterComponentSheet
-              uniqueLocations={uniqueLocations}
-              uniqueCompanies={uniqueCompanies ?? []}
-              uniqueJobRoles={uniqueJobRoles ?? []}
-              uniqueIndustryPreferences={uniqueIndustryPreferences ?? []}
-              uniqueWorkStylePreferences={uniqueWorkStylePreferences ?? []}
-              uniqueSkills={uniqueSkills ?? []}
+          {!isOnboardingComplete && user && !isCompanyUser && (
+            <Tooltip delayDuration={100}>
+              <TooltipTrigger className="cursor-default" asChild>
+                <Link
+                  href={
+                    isCompanyUser
+                      ? "/get-started?company=true&edit=true"
+                      : "/get-started?edit=true"
+                  }
+                >
+                  <Button className="rounded-full text-sm">
+                    Complete Onboarding
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                Complete Onboarding to use AI Smart Search
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          {searchParams.get("sortBy") !== "relevance" && (
+            <SortingComponent
               isCompanyUser={isCompanyUser}
               currentPage={current_page}
-              onboardingComplete={isOnboardingComplete}
-              uniqueIndustries={uniqueIndustries ?? []}
+              setPage={setPage}
             />
-          </div>
+          )}
+
+          <FilterComponentSheet
+            uniqueLocations={uniqueLocations}
+            uniqueCompanies={uniqueCompanies ?? []}
+            uniqueJobRoles={uniqueJobRoles ?? []}
+            uniqueIndustryPreferences={uniqueIndustryPreferences ?? []}
+            uniqueWorkStylePreferences={uniqueWorkStylePreferences ?? []}
+            uniqueSkills={uniqueSkills ?? []}
+            isCompanyUser={isCompanyUser}
+            currentPage={current_page}
+            onboardingComplete={isOnboardingComplete}
+            uniqueIndustries={uniqueIndustries ?? []}
+          />
         </div>
-      )}
+      </div>
 
       {jobs.length > 0 ? (
         current_page === "profiles" && isCompanyUser ? (

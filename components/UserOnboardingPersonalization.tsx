@@ -10,6 +10,7 @@ import {
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import { createClient } from "@/lib/supabase/client";
+import InfoTooltip from "./InfoTooltip";
 
 interface IinitialPreferences {
   id: string;
@@ -99,6 +100,7 @@ export default function UserOnboardingPersonalization({
                 Weekly Job Digest: Receive top AI-matched job recommendations
                 every week.
               </Label>
+              <InfoTooltip content="Will only work if profile is completed." />
             </div>
 
             {/* Checkbox 2: Promotions */}

@@ -143,11 +143,13 @@ export function SignUpForm({
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <Label
-                        htmlFor="email"
-                        className="flex items-center gap-2"
-                      >
-                        {isCompany && "Company"} Email
+                      <div className="flex items-center gap-2">
+                        <Label
+                          htmlFor="email"
+                          className="flex items-center gap-2"
+                        >
+                          {isCompany && "Company"} Email
+                        </Label>
                         {isCompany && (
                           <InfoTooltip
                             content={
@@ -157,7 +159,7 @@ export function SignUpForm({
                             }
                           />
                         )}
-                      </Label>
+                      </div>
                       <Input
                         id="email"
                         type="email"

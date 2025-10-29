@@ -153,6 +153,21 @@ export default async function JobsPage({
       } catch (e) {
         throw e;
       }
+    } else if (
+      params.get("sortBy") === "relevance" &&
+      user &&
+      result.data &&
+      result.data.length > 0 &&
+      ai_search_uses > 3
+    ) {
+      const companiesMap = new Map(
+        result.data.map((company: ICompanyInfo) => [company.id, company])
+      );
+      const reorderedCompanies = result.matchedCompanyIds
+        .map((id: string) => companiesMap.get(id))
+        .filter((company: ICompanyInfo) => company !== undefined);
+      initialCompanies = reorderedCompanies || [];
+      totalCount = reorderedCompanies.length || 0;
     } else {
       initialCompanies = result.data || [];
       totalCount = result.count || 0;

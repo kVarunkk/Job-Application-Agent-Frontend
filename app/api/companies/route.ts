@@ -41,25 +41,27 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const { data, error, count } = await buildCompaniesQuery({
-      industry,
-      location,
-      name,
-      size,
-      start_index: startIndex,
-      end_index: endIndex,
-      sortBy: sortBy ?? undefined,
-      sortOrder: sortOrder as "asc" | "desc",
-      isFavoriteTabActive: isFavoriteTabActive,
-      userEmbedding,
-    });
+    const { data, error, count, matchedCompanyIds } = await buildCompaniesQuery(
+      {
+        industry,
+        location,
+        name,
+        size,
+        start_index: startIndex,
+        end_index: endIndex,
+        sortBy: sortBy ?? undefined,
+        sortOrder: sortOrder as "asc" | "desc",
+        isFavoriteTabActive: isFavoriteTabActive,
+        userEmbedding,
+      }
+    );
 
     if (error) {
       // console.error("API Error fetching jobs:", error);
       return NextResponse.json({ error: error }, { status: 500 });
     }
 
-    return NextResponse.json({ data: data || [], count });
+    return NextResponse.json({ data: data || [], count, matchedCompanyIds });
   } catch (err: unknown) {
     return NextResponse.json(
       {

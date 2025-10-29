@@ -34,24 +34,35 @@ export default async function ProfilesPage({
   const onboarding_complete = companyDataData.filled;
   const companyData: ICompanyInfo = companyDataData;
 
-  // --- Data Fetching ---
-  const { data: filterData, error: filterError } = await supabase.rpc(
-    "get_unique_profile_filters"
-  );
-  const uniqueJobRoles = filterData?.uniqueJobRoles || [];
-  const uniqueIndustryPreferences = filterData?.uniqueIndustryPreferences || [];
-  const uniqueWorkStylePreferences =
-    filterData?.uniqueWorkStylePreferences || [];
-  const uniqueSkills = filterData?.uniqueSkills || [];
-  const uniqueLocations = filterData?.uniqueLocations || [];
-  if (filterError) {
-    // console.error("Error fetching unique profile filters:", filterError);
-  }
+  let uniqueLocations = [];
+  let uniqueJobRoles = [];
+  let uniqueIndustryPreferences = [];
+  let uniqueWorkStylePreferences = [];
+  let uniqueSkills = [];
 
+  // --- Data Fetching ---
   const headersList = await headers();
   const host = headersList.get("host");
   const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
   const url = `${protocol}://${host}`;
+
+  const resFilters = await fetch(`${url}/api/profiles/filters`, {
+    cache: "force-cache",
+    next: { revalidate: 86400 },
+    headers: {
+      Cookie: headersList.get("Cookie") || "",
+    },
+  });
+
+  const filterData = await resFilters.json();
+
+  if (resFilters.ok) {
+    uniqueJobRoles = filterData.uniqueJobRoles || [];
+    uniqueIndustryPreferences = filterData.uniqueIndustryPreferences || [];
+    uniqueWorkStylePreferences = filterData.uniqueWorkStylePreferences || [];
+    uniqueSkills = filterData.uniqueSkills || [];
+    uniqueLocations = filterData.uniqueLocations || [];
+  }
 
   let initialProfiles: IFormData[] = [];
   let totalCount: number = 0;
@@ -135,6 +146,27 @@ export default async function ProfilesPage({
       } catch (e) {
         throw e;
       }
+    } else if (
+      params.get("sortBy") === "relevance" &&
+      params.get("job_post") &&
+      user &&
+      onboarding_complete &&
+      result.matchedProfileIds &&
+      result.data &&
+      result.data.length > 0 &&
+      companyData.ai_search_uses > 3
+    ) {
+      const profilesMap: Map<string, IFormData> = new Map(
+        result.data.map((profile: IFormData) => [profile.user_id, profile])
+      );
+      const reorderedProfiles = result.matchedProfileIds
+        .map((user_id: string) => profilesMap.get(user_id))
+        .filter(
+          (profile: IFormData) =>
+            profile !== undefined && typeof profile.user_id === "string"
+        );
+      initialProfiles = reorderedProfiles || [];
+      totalCount = reorderedProfiles.length || 0;
     } else {
       initialProfiles = result.data || [];
       totalCount = result.count || 0;

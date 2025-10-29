@@ -199,7 +199,6 @@ export default async function JobsPage({
 
     const filterData = await resFilters.json();
 
-    // uniqueLocations = resFilters.ok ? filterData.locations : [];
     uniqueCompanies = resFilters.ok ? filterData.companies : [];
 
     // --- AI Re-ranking Logic ---
@@ -254,6 +253,7 @@ export default async function JobsPage({
       params.get("sortBy") === "relevance" &&
       user &&
       result.data &&
+      result.matchedJobIds &&
       result.data.length > 0 &&
       ai_search_uses > 3
     ) {
