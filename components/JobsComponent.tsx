@@ -249,12 +249,14 @@ export default function JobsComponent({
                   }
                 >
                   <Button className="rounded-full text-sm">
-                    Complete Onboarding
+                    {isCompanyUser
+                      ? "Find Suitable Profiles"
+                      : "Find Suitable Jobs"}
                   </Button>
                 </Link>
               </TooltipTrigger>
               <TooltipContent>
-                Complete Onboarding to use AI Smart Search
+                Complete Onboarding to use this Feature.
               </TooltipContent>
             </Tooltip>
           )}
