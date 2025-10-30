@@ -241,17 +241,11 @@ export default function JobsComponent({
           {!isOnboardingComplete && user && !isCompanyUser && (
             <Tooltip delayDuration={100}>
               <TooltipTrigger className="cursor-default" asChild>
-                <Link
-                  href={
-                    isCompanyUser
-                      ? "/get-started?company=true&edit=true"
-                      : "/get-started?edit=true"
-                  }
-                >
+                <Link href={"/get-started?edit=true"}>
                   <Button className="flex items-center gap-2 rounded-full text-sm">
                     <Search className="w-4 h-4" />
-                    {isCompanyUser
-                      ? "Find Suitable Profiles"
+                    {current_page === "companies"
+                      ? "Find Suitable Companies"
                       : "Find Suitable Jobs"}
                   </Button>
                 </Link>
