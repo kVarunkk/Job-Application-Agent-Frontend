@@ -46,8 +46,8 @@ export function ClientTabs({
           page === "jobs"
             ? "jobs"
             : page === "companies"
-            ? "companies"
-            : "company/profiles"
+              ? "companies"
+              : "company/profiles"
         }?${newSearchParams.toString()}`
       );
     });
