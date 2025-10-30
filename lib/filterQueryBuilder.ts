@@ -113,8 +113,7 @@ export const buildQuery = async ({
       selectString = `
        ${allJobsSelectString},
         user_favorites(*),
-        job_postings(${jobPostingsSelectString}, company_info(${companyInfoSelectString}), applications(*)),
-        applications(*)
+        job_postings(${jobPostingsSelectString}, company_info(${companyInfoSelectString}))
     `;
       query = supabase
         .from("all_jobs")
