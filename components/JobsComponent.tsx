@@ -16,7 +16,7 @@ import JobItem from "./JobItem";
 import FindSuitableJobs from "./FindSuitableJobs";
 import FilterComponentSheet from "./FilterComponentSheet";
 import { Button } from "./ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import ProfileItem from "./ProfileItem";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import ScrollToTopButton from "./ScrollToTopButton";
@@ -248,7 +248,8 @@ export default function JobsComponent({
                       : "/get-started?edit=true"
                   }
                 >
-                  <Button className="rounded-full text-sm">
+                  <Button className="flex items-center gap-2 rounded-full text-sm">
+                    <Search className="w-4 h-4" />
                     {isCompanyUser
                       ? "Find Suitable Profiles"
                       : "Find Suitable Jobs"}
