@@ -39,3 +39,22 @@ export function getCutOffDate(daysAgo: number): string {
   date.setUTCHours(0, 0, 0, 0);
   return date.toISOString();
 }
+
+// export const featureData = {
+//   title: "New Feature: Ultra-Fast Filters!",
+//   description:
+//     "We've upgraded our search engine. Click continue to enjoy instant filtering results across your job feed.",
+//   confirmButtonLabel: "Continue to Dashboard",
+//   featureHighlight: "🚀 AI Job Search is now 10x faster!",
+//   promoImage:
+//     "/images/posts/how-to-attract-top-talent-to-your-company-s-remote-team/image.jpg",
+//   customContent: (
+//     <ul className="list-disc ml-4 ">
+//       <li>Instant filtering on Salary & Location.</li>
+//       <li>Better mobile responsiveness.</li>
+//     </ul>
+//   ),
+//   currentDialogId: "FEATURE_TOUR_V3",
+// };
+
+export const featureData = null;
