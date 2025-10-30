@@ -556,11 +556,11 @@ const Step6ResumeUpload: React.FC<StepProps> = ({
 
   return (
     <CardContent className="!p-0">
-      <Label htmlFor="resume_file">Upload Your Resume (PDF, DOCX)</Label>
+      <Label htmlFor="resume_file">Upload Your Resume (PDF)</Label>
       <Input
         id="resume_file"
         type="file"
-        accept=".pdf,.doc,.docx"
+        accept=".pdf"
         onChange={(e) => {
           const file = e.target.files ? e.target.files[0] : null;
           setFormData((prev) => ({
@@ -604,7 +604,8 @@ const Step6ResumeUpload: React.FC<StepProps> = ({
         <p className="text-sm text-muted-foreground mt-2 flex items-center gap-1">
           <ResumePreviewDialog
             displayUrl={signedDisplayUrl}
-            isPdf={signedDisplayUrl.endsWith(".pdf")}
+            // isPdf={signedDisplayUrl.endsWith(".pdf")}
+            isPdf
           />
           your currently stored Resume
         </p>
@@ -618,7 +619,8 @@ const Step6ResumeUpload: React.FC<StepProps> = ({
         <p className="text-sm text-muted-foreground mt-2 flex items-center gap-1">
           <ResumePreviewDialog
             displayUrl={localPreviewUrl}
-            isPdf={localPreviewUrl.endsWith(".pdf")}
+            // isPdf={localPreviewUrl.endsWith(".pdf")}
+            isPdf
           />
           for the Resume you just uploaded
         </p>
@@ -854,7 +856,7 @@ export const OnboardingForm: React.FC = () => {
     };
 
     fetchUserAndData();
-  }, [countries, isLoading]); // Run once on mount
+  }, [countries, isLoadingLocations]); // Run once on mount
 
   // Validation function for current step
   const validateStep = useCallback(() => {

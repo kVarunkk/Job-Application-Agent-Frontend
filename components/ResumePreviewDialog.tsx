@@ -1,6 +1,12 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 import { FileText } from "lucide-react";
 
 export default function ResumePreviewDialog({
@@ -22,6 +28,9 @@ export default function ResumePreviewDialog({
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] h-[90vh] p-0">
+        <DialogHeader className="hidden">
+          <DialogTitle></DialogTitle>
+        </DialogHeader>
         {isPdf ? (
           <iframe
             src={displayUrl}
