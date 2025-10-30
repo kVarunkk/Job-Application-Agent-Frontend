@@ -137,22 +137,23 @@ export default async function JobsPage({
   let ai_search_uses = 0;
   if (user) {
     try {
-      const { data: jobSeekerData } = await supabase
+      const { data: jobSeekerData, error: jobSeekerDataError } = await supabase
         .from("user_info")
         .select("ai_search_uses, filled")
         .eq("user_id", user?.id)
         .single();
-      const { data: companyData } = await supabase
-        .from("company_info")
-        .select("id, ai_search_uses, filled")
-        .eq("user_id", user?.id)
-        .single();
 
-      if (companyData) {
-        isCompanyUser = true;
-      }
+      if (jobSeekerDataError) {
+        const { data: companyData } = await supabase
+          .from("company_info")
+          .select("id, ai_search_uses, filled")
+          .eq("user_id", user?.id)
+          .single();
 
-      if (jobSeekerData) {
+        if (companyData) {
+          isCompanyUser = true;
+        }
+      } else if (jobSeekerData) {
         onboardingComplete = jobSeekerData.filled;
         ai_search_uses = jobSeekerData.ai_search_uses;
       }
@@ -208,64 +209,78 @@ export default async function JobsPage({
       params.get("sortBy") === "relevance" &&
       user &&
       result.data &&
-      result.data.length > 0 &&
-      ai_search_uses <= 3
+      result.data.length > 0
+      // && ai_search_uses <= 3
     ) {
-      try {
-        const aiRerankRes = await fetch(`${url}/api/ai-search/jobs`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: headersList.get("Cookie") || "",
-          },
-          body: JSON.stringify({
-            userId: user.id,
-            jobs: result.data.map((job: IJob) => ({
-              id: job.id,
-              job_name: job.job_name,
-              description: job.description,
-              visa_requirement: job.visa_requirement,
-              salary_range: job.salary_range,
-              locations: job.locations,
-              experience: job.experience,
-            })),
-          }),
-        });
+      if (ai_search_uses <= 3) {
+        try {
+          const aiRerankRes = await fetch(`${url}/api/ai-search/jobs`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Cookie: headersList.get("Cookie") || "",
+            },
+            body: JSON.stringify({
+              userId: user.id,
+              jobs: result.data.map((job: IJob) => ({
+                id: job.id,
+                job_name: job.job_name,
+                description: job.description,
+                visa_requirement: job.visa_requirement,
+                salary_range: job.salary_range,
+                locations: job.locations,
+                experience: job.experience,
+              })),
+            }),
+          });
 
-        const aiRerankResult = await aiRerankRes.json();
+          const aiRerankResult = await aiRerankRes.json();
 
-        if (aiRerankRes.ok && aiRerankResult.rerankedJobs) {
-          const rerankedIds = aiRerankResult.rerankedJobs;
-          const filteredOutIds = aiRerankResult.filteredOutJobs || [];
-          const jobMap = new Map(result.data.map((job: IJob) => [job.id, job]));
-          const reorderedJobs = rerankedIds
-            .map((id: string) => jobMap.get(id))
-            .filter(
-              (job: IJob) =>
-                job !== undefined && !filteredOutIds.includes(job.id)
+          if (aiRerankRes.ok && aiRerankResult.rerankedJobs) {
+            const rerankedIds = aiRerankResult.rerankedJobs;
+            const filteredOutIds = aiRerankResult.filteredOutJobs || [];
+            const jobMap = new Map(
+              result.data.map((job: IJob) => [job.id, job])
             );
-          initialJobs = reorderedJobs || [];
-          totalCount = reorderedJobs.length || 0;
+            const reorderedJobs = rerankedIds
+              .map((id: string) => jobMap.get(id))
+              .filter(
+                (job: IJob) =>
+                  job !== undefined && !filteredOutIds.includes(job.id)
+              );
+            initialJobs = reorderedJobs || [];
+            totalCount = reorderedJobs.length || 0;
+          }
+        } catch (e) {
+          throw e;
         }
-      } catch (e) {
-        throw e;
+      } else if (result.matchedJobIds && ai_search_uses > 3) {
+        const jobMap = new Map(result.data.map((job: IJob) => [job.id, job]));
+        // console.log(result.matchedJobIds);
+        initialJobs =
+          result.matchedJobIds
+            .map((id: string) => jobMap.get(id))
+            .filter((job: IJob) => job !== undefined) || [];
+        totalCount = result.count || 0;
       }
-    } else if (
-      params.get("sortBy") === "relevance" &&
-      user &&
-      result.data &&
-      result.matchedJobIds &&
-      result.data.length > 0 &&
-      ai_search_uses > 3
-    ) {
-      const jobMap = new Map(result.data.map((job: IJob) => [job.id, job]));
-      // console.log(result.matchedJobIds);
-      initialJobs =
-        result.matchedJobIds
-          .map((id: string) => jobMap.get(id))
-          .filter((job: IJob) => job !== undefined) || [];
-      totalCount = result.count || 0;
-    } else {
+    }
+    // else if (
+    //   params.get("sortBy") === "relevance" &&
+    //   user &&
+    //   result.data &&
+    //   result.matchedJobIds &&
+    //   result.data.length > 0 &&
+    //   ai_search_uses > 3
+    // ) {
+    //   const jobMap = new Map(result.data.map((job: IJob) => [job.id, job]));
+    //   // console.log(result.matchedJobIds);
+    //   initialJobs =
+    //     result.matchedJobIds
+    //       .map((id: string) => jobMap.get(id))
+    //       .filter((job: IJob) => job !== undefined) || [];
+    //   totalCount = result.count || 0;
+    // }
+    else {
       initialJobs = result.data || [];
       totalCount = result.count || 0;
     }
