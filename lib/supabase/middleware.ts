@@ -49,6 +49,8 @@ export async function updateSession(request: NextRequest) {
     "/api/jobs/filters",
     "/api/companies",
     "/api/companies/filters",
+    "/api/digest/applicants",
+    "/api/ai-search/jobs",
     "/privacy-policy",
     "/terms-of-service",
     "/sitemap.xml",
@@ -57,6 +59,9 @@ export async function updateSession(request: NextRequest) {
     "/robots.txt",
     "/opengraph-image.jpg",
     "/twitter-image.jpg",
+    "/test",
+    "/preview/AuthConfirmationEmai",
+    "/auth/update-password",
   ];
 
   const authPaths = [
@@ -67,7 +72,7 @@ export async function updateSession(request: NextRequest) {
     "/auth/error",
     "/auth/confirm",
     "/auth/forgot-password",
-    "/auth/update-password",
+    // "/auth/update-password",
     "/auth/login?company=true",
     "/auth/sign-up?company=true",
   ];

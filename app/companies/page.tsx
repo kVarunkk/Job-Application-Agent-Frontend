@@ -75,6 +75,10 @@ export default async function JobsPage({
   );
   try {
     params.set("tab", activeTab);
+    params.set("limit", "20");
+    if (params.get("sortBy") === "relevance") {
+      params.set("limit", "100");
+    }
     const res = await fetch(`${url}/api/companies?${params.toString()}`, {
       cache: "force-cache",
       next: { revalidate: 3600, tags: ["companies-feed"] },
@@ -149,6 +153,21 @@ export default async function JobsPage({
       } catch (e) {
         throw e;
       }
+    } else if (
+      params.get("sortBy") === "relevance" &&
+      user &&
+      result.data &&
+      result.data.length > 0 &&
+      ai_search_uses > 3
+    ) {
+      const companiesMap = new Map(
+        result.data.map((company: ICompanyInfo) => [company.id, company])
+      );
+      const reorderedCompanies = result.matchedCompanyIds
+        .map((id: string) => companiesMap.get(id))
+        .filter((company: ICompanyInfo) => company !== undefined);
+      initialCompanies = reorderedCompanies || [];
+      totalCount = reorderedCompanies.length || 0;
     } else {
       initialCompanies = result.data || [];
       totalCount = result.count || 0;

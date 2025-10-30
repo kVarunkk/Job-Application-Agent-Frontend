@@ -4,10 +4,18 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { IJob } from "@/lib/types";
 import { getVertexClient } from "@/lib/serverUtils";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const internalSecret = request.headers.get("X-Internal-Secret");
+    const isInternalCall = internalSecret === process.env.INTERNAL_API_SECRET;
+
+    // Choose the client based on the header
+    const supabase = isInternalCall
+      ? createServiceRoleClient() // No session needed, bypasses RLS
+      : await createClient();
+
     const { userId, jobs } = await request.json();
 
     if (!userId || !jobs) {
@@ -43,15 +51,15 @@ export async function POST(request: NextRequest) {
       - Experience: ${userPreferences.experience_years} years
       - Preferred Locations: ${userPreferences.preferred_locations?.join(", ")}
       - Salary Range: $${userPreferences.min_salary} - $${
-      userPreferences.max_salary
-    }
+        userPreferences.max_salary
+      }
       - Top Skills: ${userPreferences.top_skills?.join(", ")}
       - Work Style: ${userPreferences.work_style_preferences?.join(", ")}
       - Job Type: ${userPreferences.job_type?.join(", ")}
       - Company Size: ${userPreferences.company_size_preference}
       - Career Goals: ${userPreferences.career_goals_short_term} and ${
-      userPreferences.career_goals_long_term
-    }
+        userPreferences.career_goals_long_term
+      }
       - Visa Sponsorship: ${
         userPreferences.visa_sponsorship_required ? "Yes" : "No"
       }
@@ -125,7 +133,6 @@ export async function POST(request: NextRequest) {
       filteredOutJobs: object.filtered_out_job_ids,
     });
   } catch {
-    // console.error(e);
     return NextResponse.json({
       message: "An error occurred",
     });

@@ -1,10 +1,11 @@
 "use client";
 
+import * as React from "react"; // Explicitly import React
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"; // Import Popover components
 import { Info } from "lucide-react";
 
 interface InfoTooltipProps {
@@ -13,11 +14,26 @@ interface InfoTooltipProps {
 
 export default function InfoTooltip({ content }: InfoTooltipProps) {
   return (
-    <Tooltip>
-      <TooltipTrigger className="cursor-default">
-        <Info className="h-4 w-4 text-muted-foreground" />
-      </TooltipTrigger>
-      <TooltipContent>{content}</TooltipContent>
-    </Tooltip>
+    <Popover>
+      <PopoverTrigger asChild>
+        <span
+          tabIndex={0}
+          role="button"
+          aria-label="More information"
+          className="cursor-pointer inline-flex items-center justify-center 
+                     rounded-full transition-colors 
+                     hover:text-primary focus-visible:ring-2 focus-visible:ring-offset-2 p-2"
+        >
+          <Info className="h-4 w-4 text-muted-foreground" />
+        </span>
+      </PopoverTrigger>
+
+      <PopoverContent
+        className=" w-fit max-w-40 text-sm p-3 z-50 shadow-lg font-semibold"
+        align="start"
+      >
+        {content}
+      </PopoverContent>
+    </Popover>
   );
 }

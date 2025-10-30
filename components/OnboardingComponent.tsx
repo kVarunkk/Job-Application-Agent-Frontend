@@ -40,6 +40,8 @@ import MultiKeywordSelect from "./MultiKeywordSelect";
 import { User } from "@supabase/supabase-js";
 import ResumePreviewDialog from "./ResumePreviewDialog";
 import { Loader2, X } from "lucide-react";
+import UserOnboardingPersonalization from "./UserOnboardingPersonalization";
+import { useCachedFetch } from "@/lib/hooks/useCachedFetch";
 
 // --- Step Components ---
 
@@ -50,6 +52,7 @@ interface StepProps {
   setErrors: React.Dispatch<
     React.SetStateAction<Partial<Record<keyof IFormData, string>>>
   >;
+  loadingLocations?: boolean;
 }
 
 const Step1JobRole = ({ formData, setFormData, errors }: StepProps) => {
@@ -126,20 +129,23 @@ const Step2LocationSalary: React.FC<StepProps> = ({
   formData,
   setFormData,
   errors,
+  loadingLocations,
 }) => (
   <CardContent className="flex flex-col gap-4 !p-0">
     <div>
       <Label htmlFor="preferred_locations">Preferred Locations</Label>
 
       <div className="mt-2">
-        <MultiKeywordSelectInput
+        <MultiKeywordSelect
           name="preferred_locations"
-          placeholder="Type or select from dropdown"
+          placeholder="Select preferred locations"
           initialKeywords={formData.preferred_locations ?? []}
           onChange={(name, keywords) =>
             setFormData((prev) => ({ ...prev, [name]: keywords }))
           }
           availableItems={formData.default_locations}
+          isVirtualized={true}
+          loading={loadingLocations}
           className={cn(errors.preferred_locations ? "border-red-500" : "")}
         />
       </div>
@@ -740,11 +746,18 @@ export const OnboardingForm: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<
     Partial<Record<keyof IFormData, string>>
   >({});
-  const [user, setUser] = useState<User | null>(null); // Supabase user object
+  const [user, setUser] = useState<User | null>(null);
+  const [initialPreferencesState, setInitialPreferencesState] = useState<{
+    id: string;
+    is_promotion_active: boolean;
+    is_job_digest_active: boolean;
+  } | null>(null);
+  const { data: countries, isLoading: isLoadingLocations } = useCachedFetch<
+    { location: string }[]
+  >("countryData", "/api/locations", undefined, true);
   const router = useRouter();
   const steps = useMemo(() => {
     return [
@@ -798,9 +811,7 @@ export const OnboardingForm: React.FC = () => {
   useEffect(() => {
     const fetchUserAndData = async () => {
       const supabase = createClient();
-      const { data: uniqueLocationsData } = await supabase.rpc(
-        "get_unique_locations"
-      );
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -814,6 +825,11 @@ export const OnboardingForm: React.FC = () => {
           .single();
 
         if (data) {
+          setInitialPreferencesState(() => ({
+            id: data.user_id,
+            is_promotion_active: data.is_promotion_active,
+            is_job_digest_active: data.is_job_digest_active,
+          }));
           setFormData((prev) => ({
             ...prev,
             ...data,
@@ -822,9 +838,10 @@ export const OnboardingForm: React.FC = () => {
             experience_years: data.experience_years || "",
             // Resume file is not loaded from DB, only URL
             resume_file: null,
-            default_locations: uniqueLocationsData.map(
-              (each: { location: string }) => each.location
-            ),
+            default_locations:
+              !isLoadingLocations && countries
+                ? countries.map((each: { location: string }) => each.location)
+                : [],
           }));
         } else if (error && error.code !== "PGRST116") {
           // PGRST116 means "no rows found"
@@ -837,7 +854,7 @@ export const OnboardingForm: React.FC = () => {
     };
 
     fetchUserAndData();
-  }, []); // Run once on mount
+  }, [countries, isLoading]); // Run once on mount
 
   // Validation function for current step
   const validateStep = useCallback(() => {
@@ -1127,9 +1144,19 @@ export const OnboardingForm: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-10 items-center justify-center mt-32 mb-32  p-4">
-      <p className="text-6xl font-bold max-w-2xl">
-        Let&apos;s get you Hired, quickly.
-      </p>
+      <div className="flex flex-col gap-5 max-w-2xl w-full">
+        <p className="text-6xl font-bold ">
+          Let&apos;s get you Hired, quickly.
+        </p>
+        {initialPreferencesState ? (
+          <UserOnboardingPersonalization
+            initialPreferences={initialPreferencesState}
+          />
+        ) : (
+          ""
+        )}
+      </div>
+
       <Card className="w-full max-w-2xl !border-none !p-0 shadow-none">
         <CardHeader className="!p-0 mb-5">
           <Progress value={progress} className="mt-4" />
@@ -1139,6 +1166,7 @@ export const OnboardingForm: React.FC = () => {
           setFormData={setFormData}
           errors={formErrors}
           setErrors={setFormErrors}
+          loadingLocations={isLoadingLocations}
         />
         {error ? toast.error(error) : ""}
 
@@ -1154,8 +1182,8 @@ export const OnboardingForm: React.FC = () => {
             {isLoading
               ? "Processing..."
               : currentStep === totalSteps - 1
-              ? "Submit"
-              : "Next"}
+                ? "Submit"
+                : "Next"}
           </Button>
         </CardFooter>
         <p className="text-muted-foreground text-xs text-center mt-5">

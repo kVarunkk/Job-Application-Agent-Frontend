@@ -35,8 +35,8 @@ import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { User } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import PropagationStopper from "./StopPropagation";
+import InfoTooltip from "./InfoTooltip";
 
 const createFormSchema = (questions: string[]) => {
   const schemaFields = questions.reduce<Record<string, z.ZodTypeAny>>(
@@ -192,27 +192,50 @@ export default function JobApplicationDialog({
         }}
       >
         {applicationStatus ? (
-          <Tooltip delayDuration={100}>
-            <TooltipTrigger className="cursor-default" asChild>
-              <div>
-                <Button
-                  onClick={(e) => e.stopPropagation()}
-                  className="capitalize"
-                  disabled={
-                    applicationStatus !== null || jobPost.status === "inactive"
-                  }
-                >
-                  {applicationStatus ?? "Apply Now"}{" "}
-                  {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
-                </Button>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[200px]">
-              Your current application status is <b>{applicationStatus}</b>.
-              You&apos;ll be notified via email if the status changes.
-            </TooltipContent>
-          </Tooltip>
+          <PropagationStopper>
+            <div className="flex items-center gap-2">
+              <InfoTooltip
+                content={
+                  <p>
+                    Your current application status is{" "}
+                    <b>{applicationStatus}</b>. You&apos;ll be notified via
+                    email if the status changes.
+                  </p>
+                }
+              />
+              <Button
+                onClick={(e) => e.stopPropagation()}
+                className="capitalize"
+                disabled={
+                  applicationStatus !== null || jobPost.status === "inactive"
+                }
+              >
+                {applicationStatus ?? "Apply Now"}{" "}
+                {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
+              </Button>
+            </div>
+          </PropagationStopper>
         ) : (
+          // <Tooltip delayDuration={100}>
+          //   <TooltipTrigger className="cursor-default" asChild>
+          //     <div>
+          //       <Button
+          //         onClick={(e) => e.stopPropagation()}
+          //         className="capitalize"
+          //         disabled={
+          //           applicationStatus !== null || jobPost.status === "inactive"
+          //         }
+          //       >
+          //         {applicationStatus ?? "Apply Now"}{" "}
+          //         {!applicationStatus && <ArrowRight className=" h-4 w-4" />}
+          //       </Button>
+          //     </div>
+          //   </TooltipTrigger>
+          //   <TooltipContent className="max-w-[200px]">
+          //     Your current application status is <b>{applicationStatus}</b>.
+          //     You&apos;ll be notified via email if the status changes.
+          //   </TooltipContent>
+          // </Tooltip>
           <DialogTrigger asChild>
             <Button
               // onClick={(e) => e.stopPropagation()}

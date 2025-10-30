@@ -6,6 +6,8 @@ import { IJob, JobListingSearchParams } from "@/lib/types";
 import { headers } from "next/headers";
 import { ClientTabs } from "@/components/ClientTabs";
 import { Metadata } from "next";
+import { featureData, getCutOffDate } from "@/lib/serverUtils";
+import DisplayPromotion from "@/components/DisplayPromotionDialog";
 
 export async function generateMetadata({
   searchParams,
@@ -172,6 +174,12 @@ export default async function JobsPage({
   );
   try {
     params.set("tab", activeTab);
+    params.set("limit", "20");
+    if (params.get("sortBy") === "relevance") {
+      const cutoffDate = getCutOffDate(30);
+      params.set("limit", "100");
+      params.set("createdAfter", cutoffDate);
+    }
     const res = await fetch(`${url}/api/jobs?${params.toString()}`, {
       cache: "force-cache",
       next: { revalidate: 3600, tags: ["jobs-feed"] },
@@ -192,7 +200,6 @@ export default async function JobsPage({
 
     const filterData = await resFilters.json();
 
-    // uniqueLocations = resFilters.ok ? filterData.locations : [];
     uniqueCompanies = resFilters.ok ? filterData.companies : [];
 
     // --- AI Re-ranking Logic ---
@@ -243,6 +250,21 @@ export default async function JobsPage({
       } catch (e) {
         throw e;
       }
+    } else if (
+      params.get("sortBy") === "relevance" &&
+      user &&
+      result.data &&
+      result.matchedJobIds &&
+      result.data.length > 0 &&
+      ai_search_uses > 3
+    ) {
+      const jobMap = new Map(result.data.map((job: IJob) => [job.id, job]));
+      // console.log(result.matchedJobIds);
+      initialJobs =
+        result.matchedJobIds
+          .map((id: string) => jobMap.get(id))
+          .filter((job: IJob) => job !== undefined) || [];
+      totalCount = result.count || 0;
     } else {
       initialJobs = result.data || [];
       totalCount = result.count || 0;
@@ -315,6 +337,9 @@ export default async function JobsPage({
           </ClientTabs>
         </div>
       </div>
+      {user && featureData && (
+        <DisplayPromotion currentUserId={user.id} featureData={featureData} />
+      )}
     </div>
   );
 }

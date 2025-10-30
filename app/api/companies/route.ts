@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildCompaniesQuery } from "@/lib/companiesFilterQueryBuilder";
 
-const COMPANIES_PER_PAGE = 20;
+let COMPANIES_PER_PAGE = 20;
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -15,6 +15,9 @@ export async function GET(request: NextRequest) {
   const sortOrder = searchParams.get("sortOrder");
   const size = searchParams.get("size");
   const isFavoriteTabActive = searchParams.get("tab") === "saved";
+  COMPANIES_PER_PAGE = parseInt(
+    searchParams.get("limit") || COMPANIES_PER_PAGE.toString()
+  );
 
   const startIndex = (page - 1) * COMPANIES_PER_PAGE;
   const endIndex = startIndex + COMPANIES_PER_PAGE - 1;
@@ -38,25 +41,27 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const { data, error, count } = await buildCompaniesQuery({
-      industry,
-      location,
-      name,
-      size,
-      start_index: startIndex,
-      end_index: endIndex,
-      sortBy: sortBy ?? undefined,
-      sortOrder: sortOrder as "asc" | "desc",
-      isFavoriteTabActive: isFavoriteTabActive,
-      userEmbedding,
-    });
+    const { data, error, count, matchedCompanyIds } = await buildCompaniesQuery(
+      {
+        industry,
+        location,
+        name,
+        size,
+        start_index: startIndex,
+        end_index: endIndex,
+        sortBy: sortBy ?? undefined,
+        sortOrder: sortOrder as "asc" | "desc",
+        isFavoriteTabActive: isFavoriteTabActive,
+        userEmbedding,
+      }
+    );
 
     if (error) {
       // console.error("API Error fetching jobs:", error);
       return NextResponse.json({ error: error }, { status: 500 });
     }
 
-    return NextResponse.json({ data: data || [], count });
+    return NextResponse.json({ data: data || [], count, matchedCompanyIds });
   } catch (err: unknown) {
     return NextResponse.json(
       {

@@ -1,13 +1,21 @@
 import { buildQuery } from "@/lib/filterQueryBuilder";
 import { type NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
-const JOBS_PER_PAGE = 20;
+let JOBS_PER_PAGE = 20;
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
+  const internalSecret = request.headers.get("X-Internal-Secret");
+  const isInternalCall = internalSecret === process.env.INTERNAL_API_SECRET;
+
+  // Choose the client based on the header
+  const supabase = isInternalCall
+    ? createServiceRoleClient() // No session needed, bypasses RLS
+    : await createClient();
+
   const searchParams = request.nextUrl.searchParams;
-  const page = parseInt(searchParams.get("page") || "1", 10);
+  const page = parseInt(searchParams.get("page") || "1");
 
   // Extract filter params
   const jobType = searchParams.get("jobType");
@@ -23,32 +31,51 @@ export async function GET(request: NextRequest) {
   const isFavoriteTabActive = searchParams.get("tab") === "saved";
   const isAppliedJobsTabActive = searchParams.get("tab") === "applied";
   const applicationStatus = searchParams.get("applicationStatus");
+  JOBS_PER_PAGE = parseInt(
+    searchParams.get("limit") || JOBS_PER_PAGE.toString()
+  );
+  const createdAfter = searchParams.get("createdAfter");
+  const applicantUserId = searchParams.get("userId");
 
   const startIndex = (page - 1) * JOBS_PER_PAGE;
   const endIndex = startIndex + JOBS_PER_PAGE - 1;
 
   try {
     let userEmbedding = null;
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (sortBy === "relevance" && user) {
+    if (applicantUserId) {
       const { data: userData, error } = await supabase
         .from("user_info")
         .select("embedding")
-        .eq("user_id", user.id)
+        .eq("user_id", applicantUserId)
         .single();
-
       if (error || !userData) {
         // console.error("Error fetching user embedding:", error);
         // You might want to handle this gracefully for users without an embedding
       } else {
         userEmbedding = userData.embedding;
       }
+    } else {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (sortBy === "relevance" && user) {
+        const { data: userData, error } = await supabase
+          .from("user_info")
+          .select("embedding")
+          .eq("user_id", user.id)
+          .single();
+
+        if (error || !userData) {
+          // console.error("Error fetching user embedding:", error);
+          // You might want to handle this gracefully for users without an embedding
+        } else {
+          userEmbedding = userData.embedding;
+        }
+      }
     }
 
-    const { data, error, count } = await buildQuery({
+    const { data, error, count, matchedJobIds } = await buildQuery({
       jobType,
       location,
       visaRequirement,
@@ -65,6 +92,8 @@ export async function GET(request: NextRequest) {
       isAppliedJobsTabActive: isAppliedJobsTabActive,
       userEmbedding,
       applicationStatus,
+      createdAfter,
+      isInternalCall,
     });
 
     if (error) {
@@ -72,7 +101,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error }, { status: 500 });
     }
 
-    return NextResponse.json({ data: data || [], count });
+    return NextResponse.json({ data: data || [], count, matchedJobIds });
   } catch (err: unknown) {
     return NextResponse.json(
       {

@@ -73,6 +73,8 @@ export const buildCompaniesQuery = async ({
         .select(selectString, { count: "exact" });
     }
 
+    let matchedCompanyIds: string[] = [];
+
     // --- NEW: VECTOR SEARCH LOGIC ---
     if (sortBy === "relevance" && userEmbedding) {
       // Re-build the query to include the similarity score and order by it
@@ -81,7 +83,7 @@ export const buildCompaniesQuery = async ({
         {
           embedding: userEmbedding,
           match_threshold: 0.5, // You can adjust this threshold
-          match_count: 20, // Fetch a larger set to then apply filters
+          match_count: 100, // Fetch a larger set to then apply filters
         }
       );
 
@@ -90,7 +92,7 @@ export const buildCompaniesQuery = async ({
         throw searchError;
       }
 
-      const matchedCompanyIds = searchData.map(
+      matchedCompanyIds = searchData.map(
         (company: { id: string }) => company.id
       );
 
@@ -128,6 +130,7 @@ export const buildCompaniesQuery = async ({
     // Apply sorting conditionally
     if (sortBy && sortBy !== "relevance") {
       query = query.order(sortBy, { ascending: sortOrder === "asc" });
+      query = query.order("id", { ascending: sortOrder === "asc" }); // Tiebreaker
     }
 
     // Apply pagination
@@ -139,6 +142,7 @@ export const buildCompaniesQuery = async ({
       data,
       error: error?.details,
       count,
+      matchedCompanyIds,
     };
   } catch (e: unknown) {
     return {

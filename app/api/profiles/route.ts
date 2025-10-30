@@ -1,7 +1,7 @@
 import { buildProfileQuery } from "@/lib/profilesFilterQueryBuilder";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-const PROFILES_PER_PAGE = 20;
+let PROFILES_PER_PAGE = 20;
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -46,6 +46,10 @@ export async function GET(request: NextRequest) {
   const isFavoriteTabActive = searchParams.get("tab") === "saved";
   const job_post_id = searchParams.get("job_post");
 
+  PROFILES_PER_PAGE = parseInt(
+    searchParams.get("limit") || PROFILES_PER_PAGE.toString()
+  );
+
   const startIndex = (page - 1) * PROFILES_PER_PAGE;
   const endIndex = startIndex + PROFILES_PER_PAGE - 1;
   const jobEmbedding =
@@ -53,7 +57,7 @@ export async function GET(request: NextRequest) {
       ?.embedding || null;
 
   try {
-    const { data, error, count } = await buildProfileQuery({
+    const { data, error, count, matchedProfileIds } = await buildProfileQuery({
       searchQuery,
       jobRoles,
       jobTypes,
@@ -80,7 +84,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error }, { status: 500 });
     }
 
-    return NextResponse.json({ data: data || [], count });
+    return NextResponse.json({ data: data || [], count, matchedProfileIds });
   } catch (err: unknown) {
     return NextResponse.json(
       {

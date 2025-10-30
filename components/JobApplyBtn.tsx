@@ -1,7 +1,6 @@
 "use client";
 
 import { User } from "@supabase/supabase-js";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import JobApplicationDialog from "./JobApplicationDialog";
@@ -23,6 +22,7 @@ import {
 import { TApplicationStatus } from "./ApplicationStatusBadge";
 import PropagationStopper from "./StopPropagation";
 import { revalidateCache } from "@/app/actions/revalidate";
+import InfoTooltip from "./InfoTooltip";
 
 export default function JobApplyBtn({
   isCompanyUser,
@@ -58,32 +58,32 @@ export default function JobApplyBtn({
       ) : user ? (
         job.job_url ? (
           appStatus ? (
-            <Tooltip delayDuration={100}>
-              <TooltipTrigger className="cursor-default" asChild>
-                <div>
-                  <Button
-                    onClick={(e) => e.stopPropagation()}
-                    className="capitalize"
-                    disabled
-                  >
-                    {appStatus}
-                  </Button>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-[200px]">
-                Your current application status is <b>{appStatus}</b>.
-                You&apos;ll have to manually track your application status via
-                the{" "}
-                <Link
-                  onClick={(e) => e.stopPropagation()}
-                  className="underline text-blue-600"
-                  href={job.job_url}
-                >
-                  Job Posting
-                </Link>
-                .
-              </TooltipContent>
-            </Tooltip>
+            <PropagationStopper>
+              <div className="flex items-center gap-2">
+                <InfoTooltip
+                  content={
+                    <p>
+                      Your current application status is <b>{appStatus}</b>.
+                      You&apos;ll have to manually track your application status
+                      via the{" "}
+                      <Link
+                        onClick={(e) => e.stopPropagation()}
+                        className="underline text-blue-600"
+                        href={job.job_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Job Posting
+                      </Link>
+                      .
+                    </p>
+                  }
+                />
+                <Button className="capitalize" disabled>
+                  {appStatus}
+                </Button>
+              </div>
+            </PropagationStopper>
           ) : (
             <Link
               onClick={(e) => {

@@ -106,6 +106,8 @@ export async function buildProfileQuery({
         .eq("filled", true);
     }
 
+    let matchedProfileIds: string[] = [];
+
     // --- NEW: VECTOR SEARCH LOGIC ---
     if (sortKey === "relevance" && jobEmbedding) {
       // Re-build the query to include the similarity score and order by it
@@ -114,7 +116,7 @@ export async function buildProfileQuery({
         {
           job_embedding: jobEmbedding,
           match_threshold: 0.5, // You can adjust this threshold
-          match_count: 50, // Fetch a larger set to then apply filters
+          match_count: 100, // Fetch a larger set to then apply filters
         }
       );
 
@@ -123,7 +125,7 @@ export async function buildProfileQuery({
         throw searchError;
       }
 
-      const matchedProfileIds = searchData.map(
+      matchedProfileIds = searchData.map(
         (userInfo: { user_id: string }) => userInfo.user_id
       );
 
@@ -176,13 +178,11 @@ export async function buildProfileQuery({
     if (industryArray.length > 0) {
       query = query.overlaps("industry_preferences", industryArray);
     }
-    // if (visaRequired !== undefined) {
-    //   query = query.eq("visa_sponsorship_required", visaRequired);
-    // }
 
     // Apply sorting
     if (sortKey && sortKey !== "relevance") {
       query = query.order(sortKey, { ascending: sortOrder === "asc" });
+      query = query.order("user_id", { ascending: sortOrder === "asc" }); // Tiebreaker
     }
 
     // Apply pagination
@@ -194,6 +194,7 @@ export async function buildProfileQuery({
       data,
       error: error?.details,
       count,
+      matchedProfileIds,
     };
   } catch (e: unknown) {
     return {
