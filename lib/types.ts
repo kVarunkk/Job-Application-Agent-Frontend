@@ -181,6 +181,7 @@ export interface IFormData {
   applications?: IApplication[];
   is_promotion_active?: boolean;
   is_job_digest_active?: boolean;
+  ai_global_jobs_search_uses?: number;
 }
 
 export interface ICompanyInfo {
