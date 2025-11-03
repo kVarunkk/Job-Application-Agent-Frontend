@@ -200,7 +200,7 @@ export default function GlobalJobSearch({ user }: { user: User }) {
             required
             placeholder="e.g., Senior Java jobs in London with visa sponsorship"
             name="searchQuery"
-            disabled={isLoading}
+            disabled={isLoading || searchUses >= 5}
             className="bg-input text-sm"
             ref={searchInputRef}
           />
@@ -234,7 +234,7 @@ export default function GlobalJobSearch({ user }: { user: User }) {
             </AccordionItem>
           </Accordion>
 
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || searchUses >= 5}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Search Jobs
           </Button>
