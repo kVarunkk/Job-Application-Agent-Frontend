@@ -40,9 +40,8 @@ const premadePrompts = [
   "Find entry-level data science internships in San Francisco.",
   "What are the latest Java developer jobs, minimum salary $90k?",
   "Show me jobs from Google or Microsoft.",
-  "Remote Python jobs with visa sponsorship required.",
+  "Remote jobs with visa sponsorship required.",
   "I want to see all react native jobs that are reviewed.",
-  "Display all jobs posted in the last 7 days.",
   "Find jobs sorted by highest salary.",
   "Show me contract DevOps roles.",
 ];
@@ -183,7 +182,7 @@ export default function GlobalJobSearch({ user }: { user: User }) {
           <DialogTitle className="text-start">
             What kind of job are you looking for?
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-start">
             {5 - searchUses} Searches left today. Resets every day.
           </DialogDescription>
         </DialogHeader>
