@@ -21,6 +21,7 @@ import { z } from "zod";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import { useProgress } from "react-transition-progress";
+import GoogleAuthBtn from "./GoogleAuthBtn";
 
 // Helper function to check if an email is a generic public domain
 const isGenericEmail = (email: string) => {
@@ -176,10 +177,18 @@ export function LoginForm({
                       Logging in...
                     </>
                   ) : (
-                    "Login"
+                    "Log in"
                   )}
                 </Button>
               </div>
+              {!isCompany && (
+                <div className="flex flex-col gap-5 mt-5">
+                  <div className="text-center text-muted-foreground text-sm">
+                    OR
+                  </div>
+                  <GoogleAuthBtn />
+                </div>
+              )}
               <div className="mt-4 text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <Link

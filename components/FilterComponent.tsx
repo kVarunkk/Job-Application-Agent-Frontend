@@ -406,6 +406,10 @@ export default function FilterComponent({
     e.preventDefault();
     const params = new URLSearchParams();
 
+    if (tab) {
+      params.set("tab", tab);
+    }
+
     for (const [key, value] of Object.entries(filters)) {
       const filterConfig = FILTER_CONFIG.find((config) => config.name === key);
 
@@ -433,9 +437,6 @@ export default function FilterComponent({
     if (sortOrder) {
       params.set("sortOrder", sortOrder);
     }
-    if (tab) {
-      params.set("tab", tab);
-    }
 
     if (setOpenSheet) setOpenSheet(false);
 
@@ -446,8 +447,8 @@ export default function FilterComponent({
           currentPage === "profiles"
             ? "company/profiles"
             : currentPage === "jobs"
-            ? "jobs"
-            : "companies"
+              ? "jobs"
+              : "companies"
         }?${params.toString()}`
       );
     });

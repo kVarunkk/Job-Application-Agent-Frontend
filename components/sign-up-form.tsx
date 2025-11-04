@@ -22,6 +22,7 @@ import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import InfoTooltip from "./InfoTooltip";
 import { useProgress } from "react-transition-progress";
+import GoogleAuthBtn from "./GoogleAuthBtn";
 
 const isGenericEmail = (email: string) => {
   const genericDomains = [
@@ -95,17 +96,25 @@ export function SignUpForm({
         password: values.password,
         options: {
           emailRedirectTo: `${window.location.origin}/${
-            isCompany ? "get-started?company=true" : "jobs"
+            isCompany ? "get-started?company=true" : "get-started"
           }`,
         },
       });
       if (error) throw error;
       if (!data.user) throw new Error("User not found");
+      const dataToAdd = isCompany
+        ? {
+            user_id: data.user?.id,
+          }
+        : {
+            user_id: data.user?.id,
+            email: values.email,
+            is_job_digest_active: true,
+            is_promotion_active: true,
+          };
       const { error: InfoError } = await supabase
         .from(isCompany ? "company_info" : "user_info")
-        .insert({
-          user_id: data.user?.id,
-        });
+        .insert(dataToAdd);
       if (InfoError) throw InfoError;
       form.reset();
 
@@ -222,6 +231,14 @@ export function SignUpForm({
                   )}
                 </Button>
               </div>
+              {!isCompany && (
+                <div className="flex flex-col gap-5 mt-5">
+                  <div className="text-center text-muted-foreground text-sm">
+                    OR
+                  </div>
+                  <GoogleAuthBtn />
+                </div>
+              )}
               <div className="mt-4 text-center text-sm">
                 Already have an account?{" "}
                 <Link

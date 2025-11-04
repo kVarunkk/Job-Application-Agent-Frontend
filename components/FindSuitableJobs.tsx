@@ -62,7 +62,7 @@ export default function FindSuitableJobs({
 
     const { data, error } = await supabase
       .from("job_postings")
-      .select("*")
+      .select("id, title")
       .eq("company_id", companyId);
 
     if (error) {
@@ -176,8 +176,8 @@ export default function FindSuitableJobs({
             currentPage === "profiles"
               ? "company/profile"
               : currentPage === "jobs"
-              ? "job"
-              : "companie"
+                ? "job"
+                : "companie"
           }s?${params.toString()}`
         );
       });

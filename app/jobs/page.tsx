@@ -263,24 +263,7 @@ export default async function JobsPage({
             .filter((job: IJob) => job !== undefined) || [];
         totalCount = result.count || 0;
       }
-    }
-    // else if (
-    //   params.get("sortBy") === "relevance" &&
-    //   user &&
-    //   result.data &&
-    //   result.matchedJobIds &&
-    //   result.data.length > 0 &&
-    //   ai_search_uses > 3
-    // ) {
-    //   const jobMap = new Map(result.data.map((job: IJob) => [job.id, job]));
-    //   // console.log(result.matchedJobIds);
-    //   initialJobs =
-    //     result.matchedJobIds
-    //       .map((id: string) => jobMap.get(id))
-    //       .filter((job: IJob) => job !== undefined) || [];
-    //   totalCount = result.count || 0;
-    // }
-    else {
+    } else {
       initialJobs = result.data || [];
       totalCount = result.count || 0;
     }

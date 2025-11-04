@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useProgress } from "react-transition-progress";
@@ -8,6 +8,7 @@ import { User } from "@supabase/supabase-js";
 import BookmarkJobSearch from "./BookmarkJobSearch";
 import JobsPageDropdown from "./JobsPageDropdown";
 import { Loader2 } from "lucide-react";
+import GlobalJobSearch from "./GlobalJobSearch";
 
 export function ClientTabs({
   user,
@@ -29,7 +30,13 @@ export function ClientTabs({
   const [isPending, startTransition] = useTransition();
   const startProgress = useProgress();
   const initialTab = searchParams.get("tab") || "all";
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState<string>();
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   const handleTabChange = (newTab: "all" | "saved" | "applied") => {
     setActiveTab(newTab);
@@ -150,10 +157,11 @@ export function ClientTabs({
           </div>
         )}
 
-        {page === "jobs" && (
+        {page === "jobs" && user && !isCompanyUser && (
           <div className="flex items-center gap-2">
-            {user && !isCompanyUser && <BookmarkJobSearch user={user} />}
-            {user && !isCompanyUser && <JobsPageDropdown user={user} />}
+            <GlobalJobSearch user={user} />
+            <BookmarkJobSearch user={user} />
+            <JobsPageDropdown user={user} />
           </div>
         )}
       </div>
