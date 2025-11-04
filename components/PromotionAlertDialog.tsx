@@ -57,7 +57,8 @@ export default function PromotionAlertDialog({
 
   return (
     <AlertDialog open={isOpen}>
-      <AlertDialogContent className="sm:max-w-[425px]">
+      <AlertDialogContent className="max-h-full overflow-y-auto">
+        {/* <div className=" overflow-y-auto"> */}
         <AlertDialogHeader>
           <AlertDialogTitle>{textContent.title}</AlertDialogTitle>
           <AlertDialogDescription>
@@ -84,8 +85,8 @@ export default function PromotionAlertDialog({
           </div>
         )}
 
-        {customContent && <div className="py-2  ">{customContent}</div>}
-
+        {customContent && <div className="py-2  text-sm">{customContent}</div>}
+        {/* </div> */}
         <AlertDialogFooter className="mt-4">
           <AlertDialogAction asChild>
             <Button

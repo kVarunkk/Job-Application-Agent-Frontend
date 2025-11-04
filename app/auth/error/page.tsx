@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 
 export default async function Page({
   searchParams,
@@ -19,14 +20,17 @@ export default async function Page({
             </CardHeader>
             <CardContent>
               {params?.error ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground mb-5">
                   Code error: {params.error}
                 </p>
               ) : (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground mb-5">
                   An unspecified error occurred.
                 </p>
               )}
+              <Link href={"/auth/login"} className="text-sm underline ">
+                Back to Login
+              </Link>
             </CardContent>
           </Card>
         </div>
