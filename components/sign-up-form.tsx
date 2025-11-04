@@ -102,11 +102,19 @@ export function SignUpForm({
       });
       if (error) throw error;
       if (!data.user) throw new Error("User not found");
+      const dataToAdd = isCompany
+        ? {
+            user_id: data.user?.id,
+          }
+        : {
+            user_id: data.user?.id,
+            email: values.email,
+            is_job_digest_active: true,
+            is_promotion_active: true,
+          };
       const { error: InfoError } = await supabase
         .from(isCompany ? "company_info" : "user_info")
-        .insert({
-          user_id: data.user?.id,
-        });
+        .insert(dataToAdd);
       if (InfoError) throw InfoError;
       form.reset();
 
