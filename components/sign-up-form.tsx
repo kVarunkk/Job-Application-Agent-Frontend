@@ -22,6 +22,7 @@ import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import InfoTooltip from "./InfoTooltip";
 import { useProgress } from "react-transition-progress";
+import GoogleAuthBtn from "./GoogleAuthBtn";
 
 const isGenericEmail = (email: string) => {
   const genericDomains = [
@@ -95,7 +96,7 @@ export function SignUpForm({
         password: values.password,
         options: {
           emailRedirectTo: `${window.location.origin}/${
-            isCompany ? "get-started?company=true" : "jobs"
+            isCompany ? "get-started?company=true" : "get-started"
           }`,
         },
       });
@@ -222,6 +223,14 @@ export function SignUpForm({
                   )}
                 </Button>
               </div>
+              {!isCompany && (
+                <div className="flex flex-col gap-5 mt-5">
+                  <div className="text-center text-muted-foreground text-sm">
+                    OR
+                  </div>
+                  <GoogleAuthBtn />
+                </div>
+              )}
               <div className="mt-4 text-center text-sm">
                 Already have an account?{" "}
                 <Link

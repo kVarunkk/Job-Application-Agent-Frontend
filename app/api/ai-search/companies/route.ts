@@ -22,7 +22,9 @@ export async function POST(request: NextRequest) {
     // Step 1: Fetch user preferences from the database
     const { data } = await supabase
       .from("user_info")
-      .select("*")
+      .select(
+        "desired_roles, experience_years, preferred_locations, min_salary, max_salary, top_skills, work_Style_preferences, company_type, company_size_preference, career_goals_short_term, career_goals_long_term, visa_sponsorship_required, work_style_preferences, ai_search_uses"
+      )
       .eq("user_id", userId)
       .single();
     const userPreferences = data;
@@ -43,15 +45,15 @@ export async function POST(request: NextRequest) {
       - Experience: ${userPreferences.experience_years} years
       - Preferred Locations: ${userPreferences.preferred_locations?.join(", ")}
       - Salary Range: $${userPreferences.min_salary} - $${
-      userPreferences.max_salary
-    }
+        userPreferences.max_salary
+      }
       - Top Skills: ${userPreferences.top_skills?.join(", ")}
       - Work Style: ${userPreferences.work_style_preferences?.join(", ")}
       - company Type: ${userPreferences.company_type?.join(", ")}
       - Company Size: ${userPreferences.company_size_preference}
       - Career Goals: ${userPreferences.career_goals_short_term} and ${
-      userPreferences.career_goals_long_term
-    }
+        userPreferences.career_goals_long_term
+      }
       - Visa Sponsorship: ${
         userPreferences.visa_sponsorship_required ? "Yes" : "No"
       }

@@ -54,13 +54,13 @@ export default function ProfileDropdown({
 
         const { data, error } = await supabase
           .from("user_info")
-          .select("*")
+          .select("user_id")
           .eq("user_id", user?.id)
           .single();
 
         const { data: companyData, error: companyError } = await supabase
           .from("company_info")
-          .select("*")
+          .select("id")
           .eq("user_id", user?.id)
           .single();
 

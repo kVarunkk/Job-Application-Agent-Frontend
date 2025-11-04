@@ -30,7 +30,9 @@ export async function POST(request: NextRequest) {
     // Step 1: Fetch user preferences from the database
     const { data } = await supabase
       .from("user_info")
-      .select("*")
+      .select(
+        "desired_roles, experience_years, preferred_locations, min_salary, max_salary, top_skills, work_Style_preferences, company_type, company_size_preference, career_goals_short_term, career_goals_long_term, visa_sponsorship_required, work_style_preferences, ai_search_uses, job_type"
+      )
       .eq("user_id", userId)
       .single();
     const userPreferences = data;
