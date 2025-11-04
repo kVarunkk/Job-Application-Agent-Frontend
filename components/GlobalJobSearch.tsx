@@ -29,6 +29,8 @@ import {
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { useProgress } from "react-transition-progress";
+import { getTimeLeftHours } from "@/lib/utils";
+import { Textarea } from "./ui/textarea";
 
 interface ParsedFilters {
   [key: string]: string | string[] | undefined;
@@ -46,13 +48,15 @@ const premadePrompts = [
   "Show me contract DevOps roles.",
 ];
 
+const hoursLeft = getTimeLeftHours();
+
 export default function GlobalJobSearch({ user }: { user: User }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchUses, setSearchUses] = useState(0);
   const router = useRouter();
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchInputRef = useRef<HTMLTextAreaElement>(null);
   const startProgress = useProgress();
 
   const fetchUserData = useCallback(async () => {
@@ -183,7 +187,7 @@ export default function GlobalJobSearch({ user }: { user: User }) {
             What kind of job are you looking for?
           </DialogTitle>
           <DialogDescription className="text-start">
-            {5 - searchUses} Searches left today. Resets every day.
+            {5 - searchUses} Searches left today. Resets in {hoursLeft} hours.
           </DialogDescription>
         </DialogHeader>
 
@@ -195,8 +199,8 @@ export default function GlobalJobSearch({ user }: { user: User }) {
           }}
           className="flex flex-col space-y-4"
         >
-          <Input
-            type="text"
+          <Textarea
+            // type="text"
             required
             placeholder="e.g., Senior Java jobs in London with visa sponsorship"
             name="searchQuery"

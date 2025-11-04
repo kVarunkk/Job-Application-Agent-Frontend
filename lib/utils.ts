@@ -146,3 +146,29 @@ export const commonWorkStyles = [
   "Autonomous",
   "Travel Required",
 ];
+
+/**
+ * Calculates the time remaining until the next 00:05 UTC reset, rounded up to the nearest hour.
+ * @returns Number of hours remaining (e.g., 10).
+ */
+export function getTimeLeftHours(): number {
+  const now = new Date();
+  const nextReset = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + 1,
+      0, // 00 hours
+      5, // 05 minutes
+      0
+    )
+  );
+
+  const diffMs = nextReset.getTime() - now.getTime();
+
+  // Calculate hours and round up (ceil)
+  const hours = Math.ceil(diffMs / (1000 * 60 * 60));
+
+  // Ensure the minimum return value is 0 (or 24 if just reset)
+  return Math.max(0, hours);
+}
