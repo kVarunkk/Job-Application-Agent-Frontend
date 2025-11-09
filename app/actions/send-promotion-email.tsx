@@ -58,24 +58,29 @@ export async function sendPromotionEmails(promoDetails: {
       />
     );
 
-    return resend.emails
-      .send({
+    // FIX: Standardize the return structure for both success and failure
+    try {
+      await resend.emails.send({
         from: "GetHired <varun@devhub.co.in>", // Use a dedicated sender
         to: [user.email],
         subject: promoDetails.title,
         html: emailHtml,
-      })
-      .catch((err) => {
-        // Catch individual send failures but allow others to continue
-        console.error(`Failed to send email to ${user.email}:`, err);
-        return { success: false, email: user.email };
       });
+
+      // Standardized success return
+      return { success: true, email: user.email };
+    } catch (err) {
+      // Catch individual send failures and allow others to continue
+      console.error(`Failed to send email to ${user.email}:`, err);
+      // Standardized failure return
+      return { success: false, email: user.email };
+    }
   });
 
   // 3. Execute all sends in parallel
   const results = await Promise.all(emailPromises);
   console.log(results);
-  const successCount = results.filter((r) => (r as any).id).length;
+  const successCount = results.filter((r) => r.success).length;
 
   return { success: true, count: successCount };
 }
