@@ -4,7 +4,7 @@ import { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import JobApplicationDialog from "./JobApplicationDialog";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { IJob } from "@/lib/types";
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
@@ -153,8 +153,10 @@ function JobStatusDialog({
   onClose: (applicationStatus?: TApplicationStatus) => void;
   userId?: string;
 }) {
+  const [loading, setLoading] = useState(false);
   const updateJobApplicationStatus = async () => {
     try {
+      setLoading(true);
       const supabase = createClient();
       const { error } = await supabase.from("applications").insert({
         applicant_user_id: userId,
@@ -182,6 +184,8 @@ function JobStatusDialog({
       toast.error(
         "Some error occured while updating the application status. Please try again."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -211,6 +215,7 @@ function JobStatusDialog({
                   e.stopPropagation();
                   onClose();
                 }}
+                disabled={loading}
               >
                 No
               </Button>
@@ -221,7 +226,9 @@ function JobStatusDialog({
                   e.stopPropagation();
                   updateJobApplicationStatus();
                 }}
+                disabled={loading}
               >
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 Yes
               </Button>
             </AlertDialogAction>
