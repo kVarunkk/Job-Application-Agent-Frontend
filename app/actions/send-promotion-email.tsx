@@ -27,7 +27,7 @@ export async function sendPromotionEmails(promoDetails: {
     .from("user_info")
     .select("user_id, email, full_name") // Select necessary fields
     .eq("is_promotion_active", true); // Filter for active promotions
-  // .eq("user_id", "e63c275d-bd11-43d1-9db8-58afd9c1cfbc");
+  // .eq("user_id", "ce5e005b-539c-4c07-b35f-304bbbc69215");
 
   if (fetchError) {
     console.error("Error fetching promotional users:", fetchError);
