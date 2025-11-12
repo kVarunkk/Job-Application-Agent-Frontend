@@ -14,10 +14,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  */
 export async function sendPromotionEmails(promoDetails: {
   title: string;
-  content: string;
+  content: React.ReactNode;
   ctaLink: string;
   ctaLabel: string;
-  imageLink: string;
+  imageLink?: string;
 }): Promise<{ success: boolean; count: number; error?: string }> {
   // Use the Service Role Client to bypass RLS and fetch all user data securely
   const supabase = createServiceRoleClient();
@@ -26,8 +26,9 @@ export async function sendPromotionEmails(promoDetails: {
   const { data: users, error: fetchError } = await supabase
     .from("user_info")
     .select("user_id, email, full_name") // Select necessary fields
-    .eq("is_promotion_active", true); // Filter for active promotions
-  // .eq("user_id", "ce5e005b-539c-4c07-b35f-304bbbc69215");
+    .eq("is_promotion_active", true)
+    // .eq("filled", false); // Filter for active promotions
+    .eq("user_id", "e8e85c3b-b111-4f20-b2f7-06a9d3e66190");
 
   if (fetchError) {
     console.error("Error fetching promotional users:", fetchError);
@@ -114,3 +115,77 @@ export async function sendPromotionEmails(promoDetails: {
 // } catch (e) {
 //   console.error(e);
 // }
+
+// const htmlContent = (
+//     <>
+//       <Text>
+//         We noticed you started your sign-up but haven't completed your brief
+//         career profile yet. Right now, our powerful AI system can't help you
+//         find the best roles—and we don't want you to miss out!
+//       </Text>
+
+//       <Heading className="text-xl font-semibold text-gray-800 my-6 text-color">
+//         Here is what you unlock by finishing your profile:
+//       </Heading>
+
+//       <Section
+//         style={{
+//           paddingLeft: "20px",
+//           backgroundColor: "#f9fafb",
+//           borderRadius: "8px",
+//         }}
+//         className="py-4 px-6 border border-gray-200"
+//       >
+//         {/* Use Section or standard HTML list for better list formatting in emails */}
+//         <ul style={{ margin: "0", paddingLeft: "20px", listStyleType: "disc" }}>
+//           <li style={{ paddingBottom: "10px" }}>
+//             <Text className="m-0">
+//               <b>Hyper-Accurate AI Matching</b>: Our system needs your skills
+//               and experience to find jobs that truly fit. Stop applying blindly!
+//             </Text>
+//           </li>
+
+//           <li style={{ paddingBottom: "10px" }}>
+//             <Text className="m-0">
+//               <b>Weekly Top Jobs Digest</b>: Receive a curated email every
+//               week with the most relevant, high-paying jobs just for you.
+//             </Text>
+//           </li>
+
+//           <li style={{ paddingBottom: "10px" }}>
+//             <Text className="m-0">
+//               <b>Instant Filter Setup</b>: Automatically sets your preferred
+//               salary ranges, locations, and job types.
+//             </Text>
+//           </li>
+//         </ul>
+//       </Section>
+
+//       <Text className="mt-8">
+//         It only takes 2 minutes to complete your profile and start seeing jobs
+//         perfectly tailored to your goals.
+//       </Text>
+
+//       <Text>
+//         Click the button below to finish your profile and unlock your
+//         personalized job feed!
+//       </Text>
+//     </>
+//   );
+
+//   try {
+//     const { success, count, error } = await sendPromotionEmails({
+//       title: "Important Update: Complete Your Profile for Instant Job Matches",
+//       content: htmlContent,
+//       ctaLink: "https://gethired.devhub.co.in/get-started?edit=true", // 👈 Link directly to the onboarding form
+//       ctaLabel: "Complete Onboarding Now",
+
+//       // Use the GIF/Image to visually represent the benefits (e.g., jobs arriving in an inbox)
+//       // imageLink:
+//       //   "https://vehnycoyrmqdfywybboc.supabase.co/storage/v1/object/public/images/promotional_emails/onboarding-benefit-graphic.png", // Use a graphic showing 'before vs after profile'
+//     });
+
+//     console.log(success, count, error);
+//   } catch (e) {
+//     console.error(e);
+//   }

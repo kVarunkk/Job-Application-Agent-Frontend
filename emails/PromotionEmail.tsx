@@ -12,10 +12,10 @@ import {
 interface PromotionEmailProps {
   userName: string;
   emailTitle: string;
-  mainContent: string;
+  mainContent: React.ReactNode;
   ctaLink: string;
   ctaLabel: string;
-  gifPreviewImageUrl: string; // The URL of the GIF file
+  gifPreviewImageUrl?: string; // The URL of the GIF file
 }
 
 export const PromotionEmail = ({
