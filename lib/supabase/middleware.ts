@@ -59,7 +59,6 @@ export async function updateSession(request: NextRequest) {
     "/robots.txt",
     "/opengraph-image.jpg",
     "/twitter-image.jpg",
-    "/test",
     "/preview/AuthConfirmationEmai",
     "/auth/update-password",
   ];
@@ -101,16 +100,21 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/companies/") &&
     pathname.length > "/companies/".length;
 
+  const isProtectedRelevanceSearch =
+    pathname === "/jobs" && searchParams.get("sortBy") === "relevance";
+
   // --- 1. Handle Unauthenticated Users ---
   if (!user) {
     // If an unauthenticated user tries to access a protected page, redirect them to login.
-    if (
+
+    const isProtectedPath =
       !isAuthPath &&
       !publicPaths.includes(pathname) &&
       !isJobPage &&
-      !isCompanyPage &&
-      !isBlogPage
-    ) {
+      !isBlogPage &&
+      !isCompanyPage;
+
+    if (isProtectedPath || isProtectedRelevanceSearch) {
       const url = request.nextUrl.clone();
 
       url.searchParams.forEach((value, key) => {
