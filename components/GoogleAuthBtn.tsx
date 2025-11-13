@@ -18,9 +18,11 @@ export default function GoogleAuthBtn() {
           redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
-      setLoading(false);
     } catch {
-      setLoading(false);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 5000);
     }
   };
   return (
