@@ -167,7 +167,6 @@ export default async function JobsPage({
   const url = `${protocol}://${host}`;
 
   let initialJobs: IJob[] = [];
-  // let uniqueLocations: { location: string }[] = [];
   let uniqueCompanies: { company_name: string }[] = [];
   let totalCount: number = 0;
   const params = new URLSearchParams(
@@ -210,7 +209,6 @@ export default async function JobsPage({
       user &&
       result.data &&
       result.data.length > 0
-      // && ai_search_uses <= 3
     ) {
       if (ai_search_uses <= 3) {
         try {
@@ -256,7 +254,6 @@ export default async function JobsPage({
         }
       } else if (result.matchedJobIds && ai_search_uses > 3) {
         const jobMap = new Map(result.data.map((job: IJob) => [job.id, job]));
-        // console.log(result.matchedJobIds);
         initialJobs =
           result.matchedJobIds
             .map((id: string) => jobMap.get(id))
@@ -267,16 +264,13 @@ export default async function JobsPage({
       initialJobs = result.data || [];
       totalCount = result.count || 0;
     }
-  } catch {
-    // console.error("Failed to fetch jobs:", error);
-  }
+  } catch {}
 
   return (
     <div>
       <div className="flex items-start px-4 lg:px-20 xl:px-40 2xl:px-80 py-5 h-full gap-5">
         <div className="hidden md:block w-1/3 px-2 sticky top-0 z-10 max-h-[calc(100vh-1.5rem)] overflow-y-auto">
           <FilterComponent
-            // uniqueLocations={uniqueLocations}
             uniqueCompanies={uniqueCompanies}
             onboardingComplete={onboardingComplete}
             currentPage="jobs"
@@ -295,7 +289,6 @@ export default async function JobsPage({
                 <JobsList
                   isCompanyUser={isCompanyUser}
                   user={user}
-                  // uniqueLocations={uniqueLocations}
                   uniqueCompanies={uniqueCompanies}
                   onboardingComplete={onboardingComplete}
                   initialJobs={initialJobs}
@@ -311,7 +304,6 @@ export default async function JobsPage({
                   <JobsList
                     isCompanyUser={isCompanyUser}
                     user={user}
-                    // uniqueLocations={uniqueLocations}
                     uniqueCompanies={uniqueCompanies}
                     onboardingComplete={onboardingComplete}
                     initialJobs={initialJobs}
@@ -324,7 +316,6 @@ export default async function JobsPage({
                 <JobsList
                   isCompanyUser={isCompanyUser}
                   user={user}
-                  // uniqueLocations={uniqueLocations}
                   onboardingComplete={onboardingComplete}
                   uniqueCompanies={uniqueCompanies}
                   initialJobs={initialJobs}

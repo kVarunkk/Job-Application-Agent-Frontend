@@ -46,20 +46,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.className} antialiased text-sm sm:text-base`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TooltipProvider>
-            <ProgressBarProvider>
+        <ProgressBarProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <TooltipProvider>
               <ProgressBar className="fixed h-1 rounded-r-md shadow-lg shadow-sky-500/20 bg-primary top-0" />
               {children}
-            </ProgressBarProvider>
-            <Toaster />
-          </TooltipProvider>
-        </ThemeProvider>
+              <Toaster />
+            </TooltipProvider>
+          </ThemeProvider>
+        </ProgressBarProvider>
       </body>
     </html>
   );
