@@ -24,7 +24,7 @@ export default async function ProfilesPage({
   const { data: companyDataData }: { data: ICompanyInfo | null } =
     await supabase
       .from("company_info")
-      .select("id, filled, ai_search_uses, ")
+      .select("id, filled, ai_search_uses")
       .eq("user_id", user?.id)
       .single();
 
