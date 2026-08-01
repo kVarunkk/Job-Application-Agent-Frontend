@@ -27,8 +27,22 @@ export default async function ConsentPage({
   const { data: authDetails, error } =
     await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
 
+  console.log(error, authDetails);
+
   if (error || !authDetails || !("client" in authDetails)) {
-    return <p>Invalid or expired authorization request.</p>;
+    return (
+      <>
+        <p>Invalid or expired authorization request.</p>
+        <form action="/api/oauth/decision" method="POST" className="flex gap-3">
+          <input
+            type="hidden"
+            name="authorization_id"
+            value={authorizationId}
+          />
+          <ConsentButtons />
+        </form>
+      </>
+    );
   }
 
   return (
