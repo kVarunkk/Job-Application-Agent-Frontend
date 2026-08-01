@@ -24,49 +24,51 @@ export default async function ConsentPage({
     );
   }
 
-  const { data: authDetails, error } =
+  const { data: authDetails } =
     await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
 
-  console.log(error, authDetails);
-
-  if (error || !authDetails || !("client" in authDetails)) {
+  if (authDetails) {
+    if ("redirect_url" in authDetails) {
+      redirect(authDetails.redirect_url);
+    } else {
+      return (
+        <div className="max-w-md mx-auto mt-20 p-6 border rounded-lg">
+          <h1 className="text-xl font-semibold mb-2">
+            Authorize {authDetails.client.name}
+          </h1>
+          <p className="text-muted-foreground mb-4">
+            This application is requesting access to your GetHired account.
+          </p>
+          {authDetails.scope?.trim() && (
+            <div className="mb-4">
+              <p className="font-medium mb-1">Requested permissions:</p>
+              <ul className="list-disc list-inside text-sm text-muted-foreground">
+                {authDetails.scope.split(" ").map((s) => (
+                  <li key={s}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <form
+            action="/api/oauth/decision"
+            method="POST"
+            className="flex gap-3"
+          >
+            <input
+              type="hidden"
+              name="authorization_id"
+              value={authorizationId}
+            />
+            <ConsentButtons />
+          </form>
+        </div>
+      );
+    }
+  } else {
     return (
-      <>
+      <div className="max-w-md mx-auto mt-20 p-6 border rounded-lg">
         <p>Invalid or expired authorization request.</p>
-        <form action="/api/oauth/decision" method="POST" className="flex gap-3">
-          <input
-            type="hidden"
-            name="authorization_id"
-            value={authorizationId}
-          />
-          <ConsentButtons />
-        </form>
-      </>
+      </div>
     );
   }
-
-  return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded-lg">
-      <h1 className="text-xl font-semibold mb-2">
-        Authorize {authDetails.client.name}
-      </h1>
-      <p className="text-muted-foreground mb-4">
-        This application is requesting access to your GetHired account.
-      </p>
-      {authDetails.scope?.trim() && (
-        <div className="mb-4">
-          <p className="font-medium mb-1">Requested permissions:</p>
-          <ul className="list-disc list-inside text-sm text-muted-foreground">
-            {authDetails.scope.split(" ").map((s) => (
-              <li key={s}>{s}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      <form action="/api/oauth/decision" method="POST" className="flex gap-3">
-        <input type="hidden" name="authorization_id" value={authorizationId} />
-        <ConsentButtons />
-      </form>
-    </div>
-  );
 }
