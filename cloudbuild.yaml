@@ -1,22 +1,21 @@
 steps:
+  # 1. Build the Docker image using Cloud Build Substitution Variables
   - name: "gcr.io/cloud-builders/docker"
-    entrypoint: "bash"
     args:
-      - "-c"
-      - |
-        docker buildx build \
-          --secret id=NEXT_PUBLIC_SUPABASE_URL,env=NEXT_PUBLIC_SUPABASE_URL \
-          --secret id=NEXT_PUBLIC_SUPABASE_ANON_KEY,env=NEXT_PUBLIC_SUPABASE_ANON_KEY \
-          --secret id=SERVICE_ROLE_KEY,env=SERVICE_ROLE_KEY \
-          -t gcr.io/$PROJECT_ID/nextjs-app:$COMMIT_SHA .
-    secretEnv:
-      - "NEXT_PUBLIC_SUPABASE_URL"
-      - "NEXT_PUBLIC_SUPABASE_ANON_KEY"
-      - "SERVICE_ROLE_KEY"
+      - "build"
+      - "--build-arg", "NEXT_PUBLIC_SUPABASE_URL=$_NEXT_PUBLIC_SUPABASE_URL"
+      - "--build-arg", "NEXT_PUBLIC_SUPABASE_ANON_KEY=$_NEXT_PUBLIC_SUPABASE_ANON_KEY"
+      - "--build-arg", "NEXT_PUBLIC_CLOUDFRONT_PATH=$_NEXT_PUBLIC_CLOUDFRONT_PATH"
+      - "--build-arg", "NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=$_NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN"
+      - "--build-arg", "NEXT_PUBLIC_POSTHOG_HOST=$_NEXT_PUBLIC_POSTHOG_HOST"
+      - "-t", "gcr.io/$PROJECT_ID/nextjs-app:$COMMIT_SHA",
+      - "."
 
+  # 2. Push the built image to Container Registry
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/$PROJECT_ID/nextjs-app:$COMMIT_SHA"]
 
+  # 3. Deploy to Cloud Run
   - name: "gcr.io/://google.com"
     entrypoint: "gcloud"
     args:
@@ -28,12 +27,3 @@ steps:
       - "--platform=managed"
       - "--allow-unauthenticated"
       - "--port=8080"
-
-availableSecrets:
-  secretManager:
-    - versionName: projects/$PROJECT_ID/secrets/NEXT_PUBLIC_SUPABASE_URL/versions/latest
-      env: "NEXT_PUBLIC_SUPABASE_URL"
-    - versionName: projects/$PROJECT_ID/secrets/NEXT_PUBLIC_SUPABASE_ANON_KEY/versions/latest
-      env: "NEXT_PUBLIC_SUPABASE_ANON_KEY"
-    - versionName: projects/$PROJECT_ID/secrets/SERVICE_ROLE_KEY/versions/latest
-      env: "SERVICE_ROLE_KEY"
