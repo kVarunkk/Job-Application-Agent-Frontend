@@ -2,7 +2,7 @@ import { after, NextRequest, NextResponse } from "next/server";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { getVertexClient } from "@/utils/vertex";
+// import { getVertexClient } from "@/utils/vertex";
 import { TAICredits } from "@/utils/types";
 import {
   validateAndSanitizeSearchQuery,
@@ -12,6 +12,7 @@ import { updateReviewAnalysisStatus } from "@/helpers/resume-review/update-revie
 import { deductUserCreditsHelper } from "@/helpers/ai/deduct-user-credits";
 import { sendResumeReviewStatusEmail } from "@/app/actions/send-review-status-email";
 import { getUserFromRequest } from "@/lib/supabase/get-user-from-request";
+import { google } from "@ai-sdk/google";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -107,8 +108,9 @@ export async function POST(req: NextRequest) {
 
     after(async () => {
       try {
-        const vertex = await getVertexClient();
-        const model = vertex("gemini-2.5-flash");
+        // const vertex = await getVertexClient();
+        // const model = vertex("gemini-2.5-flash");
+        const model = google("gemini-3.1-flash-lite");
 
         const systemPrompt = `
 You are a senior technical recruiter who has reviewed 10,000+ resumes at FAANG and high-growth startups.

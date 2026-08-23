@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { embed } from "ai";
-import { getVertexClient } from "@/utils/vertex";
+// import { getVertexClient } from "@/utils/vertex";
 import { headers } from "next/headers";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { INTERNAL_API_SECRET } from "@/utils/formatters";
+import { google } from "@ai-sdk/google";
 
 export async function POST(request: Request) {
   const headersList = await headers();
@@ -42,10 +43,11 @@ export async function POST(request: Request) {
     COMPENSATION: ${jobData.salary_range || "N/A"}
     `.trim();
 
-    const vertex = await getVertexClient();
+    // const vertex = await getVertexClient();
+    const model = google.embedding("gemini-embedding-001");
     // 3. Generate Embedding using Vertex AI
     const { embedding } = await embed({
-      model: vertex.embeddingModel("gemini-embedding-001"),
+      model: model,
       value: textToEmbed,
       providerOptions: {
         google: {

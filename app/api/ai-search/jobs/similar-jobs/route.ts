@@ -3,8 +3,9 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { AIRerankRequestBody, TAICredits } from "@/utils/types";
-import { getVertexClient } from "@/utils/vertex";
+// import { getVertexClient } from "@/utils/vertex";
 import { deductUserCreditsHelper } from "@/helpers/ai/deduct-user-credits";
+import { google } from "@ai-sdk/google";
 
 export async function POST(request: NextRequest) {
   try {
@@ -80,8 +81,9 @@ export async function POST(request: NextRequest) {
         `;
 
     // Step 3: Call the AI with the augmented prompt
-    const vertex = await getVertexClient();
-    const model = vertex("gemini-2.5-flash-lite");
+    // const vertex = await getVertexClient();
+    // const model = vertex("gemini-2.5-flash-lite");
+    const model = google("gemini-3.1-flash-lite");
 
     const { output: object } = await generateText({
       model: model,

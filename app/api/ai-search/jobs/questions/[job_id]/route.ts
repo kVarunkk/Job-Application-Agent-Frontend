@@ -1,11 +1,12 @@
 import { after, NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "ai";
-import { getVertexClient } from "@/utils/vertex";
+// import { getVertexClient } from "@/utils/vertex";
 import { PostHogEvent, TAICredits } from "@/utils/types";
 import { validateAndSanitizeSearchQuery } from "@/helpers/ai/security";
 import { deductUserCreditsHelper } from "@/helpers/ai/deduct-user-credits";
 import { eventCaptureServer } from "@/helpers/posthog/EventCaptureServer";
+import { google } from "@ai-sdk/google";
 
 export async function POST(
   request: NextRequest,
@@ -122,8 +123,9 @@ ${userQuery}
 Generate the response now. Do not include any introductory text like "Here is your response." Output only the final answer.
 `.trim();
 
-    const vertex = await getVertexClient();
-    const model = vertex("gemini-2.5-flash-lite");
+    // const vertex = await getVertexClient();
+    // const model = vertex("gemini-2.5-flash-lite");
+    const model = google("gemini-3.1-flash-lite");
 
     const { text } = await generateText({
       model: model,

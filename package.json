@@ -9,7 +9,7 @@
     "dev:emails": "email dev"
   },
   "dependencies": {
-    "@ai-sdk/google-vertex": "^4.0.2",
+    "@ai-sdk/google": "^4.0.50",
     "@ai-sdk/react": "^3.0.5",
     "@getbrevo/brevo": "^5.0.4",
     "@hookform/resolvers": "^5.2.1",
@@ -36,7 +36,7 @@
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "@tanstack/react-table": "^8.21.3",
-    "ai": "^6.0.5",
+    "ai": "^7.0.77",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

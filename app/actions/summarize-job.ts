@@ -2,7 +2,7 @@
 
 import { generateText } from "ai";
 import { createClient } from "@/lib/supabase/server";
-import { getVertexClient } from "@/utils/vertex";
+import { google } from "@ai-sdk/google";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { PostHogEvent, TAICredits } from "@/utils/types";
 import { deductUserCreditsHelper } from "@/helpers/ai/deduct-user-credits";
@@ -85,8 +85,7 @@ export async function SummarizeJobAction(jobId: string) {
         Generate the snapshot now. Output ONLY the four lines of text.
         `.trim();
 
-    const vertex = await getVertexClient();
-    const model = vertex("gemini-2.5-flash-lite");
+    const model = google("gemini-3.1-flash-lite");
 
     const { text: rawSummary } = await generateText({
       model: model,

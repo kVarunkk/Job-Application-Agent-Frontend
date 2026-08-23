@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { embed } from "ai";
-import { getVertexClient } from "@/utils/vertex";
+// import { getVertexClient } from "@/utils/vertex";
+import { google } from "@ai-sdk/google";
 
 export async function POST(request: Request) {
   try {
@@ -27,10 +28,12 @@ export async function POST(request: Request) {
      INDUSTRY TYPE: ${companyData.industry || "N/A"}
     `.trim();
 
-    const vertex = await getVertexClient();
+    // const vertex = await getVertexClient();
+    // const model = google("gemini-embedding-001");
+    const model = google.embedding("gemini-embedding-001");
     // 3. Generate Embedding using Vertex AI
     const { embedding } = await embed({
-      model: vertex.embeddingModel("gemini-embedding-001"),
+      model: model,
       value: textToEmbed,
       providerOptions: {
         google: {

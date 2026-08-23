@@ -1,6 +1,7 @@
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { getVertexClient } from "@/utils/vertex";
+// import { getVertexClient } from "@/utils/vertex";
 import { TResumeRowContent } from "@/utils/types";
+import { google } from "@ai-sdk/google";
 import { embed } from "ai";
 
 export async function updateUserEmbedding(userId: string) {
@@ -38,8 +39,7 @@ export async function updateUserEmbedding(userId: string) {
 
     const extractSectionText = (type: string) => {
       const content = resumeData?.content as unknown as
-        | TResumeRowContent
-        | undefined;
+        TResumeRowContent | undefined;
       if (!content || !content.sections) return "N/A";
 
       return content.sections
@@ -96,10 +96,11 @@ export async function updateUserEmbedding(userId: string) {
             PREFERRED INDUSTRY:${Array.isArray(userData.industry_preferences) ? userData.industry_preferences.join(", ") : userData.industry_preferences || ""}
           `.trim();
 
-    const vertex = await getVertexClient();
+    // const vertex = await getVertexClient();
+    const model = google.embedding("gemini-embedding-001");
     // 3. Generate Embedding using Vertex AI
     const { embedding } = await embed({
-      model: vertex.embeddingModel("gemini-embedding-001"),
+      model,
       value: textToEmbed,
       providerOptions: {
         google: {

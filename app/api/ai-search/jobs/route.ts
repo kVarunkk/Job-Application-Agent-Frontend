@@ -3,9 +3,10 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { AllJobWithRelations, TAICredits, TResumeContent } from "@/utils/types";
-import { getVertexClient } from "@/utils/vertex";
+// import { getVertexClient } from "@/utils/vertex";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { deductUserCreditsHelper } from "@/helpers/ai/deduct-user-credits";
+import { google } from "@ai-sdk/google";
 
 export async function POST(request: NextRequest) {
   try {
@@ -85,8 +86,9 @@ export async function POST(request: NextRequest) {
       Please re-rank the job listings to find the best possible match for this candidate.
     `;
 
-    const vertex = await getVertexClient();
-    const model = vertex("gemini-2.5-flash-lite");
+    // const vertex = await getVertexClient();
+    // const model = vertex("gemini-2.5-flash-lite");
+    const model = google("gemini-3.1-flash-lite");
 
     const rerankPrompt = `
       You are an expert search re-ranker. Your task is to evaluate a set of job listings

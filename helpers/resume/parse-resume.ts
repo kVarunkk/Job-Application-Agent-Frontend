@@ -1,4 +1,4 @@
-import { getVertexClient } from "@/utils/vertex";
+// import { getVertexClient } from "@/utils/vertex";
 import { z } from "zod";
 import { wrapInSandbox } from "../ai/security";
 import { generateText, Output } from "ai";
@@ -9,6 +9,7 @@ import { sendResumeParsingStatusEmail } from "@/app/actions/send-resume-status-e
 import { deductUserCreditsHelper } from "../ai/deduct-user-credits";
 import { TAICredits } from "@/utils/types";
 import { v4 as uuidv4 } from "uuid";
+import { google } from "@ai-sdk/google";
 
 const ResumeSchema = z.object({
   sections: z.array(
@@ -58,9 +59,10 @@ async function extractTextFromPdf(url: string): Promise<string[]> {
 
 async function generateStructuredProfile(lines: string[]) {
   try {
-    const vertex = await getVertexClient();
+    // const vertex = await getVertexClient();
     // using flash here instead of flash-lite
-    const model = vertex("gemini-2.5-flash");
+    // const model = vertex("gemini-2.5-flash");
+    const model = google("gemini-3.1-flash-lite");
 
     const systemPrompt = `
       You are a precision Document Reconstruction Engine. 

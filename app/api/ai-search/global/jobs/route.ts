@@ -1,6 +1,6 @@
 import { after, NextResponse } from "next/server";
 import { generateText, Output } from "ai";
-import { getVertexClient } from "@/utils/vertex";
+// import { getVertexClient } from "@/utils/vertex";
 import { createClient } from "@/lib/supabase/server";
 import { PostHogEvent, TAICredits } from "@/utils/types";
 import { jobFilterSchema } from "@/helpers/jobs/filterSchema";
@@ -10,6 +10,7 @@ import {
 } from "@/helpers/ai/security";
 import { deductUserCreditsHelper } from "@/helpers/ai/deduct-user-credits";
 import { eventCaptureServer } from "@/helpers/posthog/EventCaptureServer";
+import { google } from "@ai-sdk/google";
 
 export async function POST(req: Request) {
   const { userQuery: rawQuery } = await req.json();
@@ -57,8 +58,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const vertex = await getVertexClient();
-  const model = vertex("gemini-2.5-flash");
+  // const vertex = await getVertexClient();
+  // const model = vertex("gemini-2.5-flash");
+  const model = google("gemini-3.1-flash-lite");
 
   const systemPrompt = `
       You are a strict search filter parser for a job board. 
