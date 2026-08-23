@@ -1,5 +1,5 @@
 export const deploymentUrl = () => {
-  if (process.env.RENDER) {
+  if (process.env.NODE_ENV === "production") {
     return "https://gethired.devhub.co.in";
   } else return "http://localhost:3000";
 };
