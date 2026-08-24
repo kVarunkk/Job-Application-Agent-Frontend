@@ -1,6 +1,5 @@
 import type { NextConfig } from "next";
 
-const isRenderProduction = process.env.RENDER === "true";
 const nextConfig: NextConfig = {
   output: "standalone",
   reactStrictMode: false,
@@ -18,12 +17,6 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["pdf-parse", "@napi-rs/canvas"],
   outputFileTracingIncludes: {
     "/**": ["./app/content/**/*"],
-  },
-  typescript: {
-    ignoreBuildErrors: isRenderProduction,
-  },
-  eslint: {
-    ignoreDuringBuilds: isRenderProduction,
   },
 };
 
