@@ -1,14 +1,6 @@
 import * as React from "react";
 import { BaseEmailLayout } from "./BaseEmailLayout";
-import {
-  Heading,
-  Text,
-  Section,
-  Button,
-  Row,
-  Column,
-  Link,
-} from "@react-email/components";
+import { Heading, Text, Section, Button, Row, Column, Link } from "react-email";
 import { FavoritedJob } from "@/app/api/updates/applicants/favorites/route";
 
 interface FavoriteJobReminderEmailProps {

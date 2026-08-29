@@ -1,14 +1,6 @@
 import * as React from "react";
 import { BaseEmailLayout } from "@/emails/BaseEmailLayout";
-import {
-  Heading,
-  Text,
-  Section,
-  Button,
-  Link,
-  Row,
-  Column,
-} from "@react-email/components";
+import { Heading, Text, Section, Button, Link, Row, Column } from "react-email";
 import { AllJobWithRelations } from "@/utils/types";
 
 interface JobDigestEmailProps {

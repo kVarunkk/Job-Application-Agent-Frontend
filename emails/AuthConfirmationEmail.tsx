@@ -1,6 +1,6 @@
 import * as React from "react";
 import { BaseEmailLayout } from "@/emails/BaseEmailLayout";
-import { Heading, Text, Section, Button, Link } from "@react-email/components";
+import { Heading, Text, Section, Button, Link } from "react-email";
 
 export const AuthConfirmationEmail = ({ signupUrl }: { signupUrl: string }) => {
   return (

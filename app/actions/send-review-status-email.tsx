@@ -1,6 +1,6 @@
 "use server";
 
-import { render } from "@react-email/components";
+import { render } from "react-email";
 import React from "react";
 import ResumeReviewStatusEmail from "@/emails/ResumeReviewStatusEmail";
 import { sendEmail } from "@/utils/email";

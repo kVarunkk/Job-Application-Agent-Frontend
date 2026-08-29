@@ -1,6 +1,6 @@
 "use server";
 
-import { render } from "@react-email/components";
+import { render } from "react-email";
 import { PromotionEmail } from "@/emails/PromotionEmail";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { sendEmail } from "@/utils/email";

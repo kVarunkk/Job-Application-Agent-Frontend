@@ -1,6 +1,6 @@
 import * as React from "react";
 import { BaseEmailLayout } from "./BaseEmailLayout";
-import { Heading, Text, Section, Button, Hr } from "@react-email/components";
+import { Heading, Text, Section, Button, Hr } from "react-email";
 import { formatCurrency } from "@/utils/utils";
 import { TWebhookPaymentDetails } from "@/utils/types/payments.types";
 // import { IPayment } from "@/utils/types";

@@ -5,7 +5,7 @@ import { eventCaptureServerException } from "@/helpers/posthog/EventCaptureServe
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { sendEmail } from "@/utils/email";
 import { deploymentUrl } from "@/utils/formatters";
-import { render } from "@react-email/components";
+import { render } from "react-email";
 
 const URL = deploymentUrl();
 

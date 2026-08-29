@@ -1,7 +1,7 @@
 import { after, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 // import { Resend } from "resend";
-import { render } from "@react-email/render";
+import { render } from "react-email";
 import { headers } from "next/headers";
 import { sendEmail, sendEmailForStatusUpdate } from "@/utils/email";
 import FavoriteJobReminderEmail from "@/emails/FavoriteJobStatusReminderEmail";

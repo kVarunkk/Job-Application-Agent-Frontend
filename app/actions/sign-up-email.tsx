@@ -2,7 +2,7 @@
 
 import AuthConfirmationEmail from "@/emails/AuthConfirmationEmail";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { render } from "@react-email/components";
+import { render } from "react-email";
 import { updateUserAppMetadata } from "./update-user-metadata";
 import { sendEmail } from "@/utils/email";
 import { deploymentUrl } from "@/utils/formatters";

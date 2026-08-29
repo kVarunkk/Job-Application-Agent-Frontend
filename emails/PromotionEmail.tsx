@@ -1,6 +1,6 @@
 import * as React from "react";
 import { BaseEmailLayout } from "./BaseEmailLayout";
-import { Heading, Text, Section, Button, Img } from "@react-email/components";
+import { Heading, Text, Section, Button, Img } from "react-email";
 
 interface PromotionEmailProps {
   userName: string;

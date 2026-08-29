@@ -85,14 +85,16 @@ export default async function Post({
   const imageUrl = post.image;
 
   const { node } = await post.content();
-  const errors = Markdoc.validate(node);
+  const markdocNode = node;
+
+  // @ts-expect-error some motherfucking type error
+  const errors = Markdoc.validate(markdocNode);
 
   if (errors.length) {
-    // console.error(errors);
     throw new Error("Invalid content");
   }
-
-  const renderable = Markdoc.transform(node);
+  // @ts-expect-error some motherfucking type error
+  const renderable = Markdoc.transform(markdocNode);
 
   return (
     <div className="mx-auto   max-w-3xl px-4">

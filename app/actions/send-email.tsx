@@ -1,6 +1,6 @@
 "use server";
 
-import { render } from "@react-email/components";
+import { render } from "react-email";
 import ApplicationStatusUpdateEmail from "@/emails/ApplicationStatusUpdateEmail";
 import { sendEmail } from "@/utils/email";
 

@@ -1,4 +1,4 @@
-import { render } from "@react-email/components";
+import { render } from "react-email";
 import RelevantJobsSetupUpdateEmail from "@/emails/RelevantJobsSetupUpdateEmail";
 import { sendEmail, sendEmailForStatusUpdate } from "@/utils/email";
 import { AllJobWithRelations, TAICredits } from "@/utils/types";

@@ -10,7 +10,7 @@ import {
   Tailwind,
   Row,
   Column,
-} from "@react-email/components";
+} from "react-email";
 import * as React from "react";
 
 interface BaseEmailLayoutProps {

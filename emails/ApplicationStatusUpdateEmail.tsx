@@ -1,6 +1,6 @@
 import * as React from "react";
 import { BaseEmailLayout } from "./BaseEmailLayout"; // Assuming BaseEmailLayout is in the same directory
-import { Heading, Text, Section, Button } from "@react-email/components";
+import { Heading, Text, Section, Button } from "react-email";
 
 // Define the component props for strong typing
 interface ApplicationStatusUpdateEmailProps {

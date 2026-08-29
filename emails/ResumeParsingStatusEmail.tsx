@@ -1,6 +1,6 @@
 import * as React from "react";
 import { BaseEmailLayout } from "./BaseEmailLayout";
-import { Heading, Text, Section, Button } from "@react-email/components";
+import { Heading, Text, Section, Button } from "react-email";
 
 interface ResumeParsingStatusEmailProps {
   resumeName: string;

@@ -1,6 +1,6 @@
 import RechargeEmail from "@/emails/RechargeEmail";
 import { sendEmail } from "@/utils/email";
-import { render } from "@react-email/components";
+import { render } from "react-email";
 
 export const sendEmailForRecharge = async (email: string, name: string) => {
   try {

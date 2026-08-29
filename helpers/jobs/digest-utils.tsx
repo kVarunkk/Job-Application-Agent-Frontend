@@ -1,6 +1,6 @@
 import JobDigestEmail from "@/emails/JobDigestEmail";
 import { createServiceRoleClient } from "../../lib/supabase/service-role";
-import { render } from "@react-email/components";
+import { render } from "react-email";
 import { AllJobWithRelations, TAICredits } from "@/utils/types";
 import { sendEmail } from "@/utils/email";
 import { RelevanceJobMessage } from "@/app/api/updates/applicants/digest/worker/route";

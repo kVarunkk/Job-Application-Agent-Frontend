@@ -1,14 +1,6 @@
 import * as React from "react";
 import { BaseEmailLayout } from "./BaseEmailLayout";
-import {
-  Heading,
-  Text,
-  Section,
-  Button,
-  Row,
-  Column,
-  Link,
-} from "@react-email/components";
+import { Heading, Text, Section, Button, Row, Column, Link } from "react-email";
 import { AppliedJob } from "@/app/api/updates/applicants/applications/route";
 
 interface ApplicationStatusReminderEmailProps {
