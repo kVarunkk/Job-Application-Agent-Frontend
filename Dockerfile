@@ -4,7 +4,8 @@ FROM node:22-alpine AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm install
+# RUN npm install
+RUN npm ci
 
 # Build
 FROM base AS builder
@@ -26,7 +27,10 @@ ENV NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=1536"
-RUN npm run build
+# RUN npm run build
+RUN mkdir -p .next
+RUN --mount=type=cache,target=/app/.next/cache,uid=1000,gid=1000 npm run build
+
 
 # Run
 FROM base AS runner

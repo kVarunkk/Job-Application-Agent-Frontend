@@ -97,6 +97,7 @@ export async function updateSession(request: NextRequest) {
     "/twitter-image.jpg",
     "/preview/AuthConfirmationEmai",
     "/auth/update-password",
+    "/api/debug/heapdump",
     // "/api/debug/memory",
   ];
 

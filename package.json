@@ -12,6 +12,7 @@
     "@ai-sdk/google": "^4.0.50",
     "@ai-sdk/react": "^3.0.5",
     "@getbrevo/brevo": "^5.0.4",
+    "@google-cloud/storage": "^8.0.1",
     "@hookform/resolvers": "^5.2.1",
     "@keystatic/core": "^0.5.48",
     "@keystatic/next": "^5.0.4",
