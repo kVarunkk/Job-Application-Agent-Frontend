@@ -1,5 +1,6 @@
 import { BrevoClient } from "@getbrevo/brevo";
 import { Resend } from "resend";
+import Mailjet from "node-mailjet";
 
 export async function sendEmail({
   toEmail,
@@ -14,22 +15,18 @@ export async function sendEmail({
 }) {
   const brevo = new BrevoClient({ apiKey: process.env.BREVO_API_KEY || "" });
 
+  // 1. BREVO
   try {
-    // 1. Proactively check if Brevo has daily credits remaining
     const accountInfo = await brevo.account.getAccount();
-
-    // Find the relevant plan (credits can be in 'plan' array or 'relay' depending on configuration)
     const dailyPlan = accountInfo.plan?.find((p) => p.type === "free");
     const creditsRemaining = dailyPlan ? dailyPlan.credits : 0;
 
     console.log("daily plan: ", dailyPlan);
 
-    // 2. If out of credits, force-throw an error to jump straight to Resend
     if (creditsRemaining !== undefined && creditsRemaining <= 0) {
       throw new Error("Brevo daily limit reached");
     }
 
-    // 3. Otherwise, proceed with Brevo
     const result = await brevo.transactionalEmails.sendTransacEmail({
       subject,
       htmlContent,
@@ -37,26 +34,77 @@ export async function sendEmail({
       to: [{ email: toEmail }],
     });
     console.log("Sent via Brevo:", result);
+    return; // Exit on success
   } catch (brevoError) {
     console.error(
-      "Brevo failed or limit reached, trying Resend fallback:",
+      "Brevo failed or limit reached, trying Mailjet fallback:",
       brevoError,
     );
+  }
 
-    try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
-        from: "GetHired <varun@devhub.co.in>",
-        to: [toEmail],
-        subject,
-        html: htmlContent,
-        text: textContent,
+  // 2. MAILJET FALLBACK
+  try {
+    const mailjet = Mailjet.apiConnect(
+      process.env.MJ_APIKEY_PUBLIC || "",
+      process.env.MJ_APIKEY_PRIVATE || "",
+    );
+
+    const mailjetResult = await mailjet
+      .post("send", { version: "v3.1" })
+      .request({
+        Messages: [
+          {
+            From: {
+              Email: "varun@devhub.co.in",
+              Name: "Varun from GetHired",
+            },
+            To: [{ Email: toEmail }],
+            Subject: subject,
+            HTMLPart: htmlContent,
+            TextPart: textContent,
+          },
+        ],
       });
-      console.log("Successfully sent via Resend fallback");
-    } catch (resendError) {
-      console.error("Resend fallback also failed:", resendError);
-      throw new Error(`Email delivery failed to ${toEmail}: ${resendError}`);
+
+    // const messageData = mailjetResult.body?.Messages?.[0];
+    const body = mailjetResult.body as { Messages?: Array<{ Status: string }> };
+    const messageData = body?.Messages?.[0];
+
+    // Check if Mailjet accepted and sent the message
+    if (messageData?.Status === "success") {
+      console.log("Successfully sent via Mailjet fallback");
+      return; // Exit on success
     }
+
+    throw new Error(
+      `Mailjet returned non-success status: ${messageData?.Status || "Unknown"}`,
+    );
+  } catch (mailjetError) {
+    console.error(
+      "Mailjet failed or limit reached, trying Resend fallback:",
+      mailjetError,
+    );
+  }
+
+  // 3. RESEND FALLBACK (LAST RESORT)
+  try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const resendResult = await resend.emails.send({
+      from: "GetHired <varun@devhub.co.in>",
+      to: [toEmail],
+      subject,
+      html: htmlContent,
+      text: textContent,
+    });
+
+    if (resendResult.error) {
+      throw new Error(resendResult.error.message);
+    }
+
+    console.log("Successfully sent via Resend fallback");
+  } catch (resendError) {
+    console.error("Resend fallback also failed:", resendError);
+    throw new Error(`Email delivery failed to ${toEmail}: ${resendError}`);
   }
 }
 

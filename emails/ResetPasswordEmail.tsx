@@ -25,7 +25,7 @@ export const ResetPasswordEmail = ({
           className="bg-black text-white py-3 px-6 rounded-md text-lg font-bold no-underline"
           style={{ backgroundColor: "#000000", color: "#FFFFFF" }}
         >
-          Accept Invite
+          Reset Password
         </Button>
       </Section>
 
