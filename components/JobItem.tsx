@@ -19,6 +19,8 @@ const JobItem = React.memo(
     isOnboardingComplete,
     isFavorite,
     appliedJob,
+    isLoading,
+    hasCredits,
   }: {
     job: AllJobWithRelations;
     userId: string | null;
@@ -30,6 +32,8 @@ const JobItem = React.memo(
       all_jobs_id: string;
       status: string;
     };
+    isLoading: boolean;
+    hasCredits: boolean;
   }) => {
     return (
       <div
@@ -83,6 +87,8 @@ const JobItem = React.memo(
             appliedJob={appliedJob}
             isJobIdPage={false}
             isDialogOpen={false}
+            isLoading={isLoading}
+            hasCredits={hasCredits}
           />
         </div>
         {job.status === "inactive" && (

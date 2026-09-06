@@ -174,6 +174,7 @@ export async function upsertJobPostingAction(params: {
             company_name: new_posting.company_info?.name,
             platform: "gethired",
             status: "inactive",
+            is_platform_job: true,
           })
           .select("id")
           .single();

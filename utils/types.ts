@@ -158,6 +158,7 @@ export enum TResumeReviewStatus {
 export enum TAICredits {
   AI_SEARCH_ASK_AI_RESUME = 5,
   AI_SUMMARY = 2,
+  JOB_APPLICATION = 1,
 }
 
 export enum TWaitlistType {
@@ -246,4 +247,13 @@ export enum PostHogEvent {
   FindSuitableJobsMatchingProfileUsed = "find_suitable_jobs_matching_profile_used",
   AiSearchUsed = "ai_search_used",
   AiGlobalSearchUsed = "ai_global_search_used",
+
+  ApplicationClicked = "application_clicked",
+  InHouseApplicationSubmitted = "in_house_application_submitted",
 }
+
+export type JobUrlPatch = {
+  id: string;
+  job_url: AllJobWithRelations["job_url"];
+  company_url: AllJobWithRelations["company_url"];
+};

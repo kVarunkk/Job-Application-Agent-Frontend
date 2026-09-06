@@ -9,7 +9,7 @@ import {
 } from "@/utils/types";
 import { PostgrestError } from "@supabase/supabase-js";
 import { getUserFromRequest } from "@/lib/supabase/get-user-from-request";
-export const allJobsSelectString = `id, created_at, updated_at, job_name, job_type, platform, locations, salary_range, visa_requirement, salary_min, salary_max, company_name, company_url, experience, experience_min, experience_max, equity_range, equity_min, equity_max, job_url, status, ai_summary`;
+export const allJobsSelectString = `id, created_at, updated_at, job_name, job_type, platform, locations, salary_range, visa_requirement, salary_min, salary_max, company_name, experience, experience_min, experience_max, equity_range, equity_min, equity_max, status, ai_summary, is_platform_job`;
 
 export const buildQuery = async ({
   jobType,
@@ -308,6 +308,31 @@ export const buildQuery = async ({
           "base64",
         );
       }
+    }
+
+    if (data && data.length > 0 && user?.id) {
+      const serviceRoleSupabase = createServiceRoleClient();
+      const jobIds = data.map((job) => job.id);
+      const { data: urlData } = await serviceRoleSupabase.rpc(
+        "get_masked_job_urls",
+        {
+          p_job_ids: jobIds,
+          p_user_id: user.id,
+        },
+      );
+
+      const urlMap = new Map(
+        (urlData ?? []).map((u) => [
+          u.id,
+          { job_url: u.job_url, company_url: u.company_url },
+        ]),
+      );
+
+      data.forEach((job) => {
+        const urls = urlMap.get(job.id);
+        job.job_url = urls?.job_url ?? null;
+        job.company_url = urls?.company_url ?? null;
+      });
     }
 
     return {

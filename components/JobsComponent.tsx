@@ -3,6 +3,7 @@
 import {
   AllJobWithRelations,
   AllProfileWithRelations,
+  JobUrlPatch,
   TCompanyInfo,
 } from "@/utils/types";
 import Link from "next/link";
@@ -52,9 +53,7 @@ export default function JobsComponent({
   dynamicKey,
 }: {
   initialJobs:
-    | AllJobWithRelations[]
-    | AllProfileWithRelations[]
-    | TCompanyInfo[];
+    AllJobWithRelations[] | AllProfileWithRelations[] | TCompanyInfo[];
   user: User | null;
   isCompanyUser: boolean;
   current_page: "jobs" | "profiles" | "companies";
@@ -92,6 +91,8 @@ export default function JobsComponent({
     },
   );
 
+  const hasCredits = (currentUserData?.profile?.ai_credits ?? 0) > 0;
+
   const { data, isLoading } = useSWR(
     jobPostingId ? `${JOB_POSTING_API_KEY}?jobId=${jobPostingId}` : null,
     fetcher,
@@ -100,6 +101,37 @@ export default function JobsComponent({
       revalidateOnReconnect: false,
       staleTime: 5 * 60 * 1000,
     },
+  );
+
+  const initialJobIds = useMemo(
+    () =>
+      current_page === "jobs"
+        ? (initialJobs as AllJobWithRelations[]).map((j) => j.id)
+        : [],
+    [initialJobs, current_page],
+  );
+
+  const { data: initialJobUrls, isLoading: isInitialJobUrlsLoading } = useSWR(
+    initialJobIds.length > 0
+      ? ["/api/jobs/urls", initialJobIds.join(",")]
+      : null,
+    () =>
+      fetch("/api/jobs/urls", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job_ids: initialJobIds }),
+      }).then((res) => res.json()),
+    { revalidateOnFocus: false, revalidateOnReconnect: false },
+  );
+
+  const initialJobUrlMap = useMemo(
+    () =>
+      new Map<string, JobUrlPatch>(
+        (initialJobUrls ?? []).map(
+          (u: JobUrlPatch) => [u.id, u] as [string, JobUrlPatch],
+        ),
+      ),
+    [initialJobUrls],
   );
 
   // for companyUsers
@@ -272,9 +304,22 @@ export default function JobsComponent({
     }
 
     if (current_page === "jobs") {
-      const items = jobs.filter(
-        (job): job is AllJobWithRelations => "job_name" in job,
-      );
+      // const items = jobs.filter(
+      //   (job): job is AllJobWithRelations => "job_name" in job,
+      // );
+
+      const items = jobs
+        .filter((job): job is AllJobWithRelations => "job_name" in job)
+        .map((job) => {
+          const patchedUrls = initialJobUrlMap.get(job.id);
+          return patchedUrls
+            ? {
+                ...job,
+                job_url: patchedUrls.job_url,
+                company_url: patchedUrls.company_url,
+              }
+            : job;
+        });
 
       const items1 = items
         .filter((_, i, arr) => i < arr.length - 20)
@@ -288,6 +333,8 @@ export default function JobsComponent({
             isOnboardingComplete={isOnboardingComplete}
             isFavorite={!!favoriteJobs?.some((fav) => fav.job_id === job.id)}
             appliedJob={appliedJobs?.find((app) => app.all_jobs_id === job.id)}
+            isLoading={isInitialJobUrlsLoading}
+            hasCredits={hasCredits}
           />
         ));
       const items2 = items
@@ -302,6 +349,8 @@ export default function JobsComponent({
             isOnboardingComplete={isOnboardingComplete}
             isFavorite={!!favoriteJobs?.some((fav) => fav.job_id === job.id)}
             appliedJob={appliedJobs?.find((app) => app.all_jobs_id === job.id)}
+            isLoading={isInitialJobUrlsLoading}
+            hasCredits={hasCredits}
           />
         ));
 
@@ -338,6 +387,8 @@ export default function JobsComponent({
     user,
     companyId,
     currentUserData,
+    initialJobUrlMap,
+    isInitialJobUrlsLoading,
   ]);
 
   return (

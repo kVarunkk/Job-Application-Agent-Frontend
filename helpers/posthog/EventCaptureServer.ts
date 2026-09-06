@@ -12,7 +12,6 @@ export async function eventCaptureServer({
 }) {
   try {
     const posthog = PostHogClient();
-    console.log(distinctId, event, properties);
     posthog.capture({ distinctId, event, properties });
     await posthog.shutdown();
   } catch (err) {

@@ -165,7 +165,7 @@ export function buildJobPostingJsonLd(job: TJobIdPageData) {
   const description = stripHtml(job?.description || job?.ai_summary || "");
   const companyName = job?.company_name?.trim() || "Confidential Company";
   const datePosted = toISODate(job?.created_at);
-  const companyUrl = job?.company_url?.trim();
+  // const companyUrl = job?.company_url?.trim();
   const locations = Array.isArray(job?.normalized_locations)
     ? job.normalized_locations.filter((loc): loc is string =>
         Boolean(loc && loc.trim()),
@@ -184,7 +184,7 @@ export function buildJobPostingJsonLd(job: TJobIdPageData) {
     hiringOrganization: {
       "@type": "Organization",
       name: companyName,
-      ...(companyUrl ? { sameAs: companyUrl } : {}),
+      // ...(companyUrl ? { sameAs: companyUrl } : {}),
     },
     identifier: {
       "@type": "PropertyValue",
@@ -193,7 +193,10 @@ export function buildJobPostingJsonLd(job: TJobIdPageData) {
     },
     ...(datePosted ? { datePosted } : {}),
     ...(employmentType ? { employmentType } : {}),
-    ...(job?.job_url ? { url: job.job_url, directApply: true } : {}),
+    ...{
+      url: `https://gethired.devhub.co.in/jobs/${job.id}`,
+      directApply: true,
+    },
   };
 
   if (isRemote) {

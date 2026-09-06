@@ -17,15 +17,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { AllJobWithRelations } from "@/utils/types";
+import { AllJobWithRelations, PostHogEvent } from "@/utils/types";
 import { createClient } from "@/lib/supabase/client";
 import ResumeSourceSelector from "./ResumeSourceSelector";
 import { cn, fetcher, PROFILE_API_KEY } from "@/utils/utils";
 import { TJobIdPageData } from "@/utils/types/jobs.types";
 import { uploadResumeAction } from "@/app/actions/upload-resume-file";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { TResumeReviewResume } from "@/utils/types/review.types";
 import { revalidateCacheAction } from "@/app/actions/revalidate-tag";
+import { deductApplicationCreditsAction } from "@/app/actions/deduct-application-credits";
 
 const createFormSchema = (questions: string[]) => {
   const schemaFields = questions.reduce<Record<string, z.ZodTypeAny>>(
@@ -113,6 +114,15 @@ export default function JobApplicationForm({
       });
 
       if (error) throw error;
+
+      const result = await deductApplicationCreditsAction(
+        jobPost.id,
+        PostHogEvent.InHouseApplicationSubmitted,
+      );
+
+      if (result.success) {
+        await mutate(PROFILE_API_KEY);
+      }
 
       await revalidateCacheAction(`profile-${userId}`);
 

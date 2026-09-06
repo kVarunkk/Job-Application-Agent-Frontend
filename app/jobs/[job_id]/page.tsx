@@ -30,7 +30,11 @@ const getStaticJobDetails = (jobId: string): Promise<TJobIdPageData | null> =>
         .single();
 
       if (error || !data) return null;
-      return data;
+      return {
+        ...data,
+        job_url: null,
+        company_url: null,
+      };
     },
     [`job-detail-${jobId}`],
     { revalidate: 604800, tags: [`job-${jobId}`] },

@@ -4,12 +4,16 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import JobApplicationDialog from "./JobApplicationDialog";
 import { ArrowRight, MoreHorizontal } from "lucide-react";
-import { AllJobWithRelations } from "@/utils/types";
+import { AllJobWithRelations, PostHogEvent } from "@/utils/types";
 import { useState } from "react";
 import PropagationStopper from "./StopPropagation";
 import InfoTooltip from "./InfoTooltip";
 import JobStatusDialog from "@/helpers/jobs/JobStatusDialog";
 import { TJobIdPageData } from "@/utils/types/jobs.types";
+import { Skeleton } from "./ui/skeleton";
+import { deductApplicationCreditsAction } from "@/app/actions/deduct-application-credits";
+import { PROFILE_API_KEY } from "@/utils/utils";
+import { mutate } from "swr";
 
 export default function JobApplyBtn({
   isCompanyUser,
@@ -19,6 +23,8 @@ export default function JobApplyBtn({
   appliedJob,
   isJobIdPage,
   isDialogOpen,
+  isLoading,
+  hasCredits,
 }: {
   isCompanyUser: boolean;
   userId: string | null;
@@ -30,56 +36,75 @@ export default function JobApplyBtn({
   };
   isJobIdPage: boolean;
   isDialogOpen: boolean;
+  isLoading: boolean;
+  hasCredits: boolean;
 }) {
   const [showReturnDialog, setShowReturnDialog] = useState(false);
 
   return (
     <>
       {isCompanyUser ? null : userId ? (
-        job.job_url ? (
+        isLoading ? (
+          <Skeleton className="h-8 w-24" />
+        ) : !job.is_platform_job ? (
           appliedJob?.status ? (
-            <PropagationStopper>
-              <div className="flex items-center gap-2">
-                <Button className="capitalize" disabled>
-                  {appliedJob.status}
-                </Button>
+            hasCredits && job.job_url ? (
+              <PropagationStopper>
+                <div className="flex items-center gap-2">
+                  <Button className="capitalize" disabled>
+                    {appliedJob.status}
+                  </Button>
 
-                <InfoTooltip
-                  content={
-                    <p>
-                      Your current application status is{" "}
-                      <b className="capitalize">{appliedJob.status}</b>.
-                      You&apos;ll have to manually track your application status
-                      via the{" "}
-                      <Link
-                        onClick={(e) => e.stopPropagation()}
-                        className="underline text-blue-500"
-                        href={job.job_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Original Job Posting
-                      </Link>
-                      . You can update your status by clicking on{" "}
-                      <MoreHorizontal className="h-4 w-4 inline-block mx-1" />{" "}
-                      button{" "}
-                      {!isJobIdPage && (
+                  <InfoTooltip
+                    content={
+                      <p>
+                        Your current application status is{" "}
+                        <b className="capitalize">{appliedJob.status}</b>.
+                        You&apos;ll have to manually track your application
+                        status via the{" "}
                         <Link
                           onClick={(e) => e.stopPropagation()}
                           className="underline text-blue-500"
-                          href={`/jobs/${job.id}`}
+                          href={job.job_url}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          here.
+                          Original Job Posting
                         </Link>
-                      )}
-                    </p>
-                  }
-                />
-              </div>
-            </PropagationStopper>
-          ) : (
+                        . You can update your status by clicking on{" "}
+                        <MoreHorizontal className="h-4 w-4 inline-block mx-1" />{" "}
+                        button{" "}
+                        {!isJobIdPage && (
+                          <Link
+                            onClick={(e) => e.stopPropagation()}
+                            className="underline text-blue-500"
+                            href={`/jobs/${job.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            here.
+                          </Link>
+                        )}
+                      </p>
+                    }
+                  />
+                </div>
+              </PropagationStopper>
+            ) : (
+              <Link
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                href={"/dashboard/buy-credits"}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button>
+                  Recharge to Track <ArrowRight />
+                </Button>
+              </Link>
+            )
+          ) : hasCredits && job.job_url ? (
             <Link
               onClick={(e) => {
                 e.stopPropagation();
@@ -89,12 +114,34 @@ export default function JobApplyBtn({
               rel="noopener noreferrer"
             >
               <Button
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
                   setShowReturnDialog(true);
+
+                  const result = await deductApplicationCreditsAction(
+                    job.id,
+                    PostHogEvent.ApplicationClicked,
+                  );
+
+                  if (result.success) {
+                    await mutate(PROFILE_API_KEY);
+                  }
                 }}
               >
                 Apply Now <ArrowRight />
+              </Button>
+            </Link>
+          ) : (
+            <Link
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              href={"/dashboard/buy-credits"}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button>
+                Recharge to Apply <ArrowRight />
               </Button>
             </Link>
           )

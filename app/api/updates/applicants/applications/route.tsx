@@ -5,7 +5,7 @@ import ApplicationStatusReminderEmail from "@/emails/ApplicationStatusReminderEm
 import { headers } from "next/headers";
 import { sendEmail, sendEmailForStatusUpdate } from "@/utils/email";
 import React from "react";
-import { INTERNAL_API_SECRET } from "@/utils/formatters";
+import { deploymentUrl, INTERNAL_API_SECRET } from "@/utils/formatters";
 
 const DAYS_AGO = 7;
 
@@ -19,6 +19,8 @@ export interface AppliedJob {
   salary_range: string;
   job_url?: string;
 }
+
+const BASE_URL = deploymentUrl();
 
 export async function GET() {
   const headersList = await headers();
@@ -43,7 +45,7 @@ export async function GET() {
                 id, created_at, status, 
                 applicant_user_id,
                 user_info ( email, full_name, user_id ), 
-                all_jobs (id, job_name, company_name, locations, job_type, salary_range, job_url ) 
+                all_jobs (id, job_name, company_name, locations, job_type, salary_range ) 
             `,
       )
       .gte("created_at", sevenDaysAgo)
@@ -91,7 +93,7 @@ export async function GET() {
           job_type: job.job_type,
           locations: job.locations,
           salary_range: job.salary_range,
-          job_url: job.job_url,
+          job_url: `${BASE_URL}/jobs/${job.id}`,
         });
       }
     });

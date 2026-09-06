@@ -37,6 +37,7 @@ const jobIdSelectString = `
              ${allJobsSelectString},
              normalized_locations,
               description,
+              job_url, company_url,
               job_postings(*, company_info(*))
           `;
 
